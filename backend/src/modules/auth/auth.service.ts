@@ -38,6 +38,7 @@ class AuthService {
     username,
     email,
     password,
+    role = 2,
     phone,
   }: SignupDto): Promise<IUser> {
     const checkExistingUser = await this.userRepo.findOne({
@@ -49,11 +50,15 @@ class AuthService {
     if (checkExistingUser) {
       throw new ConflictException("This email already exists");
     }
+    if (role < 1 || role > 2) {
+      throw new BadRequestException("Invalid role input");
+    }
     const user =
       (await this.userRepo.createOne({
         data: {
           username,
           email,
+          role,
           password: password,
           phone: phone ? phone : null,
         },
@@ -83,7 +88,7 @@ class AuthService {
         paranoid: false,
       },
     });
-    console.log(user);
+
     if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
       throw new UnauthorizedException("Invalid login credentials");
     }

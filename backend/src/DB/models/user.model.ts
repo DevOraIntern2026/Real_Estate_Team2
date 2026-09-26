@@ -77,8 +77,6 @@ userSchema.pre("deleteOne", { document: true }, function () {});
 
 //////////////////////// Find
 userSchema.pre(["findOne", "find"], function () {
-  //////// to check search query or filter
-  // console.log(this.getFilter());
   const query = this.getFilter();
   if (query.paranoid === false) {
     this.setQuery({ ...query });
