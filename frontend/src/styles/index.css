@@ -1,10 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@900&family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@500;900&family=Roboto:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
   /* TYPOGRAPHY */
   --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   --font-poppins: 'Poppins', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+
+  --text-auth-heading: 40px;
+  --text-auth-heading--line-height: 48px;
+  --text-auth-brand: 48px;
+  --text-auth-brand--line-height: 54px;
+  --text-auth-brand-caption: 12px;
+  --text-auth-brand-caption--line-height: 16px;
+  --text-auth-input: 14px;
+  --text-auth-input--line-height: 18px;
+
+  /* Auth screen layout values from the Homli Figma frame */
+  --container-auth-layout: 1232px;
+  --spacing-auth-brand: 240px;
+  --spacing-auth-brand-height: 97px;
+  --spacing-auth-brand-mark-width: 67px;
+  --spacing-auth-brand-mark-height: 55px;
+  --spacing-auth-brand-padding-x: 9px;
+  --spacing-auth-brand-padding-y: 7px;
+  --spacing-auth-panel: 640px;
+  --spacing-auth-layout-gap: 26px;
+  --spacing-auth-hero-width: 566px;
+  --spacing-auth-hero-height: 443px;
+  --spacing-auth-social-height: 55px;
+  --scale-auth-brand: 0.82;
+
+  --breakpoint-auth-tablet: 56.25rem;
+  --breakpoint-auth-mobile: 32.5rem;
 
   /* Large titles — Bold only */
   --text-display-64: 64px; /* 64px */
@@ -67,6 +95,14 @@
   --color-brand-800: #4d2709;
   --color-brand-900: #2c0d00;
   --color-brand-950: #0f0000;
+
+  /* Signup screen values from the Homli Figma frame */
+  --color-text-heading: #313131;
+  --color-text-input: #1f2a37;
+  --color-text-google: #151a2d;
+  --color-brand-yellow: #ffce21;
+  --color-text-brand-muted: #8b92a0;
+  --color-border-google: #a4a4a4;
 
   /* Main colors — interactive elements (buttons, tags, tooltips) */
   --color-main-shade-01: var(--color-brand-50);
@@ -178,6 +214,14 @@
   body {
     background-color: var(--color-bg-light);
     color: var(--color-text-grey-dark);
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-bg-white) inset;
+    -webkit-text-fill-color: var(--color-text-input);
+    transition: background-color 9999s ease-out 0s;
   }
 }
 

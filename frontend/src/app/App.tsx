@@ -1,11 +1,7 @@
+import SignUpPage from '@/features/auth/pages/sign-up/SignUpPage'
+
 function App() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-4xl font-bold text-blue-600">
-        Real State App (Devora)
-      </h1>
-    </div>
-  )
+  return <SignUpPage />
 }
 
 export default App
