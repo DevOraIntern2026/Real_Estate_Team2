@@ -1,12 +1,20 @@
 import type { ButtonHTMLAttributes } from 'react'
 import { Button } from '@/components/ui/Button'
 
-type OAuthButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
+type OAuthButtonProps = Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  'children'
+> & {
   icon: string
   provider: string
 }
 
-export function OAuthButton({ className, icon, provider, ...buttonProps }: OAuthButtonProps) {
+export function OAuthButton({
+  className,
+  icon,
+  provider,
+  ...buttonProps
+}: OAuthButtonProps) {
   return (
     <Button
       {...buttonProps}

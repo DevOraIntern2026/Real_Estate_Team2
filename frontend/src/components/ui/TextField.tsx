@@ -2,7 +2,10 @@ import type { InputHTMLAttributes, ReactNode, Ref } from 'react'
 import clsx from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
-export type TextFieldProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'className' | 'size'> & {
+export type TextFieldProps = Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  'className' | 'size'
+> & {
   controlClassName?: string
   endAdornment?: ReactNode
   error?: string
@@ -36,7 +39,10 @@ export function TextField({
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
-      <label className="text-label-14 font-medium text-text-grey-shade" htmlFor={inputId}>
+      <label
+        className="text-label-14 text-text-grey-shade font-medium"
+        htmlFor={inputId}
+      >
         {label}
       </label>
       <div className={classes}>
@@ -46,7 +52,7 @@ export function TextField({
           aria-invalid={Boolean(error)}
           autoComplete={autoComplete}
           className={twMerge(
-            'w-full min-w-0 border-0 bg-transparent font-inter text-auth-input font-normal text-text-input outline-none placeholder:text-text-grey-light',
+            'font-inter text-auth-input text-text-input placeholder:text-text-grey-light w-full min-w-0 border-0 bg-transparent font-normal outline-none',
             inputClassName,
           )}
           id={inputId}
@@ -56,7 +62,14 @@ export function TextField({
         />
         {endAdornment}
       </div>
-      {error && <p className="m-0 text-caption-12 text-error-dark" id={`${inputId}-error`}>{error}</p>}
+      {error && (
+        <p
+          className="text-caption-12 text-error-dark m-0"
+          id={`${inputId}-error`}
+        >
+          {error}
+        </p>
+      )}
     </div>
   )
 }

@@ -11,7 +11,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 
 const variants = {
   primary: 'border-transparent bg-brand-700 text-main-white hover:bg-brand-800',
-  outline: 'border-border-grey-shade bg-bg-white text-text-grey-dark hover:bg-bg-light',
+  outline:
+    'border-border-grey-shade bg-bg-white text-text-grey-dark hover:bg-bg-light',
   ghost: 'border-transparent bg-transparent text-brand-700 hover:bg-bg-light',
 }
 

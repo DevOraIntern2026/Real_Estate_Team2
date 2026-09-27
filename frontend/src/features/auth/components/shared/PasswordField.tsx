@@ -11,7 +11,7 @@ export function PasswordField(props: PasswordFieldProps) {
   return (
     <TextField
       {...props}
-      endAdornment={(
+      endAdornment={
         <Button
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
@@ -20,9 +20,13 @@ export function PasswordField(props: PasswordFieldProps) {
           size="sm"
           variant="ghost"
         >
-          {visible ? <Eye className="h-5 w-5" aria-hidden="true" /> : <EyeOff className="h-5 w-5" aria-hidden="true" />}
+          {visible ? (
+            <Eye className="h-5 w-5" aria-hidden="true" />
+          ) : (
+            <EyeOff className="h-5 w-5" aria-hidden="true" />
+          )}
         </Button>
-      )}
+      }
       type={visible ? 'text' : 'password'}
     />
   )
