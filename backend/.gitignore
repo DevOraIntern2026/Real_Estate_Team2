@@ -1,6 +1,5 @@
-
-src/common/config/
 node_modules/
 .env
 .env.*
 dist/
+pnpm-lock.yaml
