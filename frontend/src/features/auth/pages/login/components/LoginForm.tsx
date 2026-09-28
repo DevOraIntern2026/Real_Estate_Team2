@@ -45,7 +45,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           error={errors.email?.message}
           label="Email"
           name="email"
-         
+                 placeholder='Enter your Email'
+
           required
           type="email"
         />
@@ -54,6 +55,8 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           autoComplete="current-password"
           controlClassName="min-h-12"
           error={errors.password?.message}
+                  placeholder='Enter your Password'
+
           label="Password"
           name="password"
         

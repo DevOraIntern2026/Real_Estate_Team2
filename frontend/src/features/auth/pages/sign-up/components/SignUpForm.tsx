@@ -51,6 +51,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             error={errors.fullName?.message}
             label="Full Name"
             name="fullName"
+            placeholder="Full Name"
             required
           />
           <TextField
@@ -59,6 +60,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             error={errors.email?.message}
             label="Email"
             name="email"
+            placeholder="Enter your Email"
             required
             type="email"
           />
@@ -68,6 +70,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
             error={errors.password?.message}
             label="Password"
             name="password"
+            placeholder="Enter your Password"
             required
           />
           <RoleSelect />
@@ -75,7 +78,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         </div>
         <div className="flex flex-col gap-4">
           <Button className="text-main-white" fullWidth size="lg" type="submit">
-            Login
+           Register
           </Button>
           <AuthFooterLink
             href="/login"

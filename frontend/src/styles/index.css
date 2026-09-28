@@ -37,6 +37,11 @@
   --spacing-auth-login-form-offset: 53px;
   --spacing-auth-login-form: 40px;
   --spacing-auth-login-field: 16px;
+  --spacing-auth-forgot-layout: 1182px;
+  --spacing-auth-forgot-brand-gap: 61px;
+  --spacing-auth-forgot-columns: 104px;
+  --spacing-auth-forgot-section: 48px;
+  --spacing-auth-forgot-submit: 32px;
   --spacing-auth-social-height: 55px;
   --scale-auth-brand: 0.82;
 
