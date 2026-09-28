@@ -18,23 +18,22 @@ export const login = {
   }),
 };
 export const signup = {
-  body: z
-    .strictObject({
-      username: generalValidationFields.username,
-      email: generalValidationFields.email,
-      role: generalValidationFields.role,
-      password: generalValidationFields.password,
-      phone: generalValidationFields.phone.optional(),
-      confirmPassword: generalValidationFields.confirmPassword,
-      gender: generalValidationFields.gender,
-    })
-    .refine(
-      // for multiple logic we use superRefine instead
-      (inputs) => {
-        return inputs.password === inputs.confirmPassword;
-      },
-      { error: "Make sure that both passwords match" },
-    ),
+  body: z.strictObject({
+    username: generalValidationFields.username,
+    email: generalValidationFields.email,
+    role: generalValidationFields.role,
+    password: generalValidationFields.password,
+    phone: generalValidationFields.phone.optional(),
+    // confirmPassword: generalValidationFields.confirmPassword,
+    // gender: generalValidationFields.gender,
+  }),
+  // .refine(
+  //   // for multiple logic we use superRefine instead
+  //   (inputs) => {
+  //     return inputs.password === inputs.confirmPassword;
+  //   },
+  //   { error: "Make sure that both passwords match" },
+  // ),
 };
 
 export const confirmEmail = {

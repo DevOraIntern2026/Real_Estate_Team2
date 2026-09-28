@@ -20,12 +20,13 @@ export const generalValidationFields = {
     .regex(/^(00201|\+201|01)(0|1|2|5)\d{8}$/, {
       error: "Make sure to enter a valid phone number",
     }),
-  confirmPassword: z.coerce.string(),
-  gender: z
-    .enum(["male", "female"], {
-      error: "Gender must be either male or female",
-    })
-    .default("male"),
+  // confirmPassword: z.coerce.string(),
+  // gender: z
+  //   .enum(["male", "female"], {
+  //     error: "Gender must be either male or female",
+  //   })
+  //   .default("male")
+  //   .optional(),
   otp: z.string("OTP code is required").regex(/^\d{6}$/, {
     error: "Make sure to enter a valid OTP code",
   }),
