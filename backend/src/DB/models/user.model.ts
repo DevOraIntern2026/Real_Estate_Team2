@@ -1,6 +1,6 @@
 import { HydratedDocument, model, models, Schema } from "mongoose";
 import { IUser } from "../../common/interfaces";
-import { GenderEnum, RoleEnum } from "../../common/enums";
+import { GenderEnum, ProviderEnums, RoleEnum } from "../../common/enums";
 import { encrypt, generateHash } from "../../common/utils/security";
 
 const userSchema = new Schema<IUser>(
@@ -8,7 +8,13 @@ const userSchema = new Schema<IUser>(
     firstName: { type: String, required: true, maxLength: 20 },
     lastName: { type: String, required: true, maxLength: 20 },
     email: { type: String, unique: true, required: true, maxLength: 60 },
-    password: { type: String, required: true, maxLength: 150 },
+    password: {
+      type: String,
+      required: function (this: HydratedDocument<IUser>) {
+        return this.provider === ProviderEnums.SYSTEM;
+      },
+      maxLength: 150,
+    },
     phone: { type: String, maxLength: 20 },
     bio: { type: String, maxLength: 200 },
     profileImage: { type: String },

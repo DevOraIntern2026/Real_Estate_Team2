@@ -30,3 +30,6 @@ export const ACCESS_TOKEN_EXPIRATION_TIME =
 export const REFRESH_TOKEN_EXPIRATION_TIME =
   process.env.REFRESH_TOKEN_EXPIRATION_TIME;
 export const INVITE_SECRET = process.env["INVITE_SECRET"];
+
+// google Signup&Login
+export const WEB_CLIENT_ID = process.env.WEB_CLIENT_ID as string;

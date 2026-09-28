@@ -80,6 +80,23 @@ router.post(
       res,
     });
   },
+  ////////////////// Google auth
+  router.post(
+    "/signup/gmail",
+    validation(validators.roleValidation),
+    async (req, res, next) => {
+      const account = await authService.signupWithGmail(
+        req.body.idToken,
+        req.body.role,
+        `${req.protocol}://${req.host}`,
+      );
+      successResponse({
+        message: "Account created successfully",
+        res,
+        data: account,
+      });
+    },
+  ),
 );
 
 export default router;

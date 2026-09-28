@@ -1,4 +1,4 @@
-import { GenderEnum, RoleEnum } from "../enums";
+import { GenderEnum, ProviderEnums, RoleEnum } from "../enums";
 
 export interface IUser {
   firstName: string;
@@ -9,7 +9,7 @@ export interface IUser {
   phone?: string;
   bio?: string;
   // friends?: Types.ObjectId[] | IUser[];
-  provider: number;
+  provider: ProviderEnums;
   profileImage?: string;
   coverImages?: string[];
   role: RoleEnum;

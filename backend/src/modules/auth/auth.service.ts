@@ -1,9 +1,11 @@
-import { DUMMY_HASH } from "../../common/config/config";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+import { DUMMY_HASH, WEB_CLIENT_ID } from "../../common/config/config";
 import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
 
 import {
   BadRequestException,
   ConflictException,
+  internalServerError,
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
@@ -19,6 +21,7 @@ import { UserRepo } from "../../DB/repo/user.repo";
 import {
   ConfirmEmailDto,
   LoginDto,
+  LoginResponse,
   resendConfirmationEmailDto,
   SignupDto,
 } from "./auth.dto";
@@ -302,6 +305,72 @@ class AuthService {
       this.redis.redisBaseRevokeTokenKey(userAccount._id),
     );
     await this.redis.redisDelKeys([...allOtpKeys, ...tokenKeys]);
+  }
+
+  //////////////// Google login and signup
+  async verifyGoogleAccount(idToken: string): Promise<TokenPayload> {
+    const client = new OAuth2Client();
+    if (!WEB_CLIENT_ID) {
+      throw new internalServerError("missing web client ID");
+    }
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: WEB_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload) throw new BadRequestException("No payload found");
+    if (!payload.email_verified) {
+      throw new BadRequestException(
+        "Failed to authenticate this account with gmail",
+      );
+    }
+    return payload;
+  }
+
+  async signupWithGmail(
+    idToken: string,
+    role: number,
+    issuer: string,
+  ): Promise<{
+    loginTokens: LoginResponse;
+    status?: number;
+  }> {
+    const payload = await this.verifyGoogleAccount(idToken);
+
+    const existingUser = await this.userRepo.findOne({
+      filter: {
+        email: payload.email as string,
+      },
+    });
+    if (existingUser) {
+      if (existingUser.provider !== ProviderEnums.GOOGLE) {
+        throw new ConflictException("Invalid account provider");
+      }
+      // login with gmail
+      const loginTokens = await this.tokenService.createLoginTokens(
+        existingUser,
+        issuer,
+      );
+      return { loginTokens, status: 200 };
+    }
+    const createdUser = await this.userRepo.createOne({
+      data: {
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        email: payload.email,
+        role,
+        provider: ProviderEnums.GOOGLE,
+        profileImage: payload.picture,
+        confirmedAt: new Date(),
+      },
+    });
+
+    return {
+      loginTokens: await this.tokenService.createLoginTokens(
+        createdUser,
+        issuer,
+      ),
+    };
   }
 }
 

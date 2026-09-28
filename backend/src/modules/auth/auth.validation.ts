@@ -57,3 +57,12 @@ export const verifyPasswordReset = {
     newPassword: generalValidationFields.password,
   }),
 };
+
+export const roleValidation = {
+  body: z.strictObject({
+    idToken: z
+      .string({ error: "missing idToken" })
+      .nonempty({ error: "missing idToken" }),
+    role: generalValidationFields.role,
+  }),
+};
