@@ -42,6 +42,8 @@
   --spacing-auth-forgot-columns: 104px;
   --spacing-auth-forgot-section: 48px;
   --spacing-auth-forgot-submit: 32px;
+  --spacing-auth-verify-panel-offset: 100px;
+  --spacing-auth-verify-submit: 32px;
   --spacing-auth-social-height: 55px;
   --scale-auth-brand: 0.82;
 
