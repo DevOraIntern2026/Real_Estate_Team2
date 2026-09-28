@@ -7,7 +7,6 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
-import { IUser } from "../../common/interfaces";
 import { TokenService } from "../../common/services/jwt";
 import { redisService, RedisService } from "../../common/services/redis";
 import { emailEmitter, generateOTP, sendEmail } from "../../common/utils/email";
@@ -40,7 +39,7 @@ class AuthService {
     password,
     role = 2,
     phone,
-  }: SignupDto): Promise<IUser> {
+  }: SignupDto): Promise<null> {
     const checkExistingUser = await this.userRepo.findOne({
       filter: { email },
       projection: "email",
@@ -74,7 +73,7 @@ class AuthService {
       });
     });
 
-    return user;
+    return null;
   }
   async login(
     { email, password }: LoginDto,

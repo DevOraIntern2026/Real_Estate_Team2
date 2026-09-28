@@ -12,12 +12,11 @@ router.post(
   "/signup",
   validation(validators.signup),
   async (req, res, next) => {
-    const data = await authService.signup(req.body);
+    await authService.signup(req.body);
     successResponse<IUser>({
       message:
         "Account created successfully, a confirmation OTP was sent to your email",
       res,
-      data,
       status: 201,
     });
   },
