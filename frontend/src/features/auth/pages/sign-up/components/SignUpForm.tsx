@@ -78,7 +78,7 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
         </div>
         <div className="flex flex-col gap-4">
           <Button className="text-main-white" fullWidth size="lg" type="submit">
-           Register
+            Register
           </Button>
           <AuthFooterLink
             href="/login"

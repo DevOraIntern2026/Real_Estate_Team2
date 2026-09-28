@@ -11,7 +11,10 @@ import {
   PasswordField,
 } from '@/features/auth/components/shared'
 import googleMark from '@/assets/icons/google.svg'
-import { loginSchema, type LoginFormValues } from '@/features/auth/schemas/loginSchema'
+import {
+  loginSchema,
+  type LoginFormValues,
+} from '@/features/auth/schemas/loginSchema'
 
 type LoginFormProps = {
   onSubmit?: (values: LoginFormValues) => void
@@ -33,11 +36,11 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
 
   return (
     <form
-      className="mt-auth-login-form-offset flex flex-col gap-auth-login-form"
+      className="mt-auth-login-form-offset gap-auth-login-form flex flex-col"
       noValidate
       onSubmit={submitForm}
     >
-      <div className="flex flex-col gap-auth-login-field">
+      <div className="gap-auth-login-field flex flex-col">
         <TextField
           {...register('email')}
           autoComplete="email"
@@ -45,7 +48,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           error={errors.email?.message}
           label="Email"
           name="email"
-                 placeholder='Enter your Email'
+          placeholder="Enter your Email"
 
           required
           type="email"
@@ -55,17 +58,17 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           autoComplete="current-password"
           controlClassName="min-h-12"
           error={errors.password?.message}
-                  placeholder='Enter your Password'
+          placeholder="Enter your Password"
 
           label="Password"
           name="password"
-        
+
           required
         />
         <div className="flex min-h-6 items-center justify-between gap-4">
           <CheckboxField
             {...register('rememberMe')}
-          defaultChecked
+            defaultChecked
             label="Remember me"
             name="rememberMe"
           >

@@ -15,17 +15,17 @@ type VerifyOtpPageProps = {
 
 function VerifyOtpPage({ onResend, onSubmit }: VerifyOtpPageProps) {
   return (
-    <main className="min-h-screen bg-bg-white px-8 py-12 text-text-heading max-auth-tablet:px-6 max-auth-tablet:py-8 max-auth-mobile:px-5 max-auth-mobile:py-6">
-      <div className="mx-auto w-full max-w-auth-forgot-layout">
+    <main className="bg-bg-white text-text-heading max-auth-tablet:px-6 max-auth-tablet:py-8 max-auth-mobile:px-5 max-auth-mobile:py-6 min-h-screen px-8 py-12">
+      <div className="max-w-auth-forgot-layout mx-auto w-full">
         <AuthBrand />
-        <div className="flex items-start gap-auth-forgot-columns max-auth-tablet:justify-center">
+        <div className="gap-auth-forgot-columns max-auth-tablet:justify-center flex items-start">
           <section
             aria-labelledby="auth-title"
-            className="w-auth-login-panel basis-auth-login-panel flex flex-col gap-auth-forgot-section pt-auth-verify-panel-offset max-auth-tablet:w-full max-auth-tablet:max-w-auth-panel max-auth-tablet:flex-auto max-auth-tablet:pt-0"
+            className="w-auth-login-panel basis-auth-login-panel gap-auth-forgot-section pt-auth-verify-panel-offset max-auth-tablet:w-full max-auth-tablet:max-w-auth-panel max-auth-tablet:flex-auto max-auth-tablet:pt-0 flex flex-col"
           >
             <header className="flex flex-col gap-4">
               <Link
-                className="text-label-14 text-text-heading inline-flex w-fit items-center gap-1 no-underline hover:text-brand-700"
+                className="text-label-14 text-text-heading hover:text-brand-700 inline-flex w-fit items-center gap-1 no-underline"
                 to="/login"
               >
                 <ArrowLeft aria-hidden="true" className="h-5 w-5" />

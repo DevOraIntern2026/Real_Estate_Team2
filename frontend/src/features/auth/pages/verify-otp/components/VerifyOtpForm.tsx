@@ -25,7 +25,7 @@ export function VerifyOtpForm({ onResend, onSubmit }: VerifyOtpFormProps) {
   return (
     <FormProvider {...methods}>
       <form
-        className="flex flex-col gap-auth-verify-submit"
+        className="gap-auth-verify-submit flex flex-col"
         noValidate
         onSubmit={submitForm}
       >
@@ -45,7 +45,7 @@ export function VerifyOtpForm({ onResend, onSubmit }: VerifyOtpFormProps) {
           <p className="text-label-14 text-text-heading m-0 text-center">
             Didn’t receive a code?{' '}
             <button
-              className="text-error-dark cursor-pointer border-0 bg-transparent p-0 font-inherit"
+              className="text-error-dark font-inherit cursor-pointer border-0 bg-transparent p-0"
               onClick={onResend}
               type="button"
             >
@@ -53,7 +53,7 @@ export function VerifyOtpForm({ onResend, onSubmit }: VerifyOtpFormProps) {
             </button>
           </p>
         </div>
-        <Button  className='text-main-white'fullWidth size="lg" type="submit">
+        <Button className="text-main-white" fullWidth size="lg" type="submit">
           Verify
         </Button>
       </form>

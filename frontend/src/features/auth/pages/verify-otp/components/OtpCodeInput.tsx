@@ -84,14 +84,14 @@ export function OtpCodeInput({
             aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
             aria-invalid={Boolean(error)}
             autoComplete={index === 0 ? 'one-time-code' : 'off'}
-            className="text-title-18 text-text-grey-dark placeholder:text-text-grey-dark focus:border-border-primary size-14 rounded-button border border-border-grey-shade bg-bg-white p-2 text-center outline-none transition-colors"
+            className="text-title-18 text-text-grey-dark placeholder:text-text-grey-dark focus:border-border-primary rounded-button border-border-grey-shade bg-bg-white size-14 border p-2 text-center transition-colors outline-none"
             inputMode="numeric"
             maxLength={1}
             onBlur={onBlur}
             onChange={(event) => handleChange(event, index)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             onPaste={handlePaste}
-         
+
             ref={(element) => {
               inputRefs.current[index] = element
             }}
@@ -101,10 +101,7 @@ export function OtpCodeInput({
         ))}
       </div>
       {error && (
-        <p
-          className="text-caption-12 text-error-dark m-0"
-          id="otp-code-error"
-        >
+        <p className="text-caption-12 text-error-dark m-0" id="otp-code-error">
           {error}
         </p>
       )}

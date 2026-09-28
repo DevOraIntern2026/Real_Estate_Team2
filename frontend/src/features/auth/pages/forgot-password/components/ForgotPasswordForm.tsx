@@ -28,9 +28,9 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
   )
 
   return (
-    <div className="flex flex-col gap-auth-forgot-section">
+    <div className="gap-auth-forgot-section flex flex-col">
       <form
-        className="flex flex-col gap-auth-forgot-submit"
+        className="gap-auth-forgot-submit flex flex-col"
         noValidate
         onSubmit={submitForm}
       >
@@ -41,15 +41,14 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
           error={errors.email?.message}
           label="Email"
           name="email"
-        placeholder='Enter your Email'
+          placeholder="Enter your Email"
           required
           type="email"
         />
-        <Button  className="text-main-white" fullWidth size="lg" type="submit">
-         Send OTP
+        <Button className="text-main-white" fullWidth size="lg" type="submit">
+          Send OTP
         </Button>
       </form>
-     
     </div>
   )
 }

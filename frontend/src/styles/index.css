@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@500;900&family=Roboto:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@500;600;900&family=Roboto:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
@@ -44,6 +44,9 @@
   --spacing-auth-forgot-submit: 32px;
   --spacing-auth-verify-panel-offset: 100px;
   --spacing-auth-verify-submit: 32px;
+  --spacing-auth-reset-top: 116px;
+  --spacing-auth-reset-columns: 108px;
+  --spacing-auth-reset-hero-width: 590px;
   --spacing-auth-social-height: 55px;
   --scale-auth-brand: 0.82;
 
