@@ -28,6 +28,15 @@
   --spacing-auth-layout-gap: 26px;
   --spacing-auth-hero-width: 566px;
   --spacing-auth-hero-height: 443px;
+  --spacing-auth-login-top: 103px;
+  --spacing-auth-login-brand-gap: 56px;
+  --spacing-auth-login-panel: 512px;
+  --spacing-auth-login-columns: 15px;
+  --spacing-auth-login-hero-width: 704px;
+  --spacing-auth-login-hero-height: 551px;
+  --spacing-auth-login-form-offset: 53px;
+  --spacing-auth-login-form: 40px;
+  --spacing-auth-login-field: 16px;
   --spacing-auth-social-height: 55px;
   --scale-auth-brand: 0.82;
 
