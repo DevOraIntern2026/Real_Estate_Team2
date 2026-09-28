@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=dev concurrently \"tsc --watch\" \"node --watch dist/main.js\"",
-    "prod": "cross-env NODE_ENV=prod concurrently \"tsc --watch\" \"node --watch dist/main.js\""
+    "prod": "cross-env NODE_ENV=prod concurrently \"tsc --watch\" \"node --watch dist/main.js\"",
+    "build": "tsc",
+    "start": "node dist/main.js"
   },
   "keywords": [],
   "author": "",
@@ -30,7 +32,8 @@
     "mongoose": "^9.10.2",
     "multer": "^2.4.0",
     "nodemailer": "^10.0.10",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "dotenv": "^18.0.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

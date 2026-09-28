@@ -88,13 +88,13 @@ class AuthService {
       },
     });
 
-    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
-      throw new UnauthorizedException("Invalid login credentials");
-    }
     if (!user) {
       throw new NotFoundException(
         "Please make sure to verify your account before login",
       );
+    }
+    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
+      throw new UnauthorizedException("Invalid login credentials");
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
