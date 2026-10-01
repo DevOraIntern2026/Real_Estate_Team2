@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:real_estate_app/core/theme/assets.dart';
+
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/cubit/auth_cubit.dart';
 import '../../../auth/presentation/cubit/auth_state.dart';
@@ -22,7 +25,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.background,
       body: BlocListener<AuthCubit, AuthState>(
         listener: (context, state) {
           if (state is AuthAuthenticated) {
@@ -31,15 +34,11 @@ class _SplashPageState extends State<SplashPage> {
             context.go('/login');
           }
         },
-        child: const Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.home_work_outlined, size: 72, color: Colors.white),
-              SizedBox(height: 16),
-              Text('DevOra Real Estate', style: TextStyle(fontSize: 22, color: Colors.white)),
-              SizedBox(height: 24),
-              CircularProgressIndicator(color: Colors.white),
+              Image.asset(Assets.assetsImagesLogo, width: 200.w, height: 200.h),
             ],
           ),
         ),

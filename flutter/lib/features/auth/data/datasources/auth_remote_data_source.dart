@@ -1,11 +1,17 @@
 import 'package:dio/dio.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
+import '../../domain/entities/user_entity.dart';
 import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
   Future<UserModel> login({required String email, required String password});
-  Future<UserModel> register({required String name, required String email, required String password});
+  Future<UserModel> register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  });
   Future<UserModel> getCurrentUser();
 }
 
@@ -29,12 +35,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }
 
   @override
-  Future<UserModel> register({required String name, required String email, required String password}) async {
+  Future<UserModel> register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) async {
     try {
       final response = await dioClient.dio.post('/authentication/register', data: {
         'name': name,
         'email': email,
         'password': password,
+        // TODO: confirm the exact field name/values Backend 1 expects for role
+        'role': role.name,
       });
       return UserModel.fromJson(response.data['user'] ?? response.data);
     } on DioException catch (e) {

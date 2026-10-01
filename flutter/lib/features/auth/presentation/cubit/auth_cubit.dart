@@ -1,5 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/usecase/usecase.dart';
+import '../../domain/entities/user_entity.dart';
 import '../../domain/usecases/get_current_user_usecase.dart';
 import '../../domain/usecases/login_usecase.dart';
 import '../../domain/usecases/register_usecase.dart';
@@ -25,9 +26,14 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  Future<void> register({required String name, required String email, required String password}) async {
+  Future<void> register({
+    required String name,
+    required String email,
+    required String password,
+    required UserRole role,
+  }) async {
     emit(AuthLoading());
-    final result = await registerUseCase(RegisterParams(name: name, email: email, password: password));
+    final result = await registerUseCase(RegisterParams(name: name, email: email, password: password, role: role));
     result.fold(
       (failure) => emit(AuthError(failure.message)),
       (user) => emit(AuthAuthenticated(user)),
