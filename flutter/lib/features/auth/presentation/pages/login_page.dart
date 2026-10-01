@@ -52,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
     if (_emailController.text.trim().isEmpty ||
         !_emailController.text.contains('@')) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Enter a Required Data')),
+        const SnackBar(content: Text('Enter a valid email')),
       );
       return;
     }
@@ -151,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: () => context.go('/forgot-password'),
                         child: const Text('Forgot password?',
                             style: TextStyle(color: AppColors.accent)),
                       ),
@@ -163,11 +163,11 @@ class _LoginPageState extends State<LoginPage> {
                       : SizedBox(
                           height: 40.h,
                           child: ElevatedButton(
-                            style: ButtonStyle(
-                                shape: WidgetStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(30.sp)))),
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
                             onPressed: _submit,
                             child: const Text('Login',
                                 style: TextStyle(fontSize: 16)),
@@ -182,9 +182,6 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(
                     height: 40.h,
                     child: OutlinedButton.icon(
-                      style: ButtonStyle(
-                          shape: WidgetStateProperty.all(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.sp)))),
                       onPressed: () {},
                       icon: const GoogleLogo(),
                       label: const Text('Google'),

@@ -1,8 +1,13 @@
 import 'package:go_router/go_router.dart';
-import '../../features/splash/presentation/pages/splash_page.dart';
+import 'package:real_estate_app/features/auth/presentation/pages/forget_password_page.dart';
+
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/reset_password_page.dart';
+import '../../features/auth/presentation/pages/reset_success_page.dart';
+import '../../features/auth/presentation/pages/verify_otp_page.dart';
 import '../../features/navigation/presentation/pages/main_navigation_page.dart';
+import '../../features/splash/presentation/pages/splash_page.dart';
 
 class AppRouter {
   AppRouter._();
@@ -12,10 +17,25 @@ class AppRouter {
     routes: [
       GoRoute(path: '/splash', builder: (context, state) => const SplashPage()),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterPage()),
-      GoRoute(path: '/home', builder: (context, state) => const MainNavigationPage()),
-      // TODO: add routes for property details, listing management, notifications, etc.
-      // as those screens are built by Flutter 2 / Flutter 3.
+      GoRoute(
+          path: '/register', builder: (context, state) => const RegisterPage()),
+      GoRoute(
+          path: '/forgot-password',
+          builder: (context, state) => const ForgotPasswordPage()),
+      GoRoute(
+        path: '/verify-otp',
+        builder: (context, state) =>
+            VerifyOtpPage(email: state.extra as String? ?? ''),
+      ),
+      GoRoute(
+          path: '/reset-password',
+          builder: (context, state) => const ResetPasswordPage()),
+      GoRoute(
+          path: '/reset-success',
+          builder: (context, state) => const ResetSuccessPage()),
+      GoRoute(
+          path: '/home',
+          builder: (context, state) => const MainNavigationPage()),
     ],
   );
 }
