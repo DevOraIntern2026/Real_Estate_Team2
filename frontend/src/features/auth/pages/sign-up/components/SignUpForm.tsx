@@ -18,7 +18,7 @@ import { RoleSelect } from './RoleSelect'
 import { TermsAgreement } from './TermsAgreement'
 
 type SignUpFormProps = {
-  onSubmit?: (values: SignUpFormValues) => void
+  onSubmit?: (values: SignUpFormValues) => void | Promise<void>
 }
 
 export function SignUpForm({ onSubmit }: SignUpFormProps) {

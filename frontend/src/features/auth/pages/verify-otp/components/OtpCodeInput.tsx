@@ -3,21 +3,21 @@ import type { ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react'
 
 type OtpCodeInputProps = {
   error?: string
+  length?: number
   onBlur: () => void
   onChange: (value: string) => void
   value: string
 }
 
-const OTP_LENGTH = 4
-
 export function OtpCodeInput({
   error,
+  length = 4,
   onBlur,
   onChange,
   value,
 }: OtpCodeInputProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([])
-  const digits = value.padEnd(OTP_LENGTH).slice(0, OTP_LENGTH)
+  const digits = value.padEnd(length).slice(0, length)
 
   const handleChange = (
     event: ChangeEvent<HTMLInputElement>,
@@ -26,9 +26,9 @@ export function OtpCodeInput({
     const enteredDigits = event.target.value.replace(/\D/g, '')
 
     if (enteredDigits.length > 1) {
-      const nextValue = enteredDigits.slice(0, OTP_LENGTH)
+      const nextValue = enteredDigits.slice(0, length)
       onChange(nextValue)
-      inputRefs.current[Math.min(nextValue.length, OTP_LENGTH - 1)]?.focus()
+      inputRefs.current[Math.min(nextValue.length, length - 1)]?.focus()
       return
     }
 
@@ -36,7 +36,7 @@ export function OtpCodeInput({
     nextDigits[index] = enteredDigits
     onChange(nextDigits.join('').trimEnd())
 
-    if (enteredDigits && index < OTP_LENGTH - 1) {
+    if (enteredDigits && index < length - 1) {
       inputRefs.current[index + 1]?.focus()
     }
   }
@@ -45,13 +45,13 @@ export function OtpCodeInput({
     const pastedDigits = event.clipboardData
       .getData('text')
       .replace(/\D/g, '')
-      .slice(0, OTP_LENGTH)
+      .slice(0, length)
 
     if (!pastedDigits) return
 
     event.preventDefault()
     onChange(pastedDigits)
-    inputRefs.current[Math.min(pastedDigits.length, OTP_LENGTH - 1)]?.focus()
+    inputRefs.current[Math.min(pastedDigits.length, length - 1)]?.focus()
   }
 
   const handleKeyDown = (
@@ -64,7 +64,7 @@ export function OtpCodeInput({
     if (event.key === 'ArrowLeft' && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }
-    if (event.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
+    if (event.key === 'ArrowRight' && index < length - 1) {
       inputRefs.current[index + 1]?.focus()
     }
   }
@@ -73,18 +73,18 @@ export function OtpCodeInput({
     <div
       aria-describedby={error ? 'otp-code-error' : undefined}
       aria-invalid={Boolean(error)}
-      aria-label="4-digit verification code"
+      aria-label={`${length}-digit verification code`}
       className="flex flex-col items-center gap-1"
       role="group"
     >
-      <div className="flex items-start gap-2">
-        {Array.from({ length: OTP_LENGTH }, (_, index) => (
+      <div className="max-auth-mobile:gap-1 flex items-start gap-2">
+        {Array.from({ length }, (_, index) => (
           <input
             key={index}
-            aria-label={`Digit ${index + 1} of ${OTP_LENGTH}`}
+            aria-label={`Digit ${index + 1} of ${length}`}
             aria-invalid={Boolean(error)}
             autoComplete={index === 0 ? 'one-time-code' : 'off'}
-            className="text-title-18 text-text-grey-dark placeholder:text-text-grey-dark focus:border-border-primary rounded-button border-border-grey-shade bg-bg-white size-14 border p-2 text-center transition-colors outline-none"
+            className="text-title-18 text-text-grey-dark placeholder:text-text-grey-dark focus:border-border-primary max-auth-mobile:size-10 rounded-button border-border-grey-shade bg-bg-white size-14 border p-2 text-center transition-colors outline-none"
             inputMode="numeric"
             maxLength={1}
             onBlur={onBlur}
