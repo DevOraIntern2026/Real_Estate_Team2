@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../../../home/presentation/pages/home_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
@@ -14,8 +15,8 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   // TODO: swap these placeholders for the real feature pages as Flutter 2 & Flutter 3 build them.
   final List<Widget> _pages = const [
     HomePage(),
-    Center(child: Text('Search — placeholder for Flutter 2')),
-    Center(child: Text('Favorites — placeholder for Flutter 2')),
+    Center(child: Text('Search — placeholder ')),
+    Center(child: Text('Favorites — placeholder ')),
     Center(child: Text('Profile — placeholder')),
   ];
 
@@ -28,10 +29,13 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         onTap: (index) => setState(() => _currentIndex = index),
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: 'Favorites'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite_border), label: 'Favorites'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
       ),
     );
