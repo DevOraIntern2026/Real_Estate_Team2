@@ -18,22 +18,22 @@ export const login = {
   }),
 };
 export const signup = {
-  body: z
-    .strictObject({
-      username: generalValidationFields.username,
-      email: generalValidationFields.email,
-      password: generalValidationFields.password,
-      phone: generalValidationFields.phone.optional(),
-      confirmPassword: generalValidationFields.confirmPassword,
-      gender: generalValidationFields.gender,
-    })
-    .refine(
-      // for multiple logic we use superRefine instead
-      (inputs) => {
-        return inputs.password === inputs.confirmPassword;
-      },
-      { error: "Make sure that both passwords match" },
-    ),
+  body: z.strictObject({
+    username: generalValidationFields.username,
+    email: generalValidationFields.email,
+    role: generalValidationFields.role,
+    password: generalValidationFields.password,
+    phone: generalValidationFields.phone.optional(),
+    // confirmPassword: generalValidationFields.confirmPassword,
+    // gender: generalValidationFields.gender,
+  }),
+  // .refine(
+  //   // for multiple logic we use superRefine instead
+  //   (inputs) => {
+  //     return inputs.password === inputs.confirmPassword;
+  //   },
+  //   { error: "Make sure that both passwords match" },
+  // ),
 };
 
 export const confirmEmail = {
@@ -55,5 +55,14 @@ export const gmailTokenAndIss = {
 export const verifyPasswordReset = {
   body: confirmEmail.body.safeExtend({
     newPassword: generalValidationFields.password,
+  }),
+};
+
+export const roleValidation = {
+  body: z.strictObject({
+    idToken: z
+      .string({ error: "missing idToken" })
+      .nonempty({ error: "missing idToken" }),
+    role: generalValidationFields.role,
   }),
 };

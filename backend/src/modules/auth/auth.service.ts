@@ -1,13 +1,14 @@
-import { DUMMY_HASH } from "../../common/config/config";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+import { DUMMY_HASH, WEB_CLIENT_ID } from "../../common/config/config";
 import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
 
 import {
   BadRequestException,
   ConflictException,
+  internalServerError,
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
-import { IUser } from "../../common/interfaces";
 import { TokenService } from "../../common/services/jwt";
 import { redisService, RedisService } from "../../common/services/redis";
 import { emailEmitter, generateOTP, sendEmail } from "../../common/utils/email";
@@ -20,6 +21,7 @@ import { UserRepo } from "../../DB/repo/user.repo";
 import {
   ConfirmEmailDto,
   LoginDto,
+  LoginResponse,
   resendConfirmationEmailDto,
   SignupDto,
 } from "./auth.dto";
@@ -38,8 +40,9 @@ class AuthService {
     username,
     email,
     password,
+    role = 2,
     phone,
-  }: SignupDto): Promise<IUser> {
+  }: SignupDto): Promise<null> {
     const checkExistingUser = await this.userRepo.findOne({
       filter: { email },
       projection: "email",
@@ -49,11 +52,15 @@ class AuthService {
     if (checkExistingUser) {
       throw new ConflictException("This email already exists");
     }
+    if (role < 1 || role > 2) {
+      throw new BadRequestException("Invalid role input");
+    }
     const user =
       (await this.userRepo.createOne({
         data: {
           username,
           email,
+          role,
           password: password,
           phone: phone ? phone : null,
         },
@@ -69,7 +76,7 @@ class AuthService {
       });
     });
 
-    return user;
+    return null;
   }
   async login(
     { email, password }: LoginDto,
@@ -83,14 +90,14 @@ class AuthService {
         paranoid: false,
       },
     });
-    console.log(user);
-    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
-      throw new UnauthorizedException("Invalid login credentials");
-    }
+
     if (!user) {
       throw new NotFoundException(
         "Please make sure to verify your account before login",
       );
+    }
+    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
+      throw new UnauthorizedException("Invalid login credentials");
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
@@ -298,6 +305,72 @@ class AuthService {
       this.redis.redisBaseRevokeTokenKey(userAccount._id),
     );
     await this.redis.redisDelKeys([...allOtpKeys, ...tokenKeys]);
+  }
+
+  //////////////// Google login and signup
+  async verifyGoogleAccount(idToken: string): Promise<TokenPayload> {
+    const client = new OAuth2Client();
+    if (!WEB_CLIENT_ID) {
+      throw new internalServerError("missing web client ID");
+    }
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: WEB_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload) throw new BadRequestException("No payload found");
+    if (!payload.email_verified) {
+      throw new BadRequestException(
+        "Failed to authenticate this account with gmail",
+      );
+    }
+    return payload;
+  }
+
+  async signupWithGmail(
+    idToken: string,
+    role: number,
+    issuer: string,
+  ): Promise<{
+    loginTokens: LoginResponse;
+    status?: number;
+  }> {
+    const payload = await this.verifyGoogleAccount(idToken);
+
+    const existingUser = await this.userRepo.findOne({
+      filter: {
+        email: payload.email as string,
+      },
+    });
+    if (existingUser) {
+      if (existingUser.provider !== ProviderEnums.GOOGLE) {
+        throw new ConflictException("Invalid account provider");
+      }
+      // login with gmail
+      const loginTokens = await this.tokenService.createLoginTokens(
+        existingUser,
+        issuer,
+      );
+      return { loginTokens, status: 200 };
+    }
+    const createdUser = await this.userRepo.createOne({
+      data: {
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        email: payload.email,
+        role,
+        provider: ProviderEnums.GOOGLE,
+        profileImage: payload.picture,
+        confirmedAt: new Date(),
+      },
+    });
+
+    return {
+      loginTokens: await this.tokenService.createLoginTokens(
+        createdUser,
+        issuer,
+      ),
+    };
   }
 }
 
