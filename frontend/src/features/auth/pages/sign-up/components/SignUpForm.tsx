@@ -6,10 +6,9 @@ import { TextField } from '@/components/ui/TextField'
 import {
   AuthDivider,
   AuthFooterLink,
-  OAuthButton,
+  GoogleAuthButton,
   PasswordField,
 } from '@/features/auth/components/shared'
-import googleMark from '@/assets/icons/google.svg'
 import {
   signUpSchema,
   type SignUpFormValues,
@@ -20,9 +19,16 @@ import { TermsAgreement } from './TermsAgreement'
 type SignUpFormProps = {
   onSubmit?: (values: SignUpFormValues) => void | Promise<void>
   isSubmitting?: boolean
+  isGoogleSubmitting?: boolean
+  onGoogleCredential?: (idToken: string, role: '1' | '2') => void
 }
 
-export function SignUpForm({ onSubmit, isSubmitting = false }: SignUpFormProps) {
+export function SignUpForm({
+  onSubmit,
+  isSubmitting = false,
+  isGoogleSubmitting = false,
+  onGoogleCredential,
+}: SignUpFormProps) {
   const methods = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -94,7 +100,15 @@ export function SignUpForm({ onSubmit, isSubmitting = false }: SignUpFormProps) 
           />
         </div>
         <AuthDivider label="Or Sign up with" />
-        <OAuthButton icon={googleMark} provider="Google" />
+        <GoogleAuthButton
+          disabled={isGoogleSubmitting}
+          onCredential={(idToken) =>
+            onGoogleCredential?.(
+              idToken,
+              methods.getValues('role') === 'owner' ? '1' : '2',
+            )
+          }
+        />
       </form>
     </FormProvider>
   )

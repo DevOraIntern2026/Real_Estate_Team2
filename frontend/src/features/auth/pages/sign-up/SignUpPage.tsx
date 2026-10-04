@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useGoogleAuth } from '@/features/auth/hooks/useGoogleAuth'
 import { useSignUp } from '@/features/auth/hooks/useSignUp'
 import {
   AuthBrand,
@@ -15,6 +16,7 @@ function SignUpPage() {
       navigate('/verify-email', { state: { email } })
     },
   })
+  const googleAuthMutation = useGoogleAuth()
 
   const handleSignUp = (values: SignUpFormValues) => {
     signUpMutation.mutate({
@@ -39,7 +41,15 @@ function SignUpPage() {
               title="Sign up"
             />
             <SignUpForm
+              isGoogleSubmitting={googleAuthMutation.isPending}
               isSubmitting={signUpMutation.isPending}
+              onGoogleCredential={(idToken, role) =>
+                googleAuthMutation.mutate({
+                  idToken,
+                  role,
+                  rememberMe: false,
+                })
+              }
               onSubmit={handleSignUp}
             />
           </section>

@@ -7,10 +7,9 @@ import { TextField } from '@/components/ui/TextField'
 import {
   AuthDivider,
   AuthFooterLink,
-  OAuthButton,
+  GoogleAuthButton,
   PasswordField,
 } from '@/features/auth/components/shared'
-import googleMark from '@/assets/icons/google.svg'
 import {
   loginSchema,
   type LoginFormValues,
@@ -18,14 +17,22 @@ import {
 
 type LoginFormProps = {
   isSubmitting?: boolean
+  isGoogleSubmitting?: boolean
   onSubmit?: (values: LoginFormValues) => void | Promise<void>
+  onGoogleCredential?: (idToken: string, rememberMe: boolean) => void
 }
 
-export function LoginForm({ onSubmit, isSubmitting = false }: LoginFormProps) {
+export function LoginForm({
+  onSubmit,
+  isSubmitting = false,
+  isGoogleSubmitting = false,
+  onGoogleCredential,
+}: LoginFormProps) {
   const {
     formState: { errors },
     handleSubmit,
     register,
+    watch,
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '', rememberMe: false },
@@ -101,7 +108,12 @@ export function LoginForm({ onSubmit, isSubmitting = false }: LoginFormProps) {
       </div>
 
       <AuthDivider label="Or login with" />
-      <OAuthButton icon={googleMark} provider="Google" />
+      <GoogleAuthButton
+        disabled={isGoogleSubmitting}
+        onCredential={(idToken) =>
+          onGoogleCredential?.(idToken, watch('rememberMe'))
+        }
+      />
     </form>
   )
 }

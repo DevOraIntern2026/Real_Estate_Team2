@@ -3,12 +3,14 @@ import {
   AuthHero,
   AuthIntro,
 } from '@/features/auth/components/shared'
+import { useGoogleAuth } from '@/features/auth/hooks/useGoogleAuth'
 import { useLogin } from '@/features/auth/hooks/useLogin'
 import type { LoginFormValues } from '@/features/auth/schemas/loginSchema'
 import { LoginForm } from './components/LoginForm'
 
 function LoginPage() {
   const loginMutation = useLogin()
+  const googleAuthMutation = useGoogleAuth()
   const handleLogin = (values: LoginFormValues) => loginMutation.mutate(values)
 
   return (
@@ -25,7 +27,15 @@ function LoginPage() {
               title="Login"
             />
             <LoginForm
+              isGoogleSubmitting={googleAuthMutation.isPending}
               isSubmitting={loginMutation.isPending}
+              onGoogleCredential={(idToken, rememberMe) =>
+                googleAuthMutation.mutate({
+                  idToken,
+                  role: '2',
+                  rememberMe,
+                })
+              }
               onSubmit={handleLogin}
             />
           </section>
