@@ -1,4 +1,5 @@
 import type { FormEventHandler } from 'react'
+import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
 import { Button } from '@/components/ui/Button'
@@ -24,6 +25,7 @@ export function EmailVerificationForm({
   onResend,
   onSubmit,
 }: EmailVerificationFormProps) {
+  const [resendSecondsLeft, setResendSecondsLeft] = useState(60)
   const {
     control,
     formState: { errors },
@@ -34,6 +36,27 @@ export function EmailVerificationForm({
     resolver: zodResolver(emailVerificationSchema),
     defaultValues: { email, otp: '' },
   })
+
+  useEffect(() => {
+    if (resendSecondsLeft === 0) return
+
+    const timerId = window.setTimeout(() => {
+      setResendSecondsLeft((secondsLeft) => Math.max(secondsLeft - 1, 0))
+    }, 1000)
+
+    return () => window.clearTimeout(timerId)
+  }, [resendSecondsLeft])
+
+  const handleResend = async () => {
+    if (!onResend || resendSecondsLeft > 0 || isResending) return
+
+    try {
+      await onResend(getValues('email'))
+      setResendSecondsLeft(60)
+    } catch {
+      // Keep resend available if the API request fails.
+    }
+  }
 
   const submitForm: FormEventHandler<HTMLFormElement> = handleSubmit(
     (values) => onSubmit?.(values),
@@ -76,12 +99,17 @@ export function EmailVerificationForm({
         <p className="text-label-14 text-text-heading m-0 text-center">
           Didn’t receive a code?{' '}
           <button
-            className="text-error-dark cursor-pointer border-0 bg-transparent p-0 font-inherit"
-            disabled={isResending}
-            onClick={() => onResend?.(getValues('email'))}
+            aria-live="polite"
+            className="text-error-dark cursor-pointer border-0 bg-transparent p-0 font-inherit disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={isResending || resendSecondsLeft > 0}
+            onClick={() => void handleResend()}
             type="button"
           >
-            {isResending ? 'Sending…' : 'Resend'}
+            {isResending
+              ? 'Sending…'
+              : resendSecondsLeft > 0
+                ? `Resend in 0:${String(resendSecondsLeft).padStart(2, '0')}`
+                : 'Resend'}
           </button>
         </p>
       </div>
