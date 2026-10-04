@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useSignUp } from '@/features/auth/hooks/useSignUp'
 import {
   AuthBrand,
   AuthHero,
@@ -7,15 +8,21 @@ import {
 import { SignUpForm } from './components/SignUpForm'
 import type { SignUpFormValues } from '@/features/auth/schemas/signUpSchema'
 
-type SignUpPageProps = {
-  onSubmit?: (values: SignUpFormValues) => void | Promise<void>
-}
-
-function SignUpPage({ onSubmit }: SignUpPageProps) {
+function SignUpPage() {
   const navigate = useNavigate()
-  const handleSignUp = async (values: SignUpFormValues) => {
-    await onSubmit?.(values)
-    navigate('/verify-email', { state: { email: values.email } })
+  const signUpMutation = useSignUp({
+    onSuccess: ({ email }) => {
+      navigate('/verify-email', { state: { email } })
+    },
+  })
+
+  const handleSignUp = (values: SignUpFormValues) => {
+    signUpMutation.mutate({
+      username: values.fullName,
+      email: values.email,
+      password: values.password,
+      role: values.role === 'owner' ? '1' : '2',
+    })
   }
 
   return (
@@ -31,7 +38,10 @@ function SignUpPage({ onSubmit }: SignUpPageProps) {
               description="Let’s get you all set up so you can access your personal account."
               title="Sign up"
             />
-            <SignUpForm onSubmit={handleSignUp} />
+            <SignUpForm
+              isSubmitting={signUpMutation.isPending}
+              onSubmit={handleSignUp}
+            />
           </section>
           <AuthHero />
         </div>

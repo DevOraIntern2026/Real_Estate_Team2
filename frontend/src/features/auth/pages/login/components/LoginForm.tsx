@@ -17,10 +17,11 @@ import {
 } from '@/features/auth/schemas/loginSchema'
 
 type LoginFormProps = {
-  onSubmit?: (values: LoginFormValues) => void
+  isSubmitting?: boolean
+  onSubmit?: (values: LoginFormValues) => void | Promise<void>
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, isSubmitting = false }: LoginFormProps) {
   const {
     formState: { errors },
     handleSubmit,
@@ -68,7 +69,6 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         <div className="flex min-h-6 items-center justify-between gap-4">
           <CheckboxField
             {...register('rememberMe')}
-            defaultChecked
             label="Remember me"
             name="rememberMe"
           >
@@ -84,8 +84,14 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       </div>
 
       <div className="flex flex-col gap-4">
-        <Button className="text-main-white" fullWidth size="lg" type="submit">
-          Login
+        <Button
+          className="text-main-white"
+          disabled={isSubmitting}
+          fullWidth
+          size="lg"
+          type="submit"
+        >
+          {isSubmitting ? 'Logging in…' : 'Login'}
         </Button>
         <AuthFooterLink
           href="/signup"

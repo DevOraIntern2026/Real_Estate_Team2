@@ -11,18 +11,23 @@ import {
 
 type EmailVerificationFormProps = {
   email: string
+  isResending?: boolean
+  isVerifying?: boolean
   onResend?: (email: string) => void | Promise<void>
   onSubmit?: (values: EmailVerificationFormValues) => void | Promise<void>
 }
 
 export function EmailVerificationForm({
   email,
+  isResending = false,
+  isVerifying = false,
   onResend,
   onSubmit,
 }: EmailVerificationFormProps) {
   const {
     control,
     formState: { errors },
+    getValues,
     handleSubmit,
     register,
   } = useForm<EmailVerificationFormValues>({
@@ -72,15 +77,22 @@ export function EmailVerificationForm({
           Didn’t receive a code?{' '}
           <button
             className="text-error-dark cursor-pointer border-0 bg-transparent p-0 font-inherit"
-            onClick={() => onResend?.(email)}
+            disabled={isResending}
+            onClick={() => onResend?.(getValues('email'))}
             type="button"
           >
-            Resend
+            {isResending ? 'Sending…' : 'Resend'}
           </button>
         </p>
       </div>
-      <Button className="text-main-white" fullWidth size="lg" type="submit">
-        Verify email
+      <Button
+        className="text-main-white"
+        disabled={isVerifying}
+        fullWidth
+        size="lg"
+        type="submit"
+      >
+        {isVerifying ? 'Verifying…' : 'Verify email'}
       </Button>
     </form>
   )

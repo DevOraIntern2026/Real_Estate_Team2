@@ -19,9 +19,10 @@ import { TermsAgreement } from './TermsAgreement'
 
 type SignUpFormProps = {
   onSubmit?: (values: SignUpFormValues) => void | Promise<void>
+  isSubmitting?: boolean
 }
 
-export function SignUpForm({ onSubmit }: SignUpFormProps) {
+export function SignUpForm({ onSubmit, isSubmitting = false }: SignUpFormProps) {
   const methods = useForm<SignUpFormValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -77,8 +78,14 @@ export function SignUpForm({ onSubmit }: SignUpFormProps) {
           <TermsAgreement />
         </div>
         <div className="flex flex-col gap-4">
-          <Button className="text-main-white" fullWidth size="lg" type="submit">
-            Register
+          <Button
+            className="text-main-white"
+            disabled={isSubmitting}
+            fullWidth
+            size="lg"
+            type="submit"
+          >
+            {isSubmitting ? 'Creating account…' : 'Register'}
           </Button>
           <AuthFooterLink
             href="/login"

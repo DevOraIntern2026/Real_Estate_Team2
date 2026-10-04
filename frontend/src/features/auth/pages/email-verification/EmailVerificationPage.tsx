@@ -1,27 +1,29 @@
 import { ArrowLeft } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useConfirmEmail } from '@/features/auth/hooks/useConfirmEmail'
+import { useResendConfirmationEmail } from '@/features/auth/hooks/useResendConfirmationEmail'
 import {
   AuthBrand,
   AuthHero,
   AuthIntro,
 } from '@/features/auth/components/shared'
-import type { EmailVerificationFormValues } from '@/features/auth/schemas/emailVerificationSchema'
 import { EmailVerificationForm } from './components/EmailVerificationForm'
-
-type EmailVerificationPageProps = {
-  onResend?: (email: string) => void | Promise<void>
-  onSubmit?: (values: EmailVerificationFormValues) => void | Promise<void>
-}
 
 type SignUpLocationState = {
   email?: string
 }
 
-function EmailVerificationPage({ onResend, onSubmit }: EmailVerificationPageProps) {
+function EmailVerificationPage() {
   const location = useLocation()
+  const navigate = useNavigate()
   const state = location.state as SignUpLocationState | null
   const email =
     state?.email ?? new URLSearchParams(location.search).get('email') ?? ''
+  const confirmMutation = useConfirmEmail({
+    onSuccess: () => navigate('/login'),
+  })
+  const resendMutation = useResendConfirmationEmail()
 
   return (
     <main className="bg-bg-white text-text-heading max-auth-tablet:px-6 max-auth-tablet:py-8 max-auth-mobile:px-5 max-auth-mobile:py-6 min-h-screen px-8 py-12">
@@ -52,8 +54,12 @@ function EmailVerificationPage({ onResend, onSubmit }: EmailVerificationPageProp
             <EmailVerificationForm
               key={email}
               email={email}
-              onResend={onResend}
-              onSubmit={onSubmit}
+              isResending={resendMutation.isPending}
+              isVerifying={confirmMutation.isPending}
+              onResend={(targetEmail) =>
+                resendMutation.mutate({ email: targetEmail })
+              }
+              onSubmit={(values) => confirmMutation.mutate(values)}
             />
           </section>
           <AuthHero />

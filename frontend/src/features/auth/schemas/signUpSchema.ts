@@ -19,7 +19,11 @@ export const signUpSchema = z.object({
     .string()
     .min(1, 'Password is required.')
     .min(8, 'Password must be at least 8 characters.')
-    .max(128, 'Password must be less than 128 characters.'),
+    .max(16, 'Password must be at most 16 characters.')
+    .regex(/[a-z]/, 'Password must include a lowercase letter.')
+    .regex(/[A-Z]/, 'Password must include an uppercase letter.')
+    .regex(/\d/, 'Password must include a number.')
+    .regex(/\W/, 'Password must include a symbol.'),
 
   role: z.enum(['customer', 'owner'], {
     error: 'Role is required.',
