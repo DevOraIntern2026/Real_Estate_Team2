@@ -11,6 +11,12 @@ export type ResendConfirmationEmailRequest = {
   email: string
 }
 
+export type VerifyForgotPasswordRequest = {
+  email: string
+  otp: string
+  newPassword: string
+}
+
 export type LoginRequest = {
   email: string
   password: string
@@ -112,6 +118,28 @@ export async function resendConfirmationEmail(
 ) {
   const { data } = await apiClient.patch<ApiResponse>(
     '/auth/resendConfirmationEmail',
+    payload,
+  )
+
+  return data
+}
+
+export async function requestPasswordResetOtp(
+  payload: ResendConfirmationEmailRequest,
+) {
+  const { data } = await apiClient.post<ApiResponse>(
+    '/auth/forgotPassword',
+    payload,
+  )
+
+  return data
+}
+
+export async function verifyPasswordReset(
+  payload: VerifyForgotPasswordRequest,
+) {
+  const { data } = await apiClient.post<ApiResponse>(
+    '/auth/verify/forgotPassword',
     payload,
   )
 

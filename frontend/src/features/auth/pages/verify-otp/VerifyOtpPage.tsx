@@ -1,19 +1,34 @@
 import { ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import {
   AuthBrand,
   AuthHero,
   AuthIntro,
 } from '@/features/auth/components/shared'
+import { useForgotPassword } from '@/features/auth/hooks/useForgotPassword'
 import type { VerifyOtpFormValues } from '@/features/auth/schemas/verifyOtpSchema'
 import { VerifyOtpForm } from './components/VerifyOtpForm'
 
-type VerifyOtpPageProps = {
-  onResend?: () => void
-  onSubmit?: (values: VerifyOtpFormValues) => void
+type ForgotPasswordLocationState = {
+  email?: string
 }
 
-function VerifyOtpPage({ onResend, onSubmit }: VerifyOtpPageProps) {
+function VerifyOtpPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const state = location.state as ForgotPasswordLocationState | null
+  const email =
+    state?.email ?? new URLSearchParams(location.search).get('email') ?? ''
+  const forgotPasswordMutation = useForgotPassword()
+
+  const handleVerifyCode = (values: VerifyOtpFormValues) => {
+    navigate('/reset-password', {
+      state: { email, otp: values.code },
+    })
+  }
+
+  if (!email) return <Navigate replace to="/forgot-password" />
+
   return (
     <main className="bg-bg-white text-text-heading max-auth-tablet:px-6 max-auth-tablet:py-8 max-auth-mobile:px-5 max-auth-mobile:py-6 min-h-screen px-8 py-12">
       <div className="max-w-auth-forgot-layout mx-auto w-full">
@@ -32,11 +47,18 @@ function VerifyOtpPage({ onResend, onSubmit }: VerifyOtpPageProps) {
                 <span>Back to login</span>
               </Link>
               <AuthIntro
-                description="An authentication code has been sent to your email."
+                description={`An authentication code has been sent to ${email}.`}
                 title="Verify code"
               />
             </header>
-            <VerifyOtpForm onResend={onResend} onSubmit={onSubmit} />
+            <VerifyOtpForm
+              email={email}
+              isResending={forgotPasswordMutation.isPending}
+              onResend={(targetEmail) =>
+                forgotPasswordMutation.mutateAsync({ email: targetEmail }).then(() => undefined)
+              }
+              onSubmit={handleVerifyCode}
+            />
           </section>
           <AuthHero />
         </div>

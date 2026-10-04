@@ -1,12 +1,29 @@
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { AuthBrand, AuthHero } from '@/features/auth/components/shared'
-import type { ResetPasswordFormValues } from '@/features/auth/schemas/resetPasswordSchema'
+import { useResetForgottenPassword } from '@/features/auth/hooks/useResetForgottenPassword'
 import { ResetPasswordForm } from './components/ResetPasswordForm'
 
-type ResetPasswordPageProps = {
-  onSubmit?: (values: ResetPasswordFormValues) => void
+type ResetPasswordLocationState = {
+  email?: string
+  otp?: string
 }
 
-function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
+function ResetPasswordPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const state = location.state as ResetPasswordLocationState | null
+  const email = state?.email ?? ''
+  const otp = state?.otp ?? ''
+  const resetPasswordMutation = useResetForgottenPassword({
+    onSuccess: () => navigate('/login'),
+  })
+
+  if (!email || !otp) return <Navigate replace to="/forgot-password" />
+
+  const handleResetPassword = (values: { newPassword: string }) => {
+    resetPasswordMutation.mutate({ email, otp, newPassword: values.newPassword })
+  }
+
   return (
     <main className="bg-bg-white pt-auth-reset-top text-text-heading max-auth-tablet:px-6 max-auth-tablet:pt-6 max-auth-tablet:pb-12 max-auth-mobile:px-5 max-auth-mobile:pt-3 max-auth-mobile:pb-9 min-h-screen px-8 pb-16">
       <div className="max-w-auth-layout mx-auto w-full">
@@ -28,7 +45,10 @@ function ResetPasswordPage({ onSubmit }: ResetPasswordPageProps) {
                 for your account.
               </p>
             </header>
-            <ResetPasswordForm onSubmit={onSubmit} />
+            <ResetPasswordForm
+              isSubmitting={resetPasswordMutation.isPending}
+              onSubmit={handleResetPassword}
+            />
           </section>
           <AuthHero size="reset" />
         </div>

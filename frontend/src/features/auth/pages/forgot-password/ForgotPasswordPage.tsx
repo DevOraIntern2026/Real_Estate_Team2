@@ -1,18 +1,21 @@
 import { ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useForgotPassword } from '@/features/auth/hooks/useForgotPassword'
 import {
   AuthBrand,
   AuthHero,
   AuthIntro,
 } from '@/features/auth/components/shared'
-import type { ForgotPasswordFormValues } from '@/features/auth/schemas/forgotPasswordSchema'
 import { ForgotPasswordForm } from './components/ForgotPasswordForm'
 
-type ForgotPasswordPageProps = {
-  onSubmit?: (values: ForgotPasswordFormValues) => void
-}
+function ForgotPasswordPage() {
+  const navigate = useNavigate()
+  const forgotPasswordMutation = useForgotPassword({
+    onSuccess: ({ email }) => {
+      navigate(`/verify-otp?email=${encodeURIComponent(email)}`)
+    },
+  })
 
-function ForgotPasswordPage({ onSubmit }: ForgotPasswordPageProps) {
   return (
     <main className="bg-bg-white text-text-heading max-auth-tablet:px-6 max-auth-tablet:py-8 max-auth-mobile:px-5 max-auth-mobile:py-6 flex min-h-screen items-center px-8 py-12">
       <div className="max-w-auth-forgot-layout mx-auto w-full">
@@ -35,7 +38,10 @@ function ForgotPasswordPage({ onSubmit }: ForgotPasswordPageProps) {
                 title="Forgot your password?"
               />
             </div>
-            <ForgotPasswordForm onSubmit={onSubmit} />
+            <ForgotPasswordForm
+              isSubmitting={forgotPasswordMutation.isPending}
+              onSubmit={(values) => forgotPasswordMutation.mutate(values)}
+            />
           </section>
           <AuthHero />
         </div>

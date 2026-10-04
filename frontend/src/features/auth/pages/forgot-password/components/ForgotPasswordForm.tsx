@@ -10,10 +10,14 @@ import {
 } from '@/features/auth/schemas/forgotPasswordSchema'
 
 type ForgotPasswordFormProps = {
-  onSubmit?: (values: ForgotPasswordFormValues) => void
+  isSubmitting?: boolean
+  onSubmit?: (values: ForgotPasswordFormValues) => void | Promise<void>
 }
 
-export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
+export function ForgotPasswordForm({
+  onSubmit,
+  isSubmitting = false,
+}: ForgotPasswordFormProps) {
   const {
     formState: { errors },
     handleSubmit,
@@ -45,8 +49,14 @@ export function ForgotPasswordForm({ onSubmit }: ForgotPasswordFormProps) {
           required
           type="email"
         />
-        <Button className="text-main-white" fullWidth size="lg" type="submit">
-          Send OTP
+        <Button
+          className="text-main-white"
+          disabled={isSubmitting}
+          fullWidth
+          size="lg"
+          type="submit"
+        >
+          {isSubmitting ? 'Sending…' : 'Send OTP'}
         </Button>
       </form>
     </div>

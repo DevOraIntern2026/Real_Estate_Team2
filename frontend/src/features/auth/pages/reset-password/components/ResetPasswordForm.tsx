@@ -9,10 +9,14 @@ import {
 } from '@/features/auth/schemas/resetPasswordSchema'
 
 type ResetPasswordFormProps = {
-  onSubmit?: (values: ResetPasswordFormValues) => void
+  isSubmitting?: boolean
+  onSubmit?: (values: ResetPasswordFormValues) => void | Promise<void>
 }
 
-export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
+export function ResetPasswordForm({
+  onSubmit,
+  isSubmitting = false,
+}: ResetPasswordFormProps) {
   const {
     formState: { errors },
     handleSubmit,
@@ -50,8 +54,14 @@ export function ResetPasswordForm({ onSubmit }: ResetPasswordFormProps) {
           required
         />
       </div>
-      <Button className="text-main-white" fullWidth size="lg" type="submit">
-        Set Password
+      <Button
+        className="text-main-white"
+        disabled={isSubmitting}
+        fullWidth
+        size="lg"
+        type="submit"
+      >
+        {isSubmitting ? 'Updating…' : 'Set Password'}
       </Button>
     </form>
   )
