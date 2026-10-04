@@ -1,2 +1,2 @@
 allowBuilds:
-  argon2: false
+  argon2: true

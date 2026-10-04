@@ -36,6 +36,4 @@ export const sendEmail = async ({
     html,
     attachments,
   });
-
-  // console.log({ "message sent": info.messageId });
 };
