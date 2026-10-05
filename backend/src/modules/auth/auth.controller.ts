@@ -1,17 +1,19 @@
 // import type { Response, Request, NextFunction } from "express";
 import { Router } from "express";
-import { IUser } from "../../common/interfaces";
+import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 import { successResponse } from "../../common/response";
 import { validation } from "../../middlewares/validation.middleware";
 import authService from "./auth.service";
 import * as validators from "./auth.validation";
-
+import { authentication } from "../../middlewares";
+import type { Request, Response, NextFunction } from "express";
+import { TokenType } from "../../common/enums";
 const router = Router();
 ////////////////// System auth
 router.post(
   "/signup",
   validation(validators.signup),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.signup(req.body);
     successResponse<IUser>({
       message:
@@ -21,22 +23,26 @@ router.post(
     });
   },
 );
-router.post("/login", validation(validators.login), async (req, res, next) => {
-  const data = await authService.login(
-    req.body,
-    `${req.protocol}://${req.host}`,
-  );
-  successResponse({
-    message: "Login success",
-    res,
-    data,
-  });
-});
+router.post(
+  "/login",
+  validation(validators.login),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.login(
+      req.body,
+      `${req.protocol}://${req.host}`,
+    );
+    successResponse({
+      message: "Login success",
+      res,
+      data,
+    });
+  },
+);
 
 router.patch(
   "/confirmEmail",
   validation(validators.confirmEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.confirmEmail(req.body);
     return successResponse({
       res,
@@ -48,7 +54,7 @@ router.patch(
 router.patch(
   "/resendConfirmationEmail",
   validation(validators.resendConfirmationEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.resendConfirmationEmail(req.body);
     return successResponse({
       res,
@@ -62,7 +68,7 @@ router.patch(
 router.post(
   "/forgotPassword",
   validation(validators.resendConfirmationEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.reqForgetPasswordOTP(req.body);
     successResponse({
       message: "An otp was sent to reset your password",
@@ -73,7 +79,7 @@ router.post(
 router.post(
   "/verify/forgotPassword",
   validation(validators.verifyPasswordReset),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.changeForgottenPassword(req.body);
     successResponse({
       message: "Your password was reset successfully",
@@ -84,7 +90,7 @@ router.post(
   router.post(
     "/signup/gmail",
     validation(validators.roleValidation),
-    async (req, res, next) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       const account = await authService.signupWithGmail(
         req.body.idToken,
         req.body.role,
@@ -98,5 +104,39 @@ router.post(
     },
   ),
 );
-
+router.post(
+  "/logout",
+  authentication(),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.logout(
+      req.body,
+      req.user,
+      req.decoded as IAuthTokenPayload,
+    );
+    return successResponse({
+      res,
+      data,
+      message:
+        req.body.flag === 0
+          ? "Logged out from all devices successfully"
+          : "Logged out from one device successfully",
+    });
+  },
+);
+router.post(
+  "/rotateToken",
+  authentication(TokenType.REFRESH),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.rotateToken(
+      req.user,
+      req.decoded as IAuthTokenPayload,
+      `${req.protocol}://${req.host}`,
+    );
+    return successResponse({
+      res,
+      message: "Token rotation done",
+      data,
+    });
+  },
+);
 export default router;
