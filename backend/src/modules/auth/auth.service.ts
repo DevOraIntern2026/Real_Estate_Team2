@@ -346,6 +346,7 @@ class AuthService {
     const existingUser = await this.userRepo.findOne({
       filter: {
         email: payload.email as string,
+        confirmedAt: { $exists: true },
       },
     });
     if (existingUser) {
