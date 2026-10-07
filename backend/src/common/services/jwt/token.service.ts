@@ -11,6 +11,8 @@ import {
   CUSTOMER_TOKEN_SECRET_KEY,
   OWNER_TOKEN_SECRET_KEY,
   OWNER_REFRESH_TOKEN_SECRET_KEY,
+  AGENT_TOKEN_SECRET_KEY,
+  AGENT_REFRESH_TOKEN_SECRET_KEY,
 } from "../../config/config";
 import { AudienceEnum, RoleEnum } from "../../enums";
 import { UnauthorizedException } from "../../exceptions";
@@ -95,6 +97,14 @@ export class TokenService {
           },
           audience: AudienceEnum.OWNER,
         };
+      case RoleEnum.AGENT:
+        return {
+          signatures: {
+            accessSignature: AGENT_TOKEN_SECRET_KEY,
+            refreshSignature: AGENT_REFRESH_TOKEN_SECRET_KEY,
+          },
+          audience: AudienceEnum.AGENT,
+        };
       default: // CUSTOMER (least privilege)
         return {
           signatures: {
@@ -114,6 +124,8 @@ export class TokenService {
         return RoleEnum.ADMIN;
       case AudienceEnum.OWNER:
         return RoleEnum.OWNER;
+      case AudienceEnum.AGENT:
+        return RoleEnum.AGENT;
       case AudienceEnum.USER:
         return RoleEnum.CUSTOMER;
       default:

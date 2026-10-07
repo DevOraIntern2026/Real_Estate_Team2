@@ -1,5 +1,10 @@
 import { DUMMY_HASH } from "../../common/config/config";
-import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
+import {
+  EmailConfig,
+  EmailEnum,
+  ProviderEnums,
+  RoleEnum,
+} from "../../common/enums";
 
 import {
   BadRequestException,
@@ -39,6 +44,7 @@ class AuthService {
     email,
     password,
     phone,
+    role,
   }: SignupDto): Promise<IUser> {
     const checkExistingUser = await this.userRepo.findOne({
       filter: { email },
@@ -49,6 +55,11 @@ class AuthService {
     if (checkExistingUser) {
       throw new ConflictException("This email already exists");
     }
+    const roleMap: Record<string, RoleEnum> = {
+      customer: RoleEnum.CUSTOMER,
+      owner: RoleEnum.OWNER,
+      agent: RoleEnum.AGENT,
+    };
     const user =
       (await this.userRepo.createOne({
         data: {
@@ -56,6 +67,7 @@ class AuthService {
           email,
           password: password,
           phone: phone ? phone : null,
+          role: roleMap[role] ?? RoleEnum.CUSTOMER,
         },
       })) || [];
 
@@ -83,14 +95,14 @@ class AuthService {
         paranoid: false,
       },
     });
-    console.log(user);
-    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
-      throw new UnauthorizedException("Invalid login credentials");
-    }
+
     if (!user) {
       throw new NotFoundException(
         "Please make sure to verify your account before login",
       );
+    }
+    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
+      throw new UnauthorizedException("Invalid login credentials");
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 

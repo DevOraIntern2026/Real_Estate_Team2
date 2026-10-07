@@ -6,6 +6,8 @@ import { redisService } from "./common/services/redis";
 import { mongoDBConnection } from "./DB/db.connections";
 import { globalErrorHandler } from "./middlewares";
 import { authRouter } from "./modules/auth";
+import { categoryRouter } from "./modules/category";
+import { propertyRouter } from "./modules/property";
 
 // Takes a function following the common error-first callback style, i.e. taking an (err, value) => ... callback as the last argument, and returns a version that returns promises.
 // const s3WriteStream = promisify(pipeline);
@@ -19,6 +21,8 @@ export const bootstrap = async () => {
 
   //////////// APIs
   app.use("/api/auth", authRouter);
+  app.use("/api/categories", categoryRouter);
+  app.use("/api/properties", propertyRouter);
 
   ////////////// Invalid Routing
   app.use("/*dummy", (req, res, next) => {
