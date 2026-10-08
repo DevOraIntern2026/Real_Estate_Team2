@@ -105,9 +105,13 @@ class AuthService {
         "Please make sure to verify your account before login",
       );
     }
-    const { password: passwordToCheck, ...userProfile } = user;
+    const { password: userStoredPassword, ...userProfile } = user;
+    const correctPassword = await compareHash(
+      user?.password ?? DUMMY_HASH,
+      password,
+    );
 
-    if (!(await compareHash(passwordToCheck ?? DUMMY_HASH, password))) {
+    if (!user || !correctPassword) {
       throw new UnauthorizedException({ message: "Invalid login credentials" });
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
