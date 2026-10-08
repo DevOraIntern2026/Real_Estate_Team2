@@ -9,7 +9,9 @@ import {
 export const authorization = (accessRoles: RoleEnum[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return next(new UnauthorizedException("Authentication required"));
+      return next(
+        new UnauthorizedException({ message: "Authentication required" }),
+      );
     }
     if (!accessRoles.includes(req.user.role)) {
       return next(new ForbiddenException("Access denied"));

@@ -130,7 +130,7 @@ export class TokenService {
   }
 
   async createLoginTokens(
-    user: HydratedDocument<IUser>,
+    user: IUser,
     issuer: string,
     familyId: string = randomUUID(),
   ): Promise<IJwtTokenPair> {
@@ -138,7 +138,7 @@ export class TokenService {
 
     const jtId = randomUUID();
     const payload = {
-      sub: String(user._id),
+      sub: user,
       familyId,
       ver: user.tokenVersion ?? 0,
     };
