@@ -111,6 +111,7 @@ export function LoginForm({
       <GoogleAuthButton
         disabled={isGoogleSubmitting}
         onCredential={(idToken) =>
+          // eslint-disable-next-line react-hooks/incompatible-library
           onGoogleCredential?.(idToken, watch('rememberMe'))
         }
       />

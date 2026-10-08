@@ -21,13 +21,25 @@ export function LandingFooter() {
             <a aria-label="YouTube" className="flex size-12 items-center justify-center" href="#about"><img alt="" src={youtube} /></a>
           </div>
         </div>
-        <nav aria-label="Footer navigation" className="grid grid-cols-2 gap-x-12 gap-y-5 text-body-sm font-medium text-text-grey-dark sm:grid-cols-3">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-title-18 font-medium text-text-grey-dark">Download Our Application</h2>
+          <div className="flex flex-wrap gap-3">
+            <a aria-label="Download on the App Store" className="flex h-landing-store-badge min-w-landing-store-badge items-center gap-3 rounded-inner bg-neutral-900 px-4 text-white" href="#about">
+              <svg aria-hidden="true" className="size-landing-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M16.7 12.8c0-2.1 1.7-3.1 1.8-3.2a3.9 3.9 0 0 0-3.1-1.7c-1.3-.1-2.5.8-3.2.8-.7 0-1.7-.8-2.8-.8a4.2 4.2 0 0 0-3.5 2.1c-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.5 2.1 2.6 2.1 1 0 1.4-.7 2.7-.7s1.6.7 2.7.7c1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.2 1.1-2.3-.1 0-2-.8-2-3.5ZM14.6 6.5c.6-.7 1-1.6.9-2.5-.8 0-1.8.5-2.4 1.2-.5.6-1 1.6-.9 2.4.9.1 1.8-.4 2.4-1.1Z" /></svg>
+              <span className="flex flex-col leading-tight"><span className="text-caption-10">Download on the</span><span className="text-label-14 font-medium">App Store</span></span>
+            </a>
+            <a aria-label="Get it on Google Play" className="flex h-landing-store-badge min-w-landing-store-badge items-center gap-3 rounded-inner bg-neutral-900 px-4 text-white" href="#about">
+              <svg aria-hidden="true" className="size-landing-icon" fill="currentColor" viewBox="0 0 24 24"><path d="M4 3.8c-.3.3-.5.8-.5 1.4v13.6c0 .6.2 1.1.5 1.4L12 12 4 3.8Zm1.2-.8L14 10.3l2.6-2.5L7 2.4c-.7-.4-1.3-.3-1.8.1Zm12.5 5.7L15 11.2l3.3 3.2 2.6-1.4c.9-.5.9-1.3 0-1.8l-3.2-2.5Zm-12.5 13c.5.4 1.1.5 1.8.1l9.6-5.4-2.6-2.5-8.8 7.8Z" /></svg>
+              <span className="flex flex-col leading-tight"><span className="text-caption-10">GET IT ON</span><span className="text-label-14 font-medium">Google Play</span></span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto mt-12 flex w-full max-w-landing flex-wrap items-center justify-between gap-5 border-t border-border-grey-light pt-6 text-body-sm text-text-grey-light">
+        <div className="flex items-center gap-2"><img alt="" src={copyright} /><span>Homli Properties. All rights reserved.</span></div>
+        <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-8 gap-y-3 text-label-14 font-medium text-text-grey-dark">
           {footerLinks.map((label) => <a className="hover:text-brand-700" href={label === 'Home' ? '#home' : label === 'Search' ? '#search' : label === 'Sell' ? '#contact' : '#about'} key={label}>{label}</a>)}
         </nav>
-      </div>
-      <div className="mx-auto mt-12 flex w-full max-w-landing items-center gap-2 border-t border-border-grey-light pt-6 text-body-sm text-text-grey-light">
-        <img alt="" src={copyright} />
-        <span>Homli Properties. All rights reserved.</span>
       </div>
     </footer>
   )

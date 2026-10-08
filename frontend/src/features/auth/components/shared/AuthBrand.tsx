@@ -2,9 +2,10 @@ import homliMark from '@/assets/icons/homli-mark.svg'
 
 type AuthBrandProps = {
   variant?: 'default' | 'landing'
+  href?: string
 }
 
-export function AuthBrand({ variant = 'default' }: AuthBrandProps) {
+export function AuthBrand({ variant = 'default', href = '/' }: AuthBrandProps) {
   const isLanding = variant === 'landing'
 
   return (
@@ -12,7 +13,7 @@ export function AuthBrand({ variant = 'default' }: AuthBrandProps) {
       className={isLanding
         ? 'flex h-landing-nav-logo w-landing-nav-logo shrink-0 items-center gap-landing-logo-gap overflow-hidden no-underline max-landing-mobile:h-landing-nav-logo-mobile max-landing-mobile:w-landing-nav-logo-mobile'
         : 'flex h-auth-brand-height w-auth-brand items-center gap-2 overflow-hidden px-auth-brand-padding-x py-auth-brand-padding-y no-underline max-auth-mobile:h-20 max-auth-mobile:origin-left max-auth-mobile:scale-auth-brand'}
-      href="/"
+      href={href}
       aria-label="Homli Properties home"
     >
       <img

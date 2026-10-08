@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import {
   AuthBrand,
   AuthHero,
@@ -7,11 +8,19 @@ import { useGoogleAuth } from '@/features/auth/hooks/useGoogleAuth'
 import { useLogin } from '@/features/auth/hooks/useLogin'
 import type { LoginFormValues } from '@/features/auth/schemas/loginSchema'
 import { LoginForm } from './components/LoginForm'
+import { decodeAccessToken } from '@/services/api/tokenStorage'
+import type { LoginResult } from '@/features/auth/api/authApi'
 
 function LoginPage() {
+  const navigate = useNavigate()
   const loginMutation = useLogin()
   const googleAuthMutation = useGoogleAuth()
-  const handleLogin = (values: LoginFormValues) => loginMutation.mutate(values)
+  const handleSuccess = (result: LoginResult) => {
+    const session = decodeAccessToken(result.tokens.accessToken)
+    navigate(session.role === 'customer' ? '/customer-home' : '/', { replace: true })
+  }
+  const handleLogin = (values: LoginFormValues) =>
+    loginMutation.mutate(values, { onSuccess: handleSuccess })
 
   return (
     <main className="bg-bg-white pt-auth-login-top text-text-heading max-auth-tablet:px-6 max-auth-tablet:pt-6 max-auth-tablet:pb-12 max-auth-mobile:px-5 max-auth-mobile:pt-3 max-auth-mobile:pb-9 min-h-screen px-8 pb-16">
@@ -34,7 +43,7 @@ function LoginPage() {
                   idToken,
                   role: '2',
                   rememberMe,
-                })
+                }, { onSuccess: handleSuccess })
               }
               onSubmit={handleLogin}
             />
@@ -47,3 +56,4 @@ function LoginPage() {
 }
 
 export default LoginPage
+

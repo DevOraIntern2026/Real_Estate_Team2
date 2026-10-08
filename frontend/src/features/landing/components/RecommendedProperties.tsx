@@ -10,7 +10,10 @@ const properties = [
   { title: 'Luxury Townhouse', status: 'Available', kind: 'Townhouse', location: 'Future City, Egypt', price: 'EGP 5,000,000', image: available, rating: '4.9', beds: '4', baths: '3', area: '250' },
 ]
 
-export function RecommendedProperties() {
+export function RecommendedProperties({ customerView = false }: { customerView?: boolean }) {
+  const displayedProperties = customerView
+    ? [properties[2], properties[0], properties[1]]
+    : properties
   return (
     <section className="w-full px-landing-recommended-x pb-landing-section-bottom pt-6 max-landing-tablet:px-6 max-landing-mobile:px-4" id="recommended">
       <div className="flex items-center justify-between gap-6 max-landing-mobile:items-start">
@@ -18,7 +21,7 @@ export function RecommendedProperties() {
         <a className="inline-flex h-12 shrink-0 items-center gap-2 rounded-button bg-brand-700 px-4 text-label-14 font-medium text-white" href="#recommended">View All <img alt="" src={arrowForward} /></a>
       </div>
       <div className="mt-10 grid grid-cols-3 gap-6 max-landing-tablet:grid-cols-2 max-landing-mobile:grid-cols-1">
-        {properties.map((property) => (
+        {displayedProperties.map((property) => (
           <article className="overflow-hidden rounded-inner bg-white shadow-1" key={property.title}>
             <div className="relative h-landing-property-image">
               <img alt={property.title} className="size-full object-cover" src={property.image} />
@@ -38,6 +41,11 @@ export function RecommendedProperties() {
                 <span className="inline-flex items-center gap-2"><BathIcon className="size-landing-icon" />{property.baths} Baths</span>
                 <span className="inline-flex items-center gap-2"><AreaIcon className="size-landing-icon" />{property.area} m²</span>
               </div>
+              {customerView && (
+                <button className="mt-5 h-landing-detail-button w-full rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800" type="button">
+                  View Details
+                </button>
+              )}
             </div>
           </article>
         ))}
