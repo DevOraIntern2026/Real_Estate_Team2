@@ -25,6 +25,12 @@ import {
   resendConfirmationEmailDto,
   SignupDto,
 } from "./auth.dto";
+import { HydratedDocument, Types } from "mongoose";
+import { IAuthTokenPayload, IUser } from "../../common/interfaces";
+export enum LoggedOutDevices {
+  ALL,
+  ONE_DEVICE,
+}
 
 class AuthService {
   private readonly userRepo: UserRepo;
@@ -97,7 +103,7 @@ class AuthService {
       );
     }
     if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
-      throw new UnauthorizedException("Invalid login credentials");
+      throw new UnauthorizedException({ message: "Invalid login credentials" });
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
@@ -340,18 +346,16 @@ class AuthService {
     const existingUser = await this.userRepo.findOne({
       filter: {
         email: payload.email as string,
+        confirmedAt: { $exists: true },
       },
     });
     if (existingUser) {
-      if (existingUser.provider !== ProviderEnums.GOOGLE) {
-        throw new ConflictException("Invalid account provider");
-      }
-      // login with gmail
-      const loginTokens = await this.tokenService.createLoginTokens(
-        existingUser,
-        issuer,
-      );
-      return { loginTokens, status: 200 };
+      return {
+        loginTokens: await this.tokenService.createLoginTokens(
+          existingUser,
+          issuer,
+        ),
+      };
     }
     const createdUser = await this.userRepo.createOne({
       data: {
@@ -372,10 +376,42 @@ class AuthService {
       ),
     };
   }
+  //////////////// logout & refresh token
+  async logout(
+    { flag }: { flag: LoggedOutDevices },
+    user: HydratedDocument<IUser>,
+    { sub, familyId }: Pick<IAuthTokenPayload, "sub" | "familyId">,
+  ): Promise<void> {
+    if (flag === LoggedOutDevices.ALL) {
+      await this.revokeAllSessions(user._id);
+      return;
+    }
+    // This device only: kills its access + refresh tokens immediately.
+    await this.tokenService.revokeFamily(sub, familyId);
+  }
+  async revokeAllSessions(userId: string | Types.ObjectId) {
+    const id =
+      typeof userId === "string"
+        ? Types.ObjectId.createFromHexString(userId)
+        : userId;
+
+    await this.userRepo.findByIdAndUpdate({
+      _id: id,
+      update: { $inc: { tokenVersion: 1 } },
+    });
+  }
+
+  async logoutByToken(token: string): Promise<void> {
+    await this.tokenService.revokeSessionByToken(token);
+  }
+  async rotateToken(
+    user: HydratedDocument<IUser>,
+    payload: IAuthTokenPayload,
+    issuer: string,
+  ) {
+    return this.tokenService.rotate(user, payload, issuer);
+  }
 }
 
 // single tone design pattern instead of taking an instance on each use we export the instance itself
 export default new AuthService();
-
-//       { email, confirmEmail: { $exists: true }, provider: providerEnum.system },
-//

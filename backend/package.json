@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=dev concurrently \"tsc --watch\" \"node --watch dist/main.js\"",
+    "dev": "cross-env NODE_ENV=dev concurrently -k -n tsc,node \"tsc --watch --preserveWatchOutput\" \"node --watch dist/main.js\"",
     "prod": "cross-env NODE_ENV=prod concurrently \"tsc --watch\" \"node --watch dist/main.js\"",
     "build": "tsc",
     "start": "node dist/main.js"

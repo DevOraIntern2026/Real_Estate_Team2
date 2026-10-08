@@ -9,6 +9,7 @@ export interface IUser {
   phone?: string;
   bio?: string;
   // friends?: Types.ObjectId[] | IUser[];
+  tokenVersion?: number;
   provider: ProviderEnums;
   profileImage?: string;
   coverImages?: string[];
