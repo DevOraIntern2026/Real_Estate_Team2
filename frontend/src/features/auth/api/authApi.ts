@@ -22,6 +22,11 @@ export type LoginRequest = {
   password: string
 }
 
+export type LogoutRequest = {
+  /** 0 revokes all sessions; 1 revokes the current device session. */
+  flag: 0 | 1
+}
+
 export type AuthTokens = {
   accessToken: string
   refreshToken: string
@@ -96,6 +101,12 @@ export async function login(payload: LoginRequest): Promise<LoginResult> {
       refreshToken: tokens.refreshToken,
     },
   }
+}
+
+export async function logout(payload: LogoutRequest) {
+  const { data } = await apiClient.post<ApiResponse>('/auth/logout', payload)
+
+  return data
 }
 
 export async function signUp(payload: SignUpRequest) {

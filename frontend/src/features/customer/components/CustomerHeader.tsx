@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
+import { useLogout } from '@/features/auth/hooks/useLogout'
 import { HeartIcon } from '@/features/landing/components/LandingIcons'
-import { clearAuthTokens, getAuthSession } from '@/services/api/tokenStorage'
+import { getAuthSession } from '@/services/api/tokenStorage'
 import {
   ChevronDownIcon,
   CustomerAvatarIcon,
@@ -20,6 +21,7 @@ const navigation = [
 export function CustomerHeader() {
   const navigate = useNavigate()
   const authSession = getAuthSession()
+  const logoutMutation = useLogout()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
@@ -31,8 +33,10 @@ export function CustomerHeader() {
   }
 
   const handleLogout = () => {
-    clearAuthTokens()
-    navigate('/login', { replace: true })
+    closeMenus()
+    logoutMutation.mutate({ flag: 1 }, {
+      onSettled: () => navigate('/login', { replace: true }),
+    })
   }
 
   const navigationLinks = navigation.map((item) => (
@@ -104,8 +108,8 @@ export function CustomerHeader() {
                 </p>
                 <p className="mt-1 text-caption-12 text-text-grey-shade">Your Homli account</p>
               </div>
-              <button className="mt-2 w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50" onClick={handleLogout} type="button">
-                Log out
+              <button className="mt-2 w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50 disabled:opacity-50" disabled={logoutMutation.isPending} onClick={handleLogout} type="button">
+                {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
               </button>
             </div>
           )}
