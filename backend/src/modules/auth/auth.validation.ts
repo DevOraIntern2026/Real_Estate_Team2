@@ -26,6 +26,13 @@ export const signup = {
       phone: generalValidationFields.phone.optional(),
       confirmPassword: generalValidationFields.confirmPassword,
       gender: generalValidationFields.gender,
+      // Public signup can only self-select these three roles; ADMIN accounts
+      // are never created through this endpoint.
+      role: z
+        .enum(["customer", "owner", "agent"], {
+          error: "Role must be one of customer, owner or agent",
+        })
+        .default("customer"),
     })
     .refine(
       // for multiple logic we use superRefine instead
