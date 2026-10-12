@@ -12,9 +12,9 @@ export const authentication = (tokenType: TokenType = TokenType.ACCESS) => {
     );
 
     if (scheme?.toLowerCase() !== "bearer" || !token || extra.length) {
-      throw new UnauthorizedException(
-        "Missing or malformed authorization header",
-      );
+      throw new UnauthorizedException({
+        message: "Missing or malformed authorization header",
+      });
     }
 
     const { decodedToken, userAccount } = await tokenService.decodeToken({

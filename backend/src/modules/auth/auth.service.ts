@@ -95,6 +95,9 @@ class AuthService {
         confirmedAt: { $exists: true },
         paranoid: false,
       },
+      projection:
+        "id username email __v provider role paranoid tokenVersion password firstName lastName",
+      options: { lean: true },
     });
 
     if (!user) {
@@ -102,13 +105,19 @@ class AuthService {
         "Please make sure to verify your account before login",
       );
     }
-    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
+    const { password: userStoredPassword, ...userProfile } = user;
+    const correctPassword = await compareHash(
+      user?.password ?? DUMMY_HASH,
+      password,
+    );
+
+    if (!user || !correctPassword) {
       throw new UnauthorizedException({ message: "Invalid login credentials" });
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
     //////////////////////////////////////////// using a secret key based on the user's role (admin | user)
-    return this.tokenService.createLoginTokens(user, issuer);
+    return this.tokenService.createLoginTokens(userProfile, issuer);
   }
   private async generateAndSendConfirmationOtp(
     email: string,
