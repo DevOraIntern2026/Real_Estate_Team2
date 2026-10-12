@@ -10,9 +10,14 @@ import {
   CUSTOMER_REFRESH_TOKEN_SECRET_KEY,
   CUSTOMER_TOKEN_SECRET_KEY,
   OWNER_REFRESH_TOKEN_SECRET_KEY,
+<<<<<<< HEAD
   OWNER_TOKEN_SECRET_KEY,
   REFRESH_ROTATION_GRACE_SECONDS,
   REFRESH_TOKEN_EXPIRATION_TIME,
+=======
+  AGENT_TOKEN_SECRET_KEY,
+  AGENT_REFRESH_TOKEN_SECRET_KEY,
+>>>>>>> origin/feature/Admin-Dashboard
 } from "../../config/config";
 import { AudienceEnum, RoleEnum } from "../../enums";
 import { authError, AuthErrorCode } from "../../enums/";
@@ -102,6 +107,7 @@ export class TokenService {
           accessSignature: OWNER_TOKEN_SECRET_KEY,
           refreshSignature: OWNER_REFRESH_TOKEN_SECRET_KEY,
         };
+<<<<<<< HEAD
 
         audience = AudienceEnum.OWNER;
         break;
@@ -109,6 +115,23 @@ export class TokenService {
         signatures = {
           accessSignature: CUSTOMER_TOKEN_SECRET_KEY,
           refreshSignature: CUSTOMER_REFRESH_TOKEN_SECRET_KEY,
+=======
+      case RoleEnum.AGENT:
+        return {
+          signatures: {
+            accessSignature: AGENT_TOKEN_SECRET_KEY,
+            refreshSignature: AGENT_REFRESH_TOKEN_SECRET_KEY,
+          },
+          audience: AudienceEnum.AGENT,
+        };
+      default: // CUSTOMER (least privilege)
+        return {
+          signatures: {
+            accessSignature: CUSTOMER_TOKEN_SECRET_KEY,
+            refreshSignature: CUSTOMER_REFRESH_TOKEN_SECRET_KEY,
+          },
+          audience: AudienceEnum.USER,
+>>>>>>> origin/feature/Admin-Dashboard
         };
         audience = AudienceEnum.USER;
         break;
@@ -116,6 +139,7 @@ export class TokenService {
     return { signatures, audience };
   }
 
+<<<<<<< HEAD
   private getSecret(
     tokenType: TokenType,
     audience: number,
@@ -125,6 +149,22 @@ export class TokenService {
       return isSystem
         ? ADMIN_REFRESH_TOKEN_SECRET_KEY
         : CUSTOMER_REFRESH_TOKEN_SECRET_KEY;
+=======
+  // audience -> role. The two enums have DIFFERENT numeric orders, so this
+  // mapping must be explicit. Unknown audiences are rejected.
+  private roleFromAudience(aud: number): RoleEnum {
+    switch (aud) {
+      case AudienceEnum.ADMIN:
+        return RoleEnum.ADMIN;
+      case AudienceEnum.OWNER:
+        return RoleEnum.OWNER;
+      case AudienceEnum.AGENT:
+        return RoleEnum.AGENT;
+      case AudienceEnum.USER:
+        return RoleEnum.CUSTOMER;
+      default:
+        throw new UnauthorizedException("Invalid token audience");
+>>>>>>> origin/feature/Admin-Dashboard
     }
     return isSystem ? ADMIN_TOKEN_SECRET_KEY : CUSTOMER_TOKEN_SECRET_KEY;
   }

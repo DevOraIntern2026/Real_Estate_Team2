@@ -470,3 +470,98 @@
     @apply border-border-grey-disable pointer-events-none;
   }
 }
+
+
+
+/* =====================================================================
+   DevOra admin: global design tokens (Tailwind CSS v4)
+   Import once in main.tsx:  import "./styles/global.css";
+   ===================================================================== */
+
+
+@theme {
+
+  /* ---------- Colors: brand ---------- */
+  --color-primary: #87400e;          /* buttons, links, active states   */
+  --color-primary-hover: #6f3309;    /* hover / pressed                 */
+  --color-primary-soft: #f3e9e0;     /* badges, avatars, chips          */
+  --color-on-primary: #fafafa;       /* text on top of primary          */
+
+  /* ---------- Colors: text ---------- */
+  --color-ink: #241a12;              /* main text                       */
+  --color-muted: #5a4f49;            /* secondary text, placeholders    */
+  --color-on-dark: #f7f7f6;          /* text on the brown sidebar       */
+
+  /* ---------- Colors: surfaces ---------- */
+  --color-surface: #fffaf5;          /* page background (cream)         */
+  --color-surface-alt: #ede6e1;      /* unread rows, subtle blocks      */
+  --color-overlay: rgb(0 0 0 / 0.4); /* dialog backdrop                 */
+
+  /* ---------- Colors: status (strong = dot, soft = background, ink = text) ---------- */
+  --color-success: #22c55e;
+  --color-success-soft: #f0fdf4;
+  --color-success-ink: #16a34a;
+
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-danger-ink: #dc2626;
+
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-warning-ink: #b45309;
+
+  --color-info: #3b82f6;
+  --color-info-soft: #eff6ff;
+  --color-info-ink: #1d4ed8;
+
+  --color-neutral: #9ca3af;
+  --color-neutral-soft: #f3f4f6;
+  --color-neutral-ink: #4b5563;
+
+  /* ---------- Radius ---------- */
+  --radius-sm: 0.25rem;   /* inputs, buttons, cards (rounded-sm)  */
+  --radius-base: 0.25rem; /* same, for Flowbite-style rounded-base */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;      /* rounded-full stays built in (avatars, pills) */
+
+  /* ---------- Shadows ---------- */
+  --shadow-card: 0 1px 3px rgb(36 26 18 / 0.08), 0 1px 2px rgb(36 26 18 / 0.06);
+  --shadow-popover: 0 8px 24px rgb(36 26 18 / 0.12);  /* dropdowns */
+  --shadow-modal: 0 16px 48px rgb(36 26 18 / 0.2);    /* dialogs   */
+
+  /* ---------- Spacing (p-page, mt-section, ms-sidebar ...) ---------- */
+  --spacing-page: 2rem;     /* page padding        (was p-8)  */
+  --spacing-section: 2rem;  /* gap between sections (was mt-8) */
+  --spacing-card: 1rem;     /* inside cards        (was p-4)  */
+  --spacing-sidebar: 20rem; /* sidebar width       (was w-80 / md:ms-80) */
+}
+
+/* border-hairline = the thin 0.8px border used across the design */
+@utility border-hairline {
+  border-width: 0.8px;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* keyboard focus is visible everywhere (accessibility) */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+}

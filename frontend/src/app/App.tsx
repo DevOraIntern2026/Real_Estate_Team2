@@ -8,6 +8,20 @@ import VerifyOtpPage from '@/features/auth/pages/verify-otp/VerifyOtpPage'
 import LandingPage from '@/features/landing/pages/LandingPage'
 import CustomerHomePage from '@/features/customer/pages/CustomerHomePage'
 import { getAuthSession } from '@/services/api/tokenStorage'
+import MainLayout from '@/components/layout/MainLayout'
+import UsersLayout from '@/components/layout/UsersLayout'
+import { AdminProvider } from '@/features/admin/context/AdminContext'
+import { NotificationsProvider } from '@/features/admin/context/NotificationsContext'
+import { PropertiesProvider } from '@/features/admin/context/PropertiesContext'
+import ListingDetails from '@/features/admin/Pages/listing-details/ListingDetails'
+import Listing from '@/features/admin/Pages/Listing/Listing'
+import Notifications from '@/features/admin/Pages/Notification/Notification'
+import Overview from '@/features/admin/Pages/Overview/Overview'
+import Profile from '@/features/admin/Pages/Profile/Profile'
+import Reports from '@/features/admin/Pages/Reports/Reports'
+import UserProfile from '@/features/admin/Pages/Users/UserProfile'
+import Users from '@/features/admin/Pages/Users/Users'
+import { UsersProvider } from '@/features/admin/Pages/Users/UsersContext'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -22,17 +36,42 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<LandingPage />} path="/" />
-        <Route element={<CustomerHomeRoute />} path="/customer-home" />
-        <Route element={<LoginPage />} path="/login" />
-        <Route element={<ResetPasswordPage />} path="/reset-password" />
-        <Route element={<ForgotPasswordPage />} path="/forgot-password" />
-        <Route element={<EmailVerificationPage />} path="/verify-email" />
-        <Route element={<VerifyOtpPage />} path="/verify-otp" />
-        <Route element={<SignUpPage />} path="/signup" />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/customer-home" element={<CustomerHomeRoute />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
       </Routes>
+
+      <AdminProvider>
+        <PropertiesProvider>
+          <NotificationsProvider>
+            <UsersProvider>
+              <Routes>
+                <Route path="/admin" element={<MainLayout />}>
+                  <Route index element={<Overview />} />
+                  <Route path="listing">
+                    <Route index element={<Listing />} />
+                    <Route path=":listingId" element={<ListingDetails />} />
+                  </Route>
+                  <Route path="users" element={<UsersLayout />}>
+                    <Route index element={<Users />} />
+                    <Route path=":userId" element={<UserProfile />} />
+                  </Route>
+                  <Route path="notification" element={<Notifications />} />
+                  <Route path="reports" element={<Reports />} />
+                  <Route path="profile" element={<Profile />} />
+                </Route>
+              </Routes>
+            </UsersProvider>
+          </NotificationsProvider>
+        </PropertiesProvider>
+      </AdminProvider>
     </BrowserRouter>
   )
 }
 
-export default App
+export default App;

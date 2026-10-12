@@ -18,6 +18,7 @@ export const login = {
   }),
 };
 export const signup = {
+<<<<<<< HEAD
   body: z.strictObject({
     username: generalValidationFields.username,
     email: generalValidationFields.email,
@@ -34,6 +35,31 @@ export const signup = {
   //   },
   //   { error: "Make sure that both passwords match" },
   // ),
+=======
+  body: z
+    .strictObject({
+      username: generalValidationFields.username,
+      email: generalValidationFields.email,
+      password: generalValidationFields.password,
+      phone: generalValidationFields.phone.optional(),
+      confirmPassword: generalValidationFields.confirmPassword,
+      gender: generalValidationFields.gender,
+      // Public signup can only self-select these three roles; ADMIN accounts
+      // are never created through this endpoint.
+      role: z
+        .enum(["customer", "owner", "agent"], {
+          error: "Role must be one of customer, owner or agent",
+        })
+        .default("customer"),
+    })
+    .refine(
+      // for multiple logic we use superRefine instead
+      (inputs) => {
+        return inputs.password === inputs.confirmPassword;
+      },
+      { error: "Make sure that both passwords match" },
+    ),
+>>>>>>> origin/feature/Admin-Dashboard
 };
 
 export const confirmEmail = {
