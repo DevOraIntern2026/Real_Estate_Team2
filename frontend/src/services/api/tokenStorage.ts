@@ -20,6 +20,15 @@ type AccessTokenPayload = {
   exp?: unknown
 }
 
+type AccessTokenUser = {
+  _id?: unknown
+  id?: unknown
+  name?: unknown
+  username?: unknown
+  firstName?: unknown
+  lastName?: unknown
+}
+
 let cachedAccessToken: string | null | undefined
 let cachedAuthSession: AuthSession | null = null
 
@@ -56,9 +65,21 @@ export function decodeAccessToken(token: string): AuthSession {
   const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
   const tokenType = Number(audiences[0])
   const roleAudience = Number(audiences[1])
+  const subject = payload.sub
+  const user = subject && typeof subject === 'object'
+    ? subject as AccessTokenUser
+    : null
+  const subjectId =
+    typeof subject === 'string'
+      ? subject
+      : typeof user?._id === 'string'
+        ? user._id
+        : typeof user?.id === 'string'
+          ? user.id
+          : null
 
   if (tokenType !== 0) throw new Error('The token is not an access token.')
-  if (typeof payload.sub !== 'string' || !payload.sub) {
+  if (!subjectId) {
     throw new Error('The access token does not identify a user.')
   }
   if (typeof payload.exp !== 'number' || payload.exp <= Date.now() / 1000) {
@@ -75,8 +96,14 @@ export function decodeAccessToken(token: string): AuthSession {
   if (!role) throw new Error('The access token has an unknown role.')
 
   return {
-    userId: payload.sub,
-    name: typeof payload.name === 'string' ? payload.name : '',
+    userId: subjectId,
+    name:
+      (typeof payload.name === 'string' && payload.name) ||
+      (typeof user?.name === 'string' && user.name) ||
+      (typeof user?.username === 'string' && user.username) ||
+      [user?.firstName, user?.lastName]
+        .filter((part): part is string => typeof part === 'string' && Boolean(part))
+        .join(' '),
     role,
     expiresAt: payload.exp,
   }
