@@ -228,9 +228,9 @@
 
   /* Landing page layout values from the Homli Figma frame */
   --container-landing: 1280px;
-  --spacing-landing-hero-height: 673px;
-  --spacing-landing-hero: 673px;
-  --spacing-landing-hero-top: 11px;
+  --spacing-landing-hero-height: 699px;
+  --spacing-landing-hero: 699px;
+  --spacing-landing-hero-top: 16px;
   --spacing-landing-content-width: 1205px;
   --spacing-landing-search-panel: 1205px;
   --spacing-landing-category-card: 280px;
@@ -269,11 +269,11 @@
   --spacing-landing-search-dropdown: 327px;
   --spacing-landing-search-button: 159px;
   --spacing-landing-search-gap: 5.66px;
-  --spacing-landing-hero-x: 78px;
+  --spacing-landing-hero-x: 88px;
   --spacing-landing-hero-height-tablet: 580px;
   --spacing-landing-hero-height-mobile: 560px;
   --spacing-landing-hero-copy: 479px;
-  --spacing-landing-search-overlap: 55px;
+  --spacing-landing-search-overlap: 35px;
   --spacing-landing-search-field: 80px;
   --spacing-landing-banner: 211px;
   --spacing-landing-banner-copy: 438px;
@@ -303,6 +303,8 @@
   --spacing-landing-customer-header: 88px;
   --spacing-landing-action-icon: 24px;
   --spacing-landing-avatar-icon: 36px;
+  --spacing-landing-customer-profile: 48px;
+  --spacing-landing-customer-avatar: 32px;
   --spacing-landing-header-menu: 240px;
   --spacing-landing-detail-button: 48px;
   --spacing-landing-store-badge: 52px;
@@ -335,6 +337,7 @@
   --container-customer-agent-copy: 590px;
   --container-customer-agent-title: 519px;
   --container-customer-agent-description: 570px;
+  --container-landing-profile-name: 140px;
   --radius-contact: 50px;
   --radius-landing-header: 40px;
   --text-body-20: 20px;
@@ -355,6 +358,8 @@
   --text-landing-brand-mobile--line-height: 32px;
   --text-landing-brand-caption-mobile: 7px;
   --text-landing-brand-caption-mobile--line-height: 9px;
+  --text-landing-profile-name: 18px;
+  --text-landing-profile-name--line-height: 1;
   --grid-template-columns-landing-search: repeat(3, minmax(0, 327px)) 159px;
   --text-landing-hero: 72px;
   --text-landing-hero--line-height: 1.2;

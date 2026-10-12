@@ -4,11 +4,7 @@ import chevronDownIcon from '@/assets/images/chevron-down-landing.svg'
 export function PropertySearch() {
   return (
     <section aria-label="Search properties" className="relative z-2 mx-auto -mt-landing-search-overlap w-full max-w-landing-search-panel rounded-inner bg-bg-white p-6 shadow-2 max-landing-mobile:p-4" id="search">
-      <div aria-label="Listing type" className="grid grid-cols-2 border-b border-border-primary">
-        <button className="border-b-3 border-brand-700 px-4 py-4 text-label-14 font-medium text-text-grey-dark" type="button">Buy</button>
-        <button className="px-4 py-4 text-label-14 font-medium text-text-grey-light" type="button">Rent</button>
-      </div>
-      <label className="mt-6 flex h-landing-search-field items-center gap-3 rounded-inner border border-border-grey-shade px-5 text-icon-grey-light">
+      <label className="flex h-landing-search-field items-center gap-3 rounded-inner border border-border-grey-shade px-5 text-icon-grey-light">
         <img alt="" src={searchIcon} />
         <input className="min-w-0 flex-1 bg-transparent text-body-sm text-text-grey-dark outline-none placeholder:text-text-grey-light" placeholder="Search by Area or Location" />
       </label>

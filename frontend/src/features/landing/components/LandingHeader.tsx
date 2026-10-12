@@ -10,7 +10,7 @@ const navigation = [
 
 export function LandingHeader() {
   return (
-    <header className="relative z-10 mx-auto flex w-full max-w-landing items-center justify-between gap-6 rounded-b-landing-header bg-bg-white px-landing-header-x shadow-1 max-landing-tablet:gap-4 max-landing-tablet:px-6 max-landing-mobile:gap-2 max-landing-mobile:px-4">
+    <header className="relative z-10 mx-auto flex min-h-landing-customer-header w-full max-w-landing items-center justify-between gap-6 rounded-b-landing-header bg-bg-white px-landing-header-x shadow-1 max-landing-tablet:gap-4 max-landing-tablet:px-6 max-landing-mobile:gap-2 max-landing-mobile:px-4">
       <AuthBrand variant="landing" />
       <nav aria-label="Main navigation" className="hidden items-center gap-landing-nav lg:flex">
         {navigation.map((item) => (

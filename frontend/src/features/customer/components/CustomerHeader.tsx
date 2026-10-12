@@ -6,7 +6,6 @@ import { HeartIcon } from '@/features/landing/components/LandingIcons'
 import { getAuthSession } from '@/services/api/tokenStorage'
 import {
   ChevronDownIcon,
-  CustomerAvatarIcon,
   MenuIcon,
   NotificationIcon,
 } from '@/features/customer/components/CustomerIcons'
@@ -21,6 +20,13 @@ const navigation = [
 export function CustomerHeader() {
   const navigate = useNavigate()
   const authSession = getAuthSession()
+  const displayName = authSession?.name || 'Customer'
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
   const logoutMutation = useLogout()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
@@ -58,7 +64,7 @@ export function CustomerHeader() {
         {navigationLinks}
       </nav>
 
-      <div className="flex shrink-0 items-center gap-5 text-brand-700 max-landing-tablet:gap-3 max-landing-mobile:gap-2">
+      <div className="flex shrink-0 items-center gap-8 text-brand-700 max-landing-tablet:gap-3 max-landing-mobile:gap-2">
         <a aria-label="View featured properties" className="flex size-landing-action-icon items-center justify-center" href="#recommended" onClick={closeMenus}>
           <HeartIcon className="size-landing-action-icon" />
         </a>
@@ -87,18 +93,21 @@ export function CustomerHeader() {
         <div className="relative">
           <button
             aria-expanded={isProfileOpen}
-            className="flex items-center gap-2 rounded-button text-text-grey-dark"
+            aria-label={`Account menu for ${displayName}`}
+            className="flex h-landing-customer-profile items-center gap-2 rounded-button bg-brand-900 py-2 pl-2 pr-4 text-white max-landing-mobile:h-landing-avatar-icon max-landing-mobile:pr-2"
             onClick={() => {
               setIsProfileOpen((open) => !open)
               setIsNotificationsOpen(false)
             }}
             type="button"
           >
-            <CustomerAvatarIcon className="size-landing-avatar-icon text-brand-700" />
-            <span className="hidden max-w-40 truncate text-label-14 font-medium sm:inline">
-              {authSession?.name || 'Customer'}
+            <span aria-hidden="true" className="flex size-landing-customer-avatar shrink-0 items-center justify-center rounded-full bg-brand-50 text-caption-12 font-bold text-brand-700">
+              {initials}
             </span>
-            <ChevronDownIcon className="size-landing-small-icon text-icon-grey-shade" />
+            <span className="max-w-landing-profile-name truncate text-landing-profile-name font-medium text-white max-landing-mobile:hidden">
+              {displayName}
+            </span>
+            <ChevronDownIcon className="size-landing-small-icon text-brand-200 max-landing-mobile:hidden" />
           </button>
           {isProfileOpen && (
             <div className="absolute right-0 top-full z-30 mt-3 w-landing-header-menu rounded-inner border border-border-grey-shade bg-white p-3 shadow-2">
