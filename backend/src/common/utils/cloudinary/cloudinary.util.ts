@@ -7,9 +7,9 @@ import {
 import { internalServerError } from "../../exceptions";
 
 cloudinary.config({
-  cloud_name: CLOUDINARY_CLOUD_NAME,
-  api_key: CLOUDINARY_API_KEY,
-  api_secret: CLOUDINARY_API_SECRET,
+  cloud_name: CLOUDINARY_CLOUD_NAME as string,
+  api_key: CLOUDINARY_API_KEY as string,
+  api_secret: CLOUDINARY_API_SECRET as string,
   secure: true,
 });
 
@@ -58,7 +58,9 @@ export const uploadManyBuffersToCloudinary = async ({
   folder?: string;
 }): Promise<UploadApiResponse[]> => {
   return Promise.all(
-    files.map((file) => uploadBufferToCloudinary({ buffer: file.buffer, folder })),
+    files.map((file) =>
+      uploadBufferToCloudinary({ buffer: file.buffer, folder }),
+    ),
   );
 };
 
@@ -66,7 +68,10 @@ export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
   try {
     await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
   } catch (error) {
-    throw new internalServerError("Failed to delete image from Cloudinary", error);
+    throw new internalServerError(
+      "Failed to delete image from Cloudinary",
+      error,
+    );
   }
 };
 
@@ -75,9 +80,14 @@ export const deleteManyFromCloudinary = async (
 ): Promise<void> => {
   if (!publicIds.length) return;
   try {
-    await cloudinary.api.delete_resources(publicIds, { resource_type: "image" });
+    await cloudinary.api.delete_resources(publicIds, {
+      resource_type: "image",
+    });
   } catch (error) {
-    throw new internalServerError("Failed to delete images from Cloudinary", error);
+    throw new internalServerError(
+      "Failed to delete images from Cloudinary",
+      error,
+    );
   }
 };
 

@@ -1,11 +1,6 @@
 import { OAuth2Client, TokenPayload } from "google-auth-library";
 import { DUMMY_HASH, WEB_CLIENT_ID } from "../../common/config/config";
-import {
-  EmailConfig,
-  EmailEnum,
-  ProviderEnums,
-  RoleEnum,
-} from "../../common/enums";
+import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
 
 import {
   BadRequestException,
@@ -53,7 +48,7 @@ class AuthService {
     password,
     role = 2,
     phone,
-  }: SignupDto): Promise<IUser> {
+  }: SignupDto): Promise<null> {
     const checkExistingUser = await this.userRepo.findOne({
       filter: { email },
       projection: "email",
@@ -63,6 +58,9 @@ class AuthService {
     if (checkExistingUser) {
       throw new ConflictException("This email already exists");
     }
+    if (role < 1 || role > 2) {
+      throw new BadRequestException("Invalid role input");
+    }
     const user =
       (await this.userRepo.createOne({
         data: {
@@ -71,7 +69,6 @@ class AuthService {
           role,
           password: password,
           phone: phone ? phone : null,
-          role: roleMap[role] ?? RoleEnum.CUSTOMER,
         },
       })) || [];
 
@@ -107,6 +104,15 @@ class AuthService {
       throw new NotFoundException(
         "Please make sure to verify your account before login",
       );
+    }
+    const { password: userStoredPassword, ...userProfile } = user;
+    const correctPassword = await compareHash(
+      user?.password ?? DUMMY_HASH,
+      password,
+    );
+
+    if (!user || !correctPassword) {
+      throw new UnauthorizedException({ message: "Invalid login credentials" });
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
