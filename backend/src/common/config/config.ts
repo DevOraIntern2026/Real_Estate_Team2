@@ -32,6 +32,8 @@ export const ACCESS_TOKEN_EXPIRATION_TIME =
 export const REFRESH_TOKEN_EXPIRATION_TIME =
   process.env.REFRESH_TOKEN_EXPIRATION_TIME;
 export const INVITE_SECRET = process.env["INVITE_SECRET"];
-
+export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY;
+export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET;
+export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME;
 // google Signup&Login
 export const WEB_CLIENT_ID = process.env.WEB_CLIENT_ID as string;
