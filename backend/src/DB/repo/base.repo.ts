@@ -292,4 +292,12 @@ export abstract class DataBaseRepo<TRawDoc> {
   }): Promise<DeleteResult> {
     return await this.model.deleteMany(filter, options);
   }
+
+  ///////////////// Aggregation / distinct (read-only helpers)
+  async aggregate<TResult = any>(pipeline: any[]): Promise<TResult[]> {
+    return await this.model.aggregate(pipeline);
+  }
+  async distinct(field: string, filter?: QueryFilter<TRawDoc>): Promise<any[]> {
+    return await this.model.distinct(field, filter as any);
+  }
 }
