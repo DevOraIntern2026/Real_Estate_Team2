@@ -7,6 +7,7 @@ import SignUpPage from '@/features/auth/pages/sign-up/SignUpPage'
 import VerifyOtpPage from '@/features/auth/pages/verify-otp/VerifyOtpPage'
 import LandingPage from '@/features/landing/pages/LandingPage'
 import CustomerHomePage from '@/features/customer/pages/CustomerHomePage'
+import SearchPage from '@/features/search/pages/SearchPage'
 import { getAuthSession } from '@/services/api/tokenStorage'
 import MainLayout from '@/components/layout/MainLayout'
 import UsersLayout from '@/components/layout/UsersLayout'
@@ -32,12 +33,23 @@ function CustomerHomeRoute() {
   return <CustomerHomePage />
 }
 
+function CustomerSearchRoute() {
+  const session = getAuthSession()
+
+  if (!session) return <Navigate replace to="/login" />
+  if (session.role !== 'customer') return <Navigate replace to="/" />
+
+  return <SearchPage authenticated />
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/customer-home" element={<CustomerHomeRoute />} />
+        <Route path="/search" element={<SearchPage authenticated={false} />} />
+        <Route path="/customer-search" element={<CustomerSearchRoute />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />

@@ -2,25 +2,21 @@ import { Link } from 'react-router-dom'
 import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
 
 const navigation = [
-  { label: 'Home', href: '#home' },
-  { label: 'Search', href: '#search' },
-  { label: 'Sell', href: '#contact' },
-  { label: 'About', href: '#about' },
+  { label: 'Home', href: '/' },
+  { label: 'Search', href: '/search' },
+  { label: 'Sell', href: '/#contact' },
+  { label: 'About', href: '/#about' },
 ]
 
-export function LandingHeader() {
+export function LandingHeader({ activePage = 'Home' }: { activePage?: string }) {
   return (
     <header className="relative z-10 mx-auto flex min-h-landing-customer-header w-full max-w-landing items-center justify-between gap-6 rounded-b-landing-header bg-bg-white px-landing-header-x shadow-1 max-landing-tablet:gap-4 max-landing-tablet:px-6 max-landing-mobile:gap-2 max-landing-mobile:px-4">
       <AuthBrand variant="landing" />
       <nav aria-label="Main navigation" className="hidden items-center gap-landing-nav lg:flex">
-        {navigation.map((item) => (
-          <a
-            className="whitespace-nowrap text-landing-nav font-medium text-text-grey-dark transition-colors hover:text-brand-700 first:text-brand-700"
-            href={item.href}
-            key={item.label}
-          >
-            {item.label}
-          </a>
+        {navigation.map((item) => item.href.startsWith('/') ? (
+          <Link className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`} key={item.label} to={item.href}>{item.label}</Link>
+        ) : (
+          <a className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`} href={item.href} key={item.label}>{item.label}</a>
         ))}
       </nav>
       <div className="flex shrink-0 items-center gap-2.5 max-landing-mobile:gap-2">

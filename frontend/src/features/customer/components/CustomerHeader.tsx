@@ -11,13 +11,13 @@ import {
 } from '@/features/customer/components/CustomerIcons'
 
 const navigation = [
-  { label: 'Home', href: '#home' },
-  { label: 'Search', href: '#search' },
-  { label: 'Sell', href: '#contact' },
-  { label: 'About', href: '#about' },
+  { label: 'Home', href: '/customer-home' },
+  { label: 'Search', href: '/customer-search' },
+  { label: 'Sell', href: '/customer-home#contact' },
+  { label: 'About', href: '/customer-home#about' },
 ]
 
-export function CustomerHeader() {
+export function CustomerHeader({ activePage = 'Home' }: { activePage?: string }) {
   const navigate = useNavigate()
   const authSession = getAuthSession()
   const displayName = authSession?.name || 'Customer'
@@ -45,9 +45,16 @@ export function CustomerHeader() {
     })
   }
 
-  const navigationLinks = navigation.map((item) => (
+  const navigationLinks = navigation.map((item) => item.href.startsWith('/') ? (
+    <Link
+      className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`}
+      key={item.label}
+      onClick={closeMenus}
+      to={item.href}
+    >{item.label}</Link>
+  ) : (
     <a
-      className="whitespace-nowrap text-landing-nav font-medium text-text-grey-dark transition-colors hover:text-brand-700 first:text-brand-700"
+      className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`}
       href={item.href}
       key={item.label}
       onClick={closeMenus}

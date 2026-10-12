@@ -376,6 +376,57 @@
   --leading-customer-agent-title: 1.1;
   --breakpoint-landing-tablet: 64rem;
   --breakpoint-landing-mobile: 40rem;
+
+  /* Property search listing tokens */
+  --container-search-page: 1440px;
+  --spacing-search-page-x: 80px;
+  --spacing-search-page-mobile-x: 16px;
+  --spacing-search-page-top: 28px;
+  --spacing-search-page-bottom: 80px;
+  --spacing-search-mobile-drawer: 90vh;
+  --spacing-search-breadcrumb: 20px;
+  --spacing-search-content: 20px;
+  --spacing-search-control: 80px;
+  --spacing-search-sort: 168px;
+  --spacing-search-sort-menu: 300px;
+  --spacing-search-sort-icon: 20px;
+  --spacing-search-input-icon: 24px;
+  --spacing-search-layout: 32px;
+  --spacing-search-filter-panel: 24px;
+  --spacing-search-filter-group: 22px;
+  --spacing-search-filter-reset: 12px;
+  --spacing-search-checkbox: 16px;
+  --spacing-search-choice: 50px;
+  --spacing-search-apply: 44px;
+  --spacing-search-card: 24px;
+  --spacing-search-card-image: 280px;
+  --spacing-search-card-image-mobile: 230px;
+  --spacing-search-card-inset: 24px;
+  --spacing-search-card-heart: 44px;
+  --spacing-search-card-content: 24px;
+  --spacing-search-card-price: 16px;
+  --spacing-search-card-button: 48px;
+  --spacing-search-meta-icon: 16px;
+  --spacing-search-rating: 20px;
+  --spacing-search-radio: 18px;
+  --radius-search-panel: 16px;
+  --radius-search-input: 16px;
+  --radius-search-card: 30px;
+  --grid-template-columns-search-layout: 376px minmax(0, 1fr);
+  --text-search-breadcrumb: 14px;
+  --text-search-input: 14px;
+  --text-search-filter-title: 36px;
+  --text-search-filter-heading: 18px;
+  --text-search-filter-option: 14px;
+  --text-search-filter-reset: 12px;
+  --text-search-choice: 16px;
+  --text-search-range: 12px;
+  --text-search-card-title: 20px;
+  --text-search-card-price: 24px;
+  --text-search-feature: 12px;
+  --text-search-sort-option: 14px;
+  --breakpoint-search-tablet: 64rem;
+  --breakpoint-search-mobile: 40rem;
 }
 
 /* BASE LAYER */
@@ -469,6 +520,15 @@
     background-color: var(--color-bg-input-disabled);
     @apply border-border-grey-disable pointer-events-none;
   }
+}
+
+@layer components {
+  .search-range { height: 14px; appearance: none; background: transparent; }
+  .search-range::-webkit-slider-runnable-track { height: 2px; background: var(--color-brand-700); }
+  .search-range::-moz-range-track { height: 2px; background: var(--color-brand-700); }
+  .search-range::-webkit-slider-thumb { width: 12px; height: 12px; margin-top: -5px; appearance: none; border-radius: 50%; background: var(--color-brand-700); }
+  .search-range::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--color-brand-700); }
+  .search-options-expanded label { display: flex; }
 }
 
 
