@@ -9,7 +9,7 @@ const userSchema = new Schema<IUser>(
     lastName: { type: String, required: true, maxLength: 20 },
     email: { type: String, unique: true, required: true, maxLength: 60 },
     password: { type: String, required: true, maxLength: 150 },
-    phone: { type: String, maxLength: 20 },
+    phone: { type: String, maxLength: 200 },
     bio: { type: String, maxLength: 200 },
     profileImage: { type: String },
     coverImages: { type: [String] },
@@ -28,6 +28,17 @@ const userSchema = new Schema<IUser>(
       default: GenderEnum.MALE,
     },
     provider: { type: Number, default: 0 },
+    status: {
+      type: String,
+      enum: ["active", "suspended"],
+      default: "active",
+    },
+    suspendedAt: { type: Date },
+    suspensionReason: { type: String, maxLength: 500 },
+    changedCredentialsTime: { type: Date },
+    location: { type: String, maxLength: 200 },
+    licenseNumber: { type: String, maxLength: 50 },
+    agencyName: { type: String, maxLength: 100 },
   },
   {
     timestamps: true,
@@ -82,6 +93,7 @@ userSchema.pre(["findOne", "find"], function () {
   const query = this.getFilter();
   if (query.paranoid === false) {
     this.setQuery({ ...query });
+    return;
   }
   this.setQuery({ ...query, deletedAt: { $exists: false } });
 });

@@ -56,15 +56,23 @@ const propertySchema = new Schema<IProperty>(
     imagePublicIds: { type: [String], default: [], select: false },
     coverImage: { type: String },
     owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    agent: { type: Schema.Types.ObjectId, ref: "User" },
     status: {
       type: Number,
       enum: PropertyStatusEnum,
       default: PropertyStatusEnum.DRAFT,
     },
     rejectionReason: { type: String, maxLength: 300 },
+    feedback: { type: String, maxLength: 1000 },
     views: { type: Number, default: 0 },
     isFeatured: { type: Boolean, default: false },
     publishedAt: { type: Date },
+    submittedAt: { type: Date },
+    code: { type: String, trim: true },
+    priceUnit: { type: String, default: "month" },
+    buildingAgeYears: { type: Number },
+    facilities: { type: [String], default: [] },
+    nearby: { type: [String], default: [] },
     paranoid: { type: Boolean, default: false },
     deletedAt: { type: Date },
     restoredAt: { type: Date },
@@ -88,12 +96,20 @@ propertySchema.index({
 propertySchema.index({ status: 1, transactionType: 1, propertyType: 1 });
 propertySchema.index({ category: 1, status: 1 });
 propertySchema.index({ owner: 1 });
+propertySchema.index({ agent: 1 });
 propertySchema.index({ price: 1 });
+propertySchema.index({ code: 1 });
 propertySchema.index({ "location.city": 1, "location.area": 1 });
 
 propertySchema.pre(
   "save",
   async function (this: HydratedDocument<IProperty>) {
+    if (!this.code) {
+      this.code = `DEV-${(this._id as Types.ObjectId).toString().slice(-4).toUpperCase()}`;
+    }
+    if (!this.submittedAt) {
+      this.submittedAt = this.createdAt || new Date();
+    }
     if (this.isModified("title") || !this.slug) {
       this.slug =
         this.title
