@@ -18,6 +18,14 @@ export const sendEmail = async ({
   if (!to && !cc && !bcc) {
     throw new BadRequestException("Invalid recipient");
   }
+
+  if (!GOOGLE_EMAIL || !GOOGLE_APP_PASSWORD) {
+    console.warn(
+      `⚠️ [EMAIL] GOOGLE_EMAIL or GOOGLE_APP_PASSWORD is not configured in .env.dev. Skipping SMTP sending.`,
+    );
+    return;
+  }
+
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -27,7 +35,7 @@ export const sendEmail = async ({
   });
 
   await transporter.sendMail({
-    from: `"Social-Media-App Verification"`,
+    from: `"DevOra Real Estate" <${GOOGLE_EMAIL}>`,
     to,
     cc,
     bcc,
@@ -36,6 +44,4 @@ export const sendEmail = async ({
     html,
     attachments,
   });
-
-  // console.log({ "message sent": info.messageId });
 };

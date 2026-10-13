@@ -6,17 +6,45 @@ import { Types } from "mongoose";
 
 export class RedisService {
   private readonly client: Redis;
+  private isConnected: boolean = false;
+  private hasReportedError: boolean = false;
+
   constructor() {
     /////// with ioredis the db is connected by default when taken an instance from
-    this.client = new Redis(REDIS_URL);
+    this.client = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          // Slow down reconnection attempts to avoid terminal flooding
+          return 5000;
+        }
+        return Math.min(times * 1000, 3000);
+      },
+    });
     this.handleEvents();
   }
   public async connect() {
-    console.log("Redis connected successfully");
+    if (this.isConnected) {
+      console.log("Redis connected successfully");
+    } else {
+      console.log("Redis service initialized");
+    }
   }
   private handleEvents() {
-    this.client.on("error", (err) => console.error("Redis error:", err));
-    this.client.on("ready", () => console.error("Redis is ready to use"));
+    this.client.on("error", (err: any) => {
+      if (!this.hasReportedError) {
+        console.error(`⚠️ Redis error: ${err?.message || err}. (Check if Redis server is running or update REDIS_URL in .env.dev)`);
+        this.hasReportedError = true;
+      }
+    });
+    this.client.on("ready", () => {
+      this.isConnected = true;
+      this.hasReportedError = false;
+      console.log("Redis connected and ready to use");
+    });
+    this.client.on("close", () => {
+      this.isConnected = false;
+    });
   }
   /////////////////////////// redis operations
   async redisSet({

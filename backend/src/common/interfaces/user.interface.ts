@@ -21,4 +21,10 @@ export interface IUser {
   deletedAt?: Date;
   restoredAt?: Date;
   changedCredentialsTime?: Date;
+  status?: "active" | "suspended";
+  suspendedAt?: Date;
+  suspensionReason?: string;
+  location?: string;
+  licenseNumber?: string;
+  agencyName?: string;
 }

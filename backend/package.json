@@ -11,13 +11,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devEngines": {
-    "packageManager": {
-      "name": "pnpm",
-      "version": "12.6.0",
-      "onFail": "download"
-    }
-  },
   "packageManager": "pnpm@12.6.0",
   "dependencies": {
     "argon2": "^0.45.1",
@@ -30,6 +23,8 @@
     "mongoose": "^9.10.2",
     "multer": "^2.4.0",
     "nodemailer": "^10.0.10",
+    "swagger-jsdoc": "^6.3.0",
+    "swagger-ui-express": "^5.0.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {
@@ -39,6 +34,8 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^26.6.2",
     "@types/nodemailer": "^8.0.2",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.8",
     "concurrently": "^10.0.5",
     "cross-env": "^10.1.0",
     "dotenv": "^18.0.3",

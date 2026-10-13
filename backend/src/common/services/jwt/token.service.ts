@@ -26,6 +26,27 @@ type SignaturesType = {
   refreshSignature: string | undefined;
 };
 
+function toTimespanStringOrSeconds(val: string | number): any {
+  if (typeof val === "number") return val;
+  if (/^\d+$/.test(val)) return parseInt(val, 10);
+  return val;
+}
+
+function timespanToSeconds(val: string | number): number {
+  if (typeof val === "number") return val;
+  if (/^\d+$/.test(val)) return parseInt(val, 10);
+  const match = String(val).match(/^(\d+)([smhd])$/i);
+  if (match && match[1] && match[2]) {
+    const num = parseInt(match[1], 10);
+    const unit = match[2].toLowerCase();
+    if (unit === "s") return num;
+    if (unit === "m") return num * 60;
+    if (unit === "h") return num * 3600;
+    if (unit === "d") return num * 86400;
+  }
+  return 7 * 86400;
+}
+
 export class TokenService {
   private readonly userRepo: UserRepo;
   private readonly redisRepo: RedisService;
@@ -147,7 +168,7 @@ export class TokenService {
       options: {
         issuer,
         audience: [String(TokenType.ACCESS), String(audience)],
-        expiresIn: Number(ACCESS_TOKEN_EXPIRATION_TIME),
+        expiresIn: toTimespanStringOrSeconds(ACCESS_TOKEN_EXPIRATION_TIME),
         jwtid: jti,
       },
     });
@@ -157,7 +178,7 @@ export class TokenService {
       options: {
         issuer,
         audience: [String(TokenType.REFRESH), String(audience)],
-        expiresIn: Number(REFRESH_TOKEN_EXPIRATION_TIME),
+        expiresIn: toTimespanStringOrSeconds(REFRESH_TOKEN_EXPIRATION_TIME),
         jwtid: jti,
       },
     });
@@ -229,6 +250,11 @@ export class TokenService {
       throw new UnauthorizedException("Invalid login session");
     }
 
+    // 5.1 Account suspended check
+    if (userAccount.status === "suspended") {
+      throw new UnauthorizedException("Account is suspended");
+    }
+
     // 6. Tokens issued before a credentials change are invalid
     if (
       userAccount.changedCredentialsTime &&
@@ -264,7 +290,7 @@ export class TokenService {
     await this.createRevokeToken({
       userId: decoded.sub,
       jti: decoded.jti,
-      ttl: Number(REFRESH_TOKEN_EXPIRATION_TIME),
+      ttl: timespanToSeconds(REFRESH_TOKEN_EXPIRATION_TIME),
     });
   }
 
