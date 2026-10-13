@@ -2,6 +2,8 @@
 import { Router } from "express";
 import { IUser } from "../../common/interfaces";
 import { successResponse } from "../../common/response";
+import { imageUpload } from "../../common/utils/multer";
+import { authentication } from "../../middlewares/authentication.middleware";
 import { validation } from "../../middlewares/validation.middleware";
 import authService from "./auth.service";
 import * as validators from "./auth.validation";
@@ -79,6 +81,74 @@ router.post(
     successResponse({
       message: "Your password was reset successfully",
       res,
+    });
+  },
+);
+
+/////////////////// Profile & Session Management (Admin / Users)
+router.get("/me", authentication(), async (req, res, next) => {
+  const data = await authService.getMe(req.user!._id.toString());
+  return res.status(200).json(data);
+});
+
+router.patch(
+  "/me",
+  authentication(),
+  validation(validators.editProfile),
+  async (req, res, next) => {
+    const data = await authService.updateMe(req.user!._id.toString(), req.body);
+    return res.status(200).json(data);
+  },
+);
+
+router.post(
+  "/me/photo",
+  authentication(),
+  imageUpload.single("file"),
+  async (req, res, next) => {
+    const data = await authService.updatePhoto(
+      req.user!._id.toString(),
+      req.file as Express.Multer.File,
+    );
+    return res.status(200).json(data);
+  },
+);
+
+router.post(
+  "/change-password",
+  authentication(),
+  validation(validators.changePassword),
+  async (req, res, next) => {
+    const result = await authService.changePassword(
+      req.user!._id.toString(),
+      req.body,
+    );
+    return res.status(200).json(result);
+  },
+);
+
+router.post(
+  "/logout",
+  authentication(),
+  validation(validators.logout),
+  async (req, res, next) => {
+    await authService.logout(req.decoded, req.body?.refreshToken);
+    return res.status(204).send();
+  },
+);
+
+router.post(
+  "/refresh",
+  validation(validators.refreshToken),
+  async (req, res, next) => {
+    const data = await authService.refreshToken(
+      req.body.refreshToken,
+      `${req.protocol}://${req.host}`,
+    );
+    successResponse({
+      message: "Token refreshed successfully",
+      res,
+      data,
     });
   },
 );

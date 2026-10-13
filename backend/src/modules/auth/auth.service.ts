@@ -1,14 +1,18 @@
+import { Types } from "mongoose";
 import { DUMMY_HASH } from "../../common/config/config";
 import {
   EmailConfig,
   EmailEnum,
   ProviderEnums,
   RoleEnum,
+  RoleLabel,
+  TokenType,
 } from "../../common/enums";
 
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
@@ -16,6 +20,7 @@ import { IUser } from "../../common/interfaces";
 import { TokenService } from "../../common/services/jwt";
 import { redisService, RedisService } from "../../common/services/redis";
 import { emailEmitter, generateOTP, sendEmail } from "../../common/utils/email";
+import { uploadBufferToCloudinary } from "../../common/utils/cloudinary";
 import {
   compareHash,
   decrypt,
@@ -101,6 +106,9 @@ class AuthService {
         "Please make sure to verify your account before login",
       );
     }
+    if (user.status === "suspended") {
+      throw new ForbiddenException("Your account has been suspended");
+    }
     if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
       throw new UnauthorizedException("Invalid login credentials");
     }
@@ -156,6 +164,11 @@ class AuthService {
     checkMaxOtpRequests > 0
       ? await this.redis.redisIncrKey(maxRequests)
       : await this.redis.redisSet({ key: maxRequests, value: 1, ttl: 300 });
+
+    console.log(`\n==================================================`);
+    console.log(`📧 [OTP SENT] To: ${email} | Subject: ${EmailConfig[subject].title}`);
+    console.log(`🔑 OTP Code: ${generatedOtp}`);
+    console.log(`==================================================\n`);
 
     await sendEmail({
       to: email,
@@ -310,6 +323,185 @@ class AuthService {
       this.redis.redisBaseRevokeTokenKey(userAccount._id),
     );
     await this.redis.redisDelKeys([...allOtpKeys, ...tokenKeys]);
+  }
+
+  async getMe(userId: string) {
+    const user = await this.userRepo.findOne({
+      filter: { _id: new Types.ObjectId(userId) },
+    });
+    if (!user) throw new NotFoundException("User not found");
+    let phone = user.phone;
+    if (phone) {
+      try {
+        phone = await decrypt(phone);
+      } catch {
+        // Plaintext fallback
+      }
+    }
+    const isAgent = user.role === RoleEnum.AGENT;
+    return {
+      id: user._id.toString(),
+      name: `${user.firstName} ${user.lastName}`.trim(),
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone: phone || "",
+      avatar: user.profileImage || "",
+      profileImage: user.profileImage || "",
+      location: user.location || "",
+      bio: user.bio || "",
+      role: RoleLabel[user.role] || "user",
+      ...(isAgent
+        ? {
+            licenseNumber: user.licenseNumber || "",
+            agencyName: user.agencyName || "",
+          }
+        : {}),
+    };
+  }
+
+  async updateMe(
+    userId: string,
+    data: {
+      name?: string;
+      email?: string;
+      phone?: string;
+      location?: string;
+      bio?: string;
+      licenseNumber?: string;
+      agencyName?: string;
+    },
+  ) {
+    const user = await this.userRepo.findOne({
+      filter: { _id: new Types.ObjectId(userId) },
+    });
+    if (!user) throw new NotFoundException("User not found");
+
+    if (data.email && data.email !== user.email) {
+      const exists = await this.userRepo.findOne({
+        filter: { email: data.email, _id: { $ne: user._id } },
+        projection: "_id",
+      });
+      if (exists) throw new ConflictException("Email already taken");
+      user.email = data.email;
+    }
+
+    if (data.name) {
+      const parts = data.name.trim().split(" ");
+      user.firstName = parts[0] || user.firstName;
+      user.lastName = parts.slice(1).join(" ") || user.lastName;
+    }
+
+    if (data.phone) {
+      user.phone = data.phone;
+    }
+
+    if (data.location !== undefined) {
+      user.location = data.location;
+    }
+
+    if (data.bio !== undefined) {
+      user.bio = data.bio;
+    }
+
+    if (data.licenseNumber !== undefined) {
+      user.licenseNumber = data.licenseNumber;
+    }
+
+    if (data.agencyName !== undefined) {
+      user.agencyName = data.agencyName;
+    }
+
+    await user.save();
+    return this.getMe(userId);
+  }
+
+  async updatePhoto(userId: string, file: Express.Multer.File) {
+    if (!file) throw new BadRequestException("No image file provided");
+    const uploaded = await uploadBufferToCloudinary({
+      buffer: file.buffer,
+      folder: "devora/real-estate/users",
+    });
+    await this.userRepo.updateOne({
+      filter: { _id: new Types.ObjectId(userId) },
+      update: { profileImage: uploaded.secure_url },
+    });
+    return { avatar: uploaded.secure_url };
+  }
+
+  async deletePhoto(userId: string) {
+    await this.userRepo.updateOne({
+      filter: { _id: new Types.ObjectId(userId) },
+      update: { profileImage: null },
+    });
+    return { avatar: null };
+  }
+
+  async deleteMe(userId: string) {
+    await this.userRepo.updateOne({
+      filter: { _id: new Types.ObjectId(userId) },
+      update: { deletedAt: new Date() },
+    });
+    const tokenKeys = await this.redis.redisKeys(
+      this.redis.redisBaseRevokeTokenKey(new Types.ObjectId(userId)),
+    );
+    if (tokenKeys.length) await this.redis.redisDelKeys(tokenKeys);
+    return { success: true };
+  }
+
+  async changePassword(
+    userId: string,
+    data: { currentPassword: string; newPassword: string },
+  ) {
+    const user = await this.userRepo.findOne({
+      filter: { _id: new Types.ObjectId(userId) },
+    });
+    if (!user) throw new NotFoundException("User not found");
+
+    const validCurrent = await compareHash(user.password, data.currentPassword);
+    if (!validCurrent) {
+      throw new BadRequestException("Current password is incorrect");
+    }
+
+    const samePassword = await compareHash(user.password, data.newPassword);
+    if (samePassword) {
+      throw new BadRequestException(
+        "New password cannot be the same as current password",
+      );
+    }
+
+    user.password = data.newPassword;
+    user.changedCredentialsTime = new Date();
+    await user.save();
+
+    // Revoke previous session tokens
+    const tokenKeys = await this.redis.redisKeys(
+      this.redis.redisBaseRevokeTokenKey(user._id),
+    );
+    if (tokenKeys.length) await this.redis.redisDelKeys(tokenKeys);
+
+    return { message: "Password changed successfully" };
+  }
+
+  async logout(decoded: any, refreshToken?: string) {
+    if (decoded?.jti) {
+      await this.tokenService.revokeSession(decoded);
+    }
+    if (refreshToken) {
+      try {
+        const { decodedToken } = await this.tokenService.decodeToken({
+          token: refreshToken,
+          tokenType: TokenType.REFRESH,
+        });
+        await this.tokenService.revokeSession(decodedToken);
+      } catch {
+        // Refresh token already expired or invalid
+      }
+    }
+  }
+
+  async refreshToken(refreshToken: string, issuer: string) {
+    return this.tokenService.refresh(refreshToken, issuer);
   }
 }
 
