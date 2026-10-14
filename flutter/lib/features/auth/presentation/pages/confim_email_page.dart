@@ -44,6 +44,9 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));
+            } else if (state is AuthOtpResent) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text(state.message)));
             }
           },
           builder: (context, state) {
@@ -93,12 +96,10 @@ class _ConfirmEmailPageState extends State<ConfirmEmailPage> {
                             style: TextStyle(
                                 color: AppColors.textSecondary, fontSize: 13)),
                         TextButton(
-                          // TODO: wire to a real resend endpoint once Backend 1 confirms one
                           onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Resend not available yet')),
-                            );
+                            context
+                                .read<AuthCubit>()
+                                .resendConfirmation(email: widget.email);
                           },
                           child: const Text('Resend code',
                               style: TextStyle(

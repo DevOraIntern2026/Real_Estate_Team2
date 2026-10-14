@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:real_estate_app/features/auth/presentation/pages/confim_email_page.dart';
 import 'package:real_estate_app/features/auth/presentation/pages/forget_password_page.dart';
+import 'package:real_estate_app/features/auth/presentation/pages/verify_otp_page.dart';
 
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/pages/register_page.dart';
@@ -25,11 +26,20 @@ class AppRouter {
             ConfirmEmailPage(email: state.extra as String? ?? ''),
       ),
       GoRoute(
+        path: '/verify-otp',
+        builder: (context, state) =>
+            VerifyOtpPage(email: state.extra as String? ?? ''),
+      ),
+      GoRoute(
           path: '/forgot-password',
           builder: (context, state) => const ForgotPasswordPage()),
       GoRoute(
-          path: '/reset-password',
-          builder: (context, state) => const ResetPasswordPage()),
+        path: '/reset-password',
+        builder: (context, state) {
+          final args = state.extra as Map<String, String>;
+          return ResetPasswordPage(email: args['email']!, otp: args['otp']!);
+        },
+      ),
       GoRoute(
           path: '/reset-success',
           builder: (context, state) => const ResetSuccessPage()),

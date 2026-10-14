@@ -42,3 +42,25 @@ class AuthEmailConfirmed extends AuthState {
   @override
   List<Object?> get props => [message];
 }
+
+class AuthOtpResent extends AuthState {
+  final String message;
+  const AuthOtpResent(this.message);
+  @override
+  List<Object?> get props => [message];
+}
+
+class AuthForgotPasswordOtpSent extends AuthState {
+  final String email;
+  final String message;
+  const AuthForgotPasswordOtpSent({required this.email, required this.message});
+  @override
+  List<Object?> get props => [email, message];
+}
+
+class AuthPasswordResetSuccess extends AuthState {
+  final String message;
+  const AuthPasswordResetSuccess(this.message);
+  @override
+  List<Object?> get props => [message];
+}

@@ -1,6 +1,10 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:real_estate_app/core/helper/token_storage.dart';
+import 'package:real_estate_app/features/auth/domain/usecases/forgot_password_usecase.dart';
+import 'package:real_estate_app/features/auth/domain/usecases/resend_confirmation_usecase.dart';
+import 'package:real_estate_app/features/auth/domain/usecases/reset_password_usecase.dart';
+
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -23,11 +27,13 @@ Future<void> init() async {
 
   // ---------------- Auth feature ----------------
   // Data sources
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+      () => AuthRemoteDataSourceImpl(sl()));
 
   // Repository
   sl.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(remoteDataSource: sl(), networkInfo: sl(), tokenStorage: sl()),
+    () => AuthRepositoryImpl(
+        remoteDataSource: sl(), networkInfo: sl(), tokenStorage: sl()),
   );
 
   // Use cases
@@ -35,16 +41,18 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => ConfirmEmailUseCase(sl()));
   sl.registerLazySingleton(() => GetPersistedUserUseCase(sl()));
-
-  // Cubit — factory, so each screen tree that needs it gets a fresh instance
+  sl.registerLazySingleton(() => ResendConfirmationUseCase(sl()));
+  sl.registerLazySingleton(() => ForgotPasswordUseCase(sl()));
+  sl.registerLazySingleton(() => ResetPasswordUseCase(sl()));
+  // Cubit — factory
   sl.registerFactory(
     () => AuthCubit(
-      loginUseCase: sl(),
-      registerUseCase: sl(),
-      confirmEmailUseCase: sl(),
-      getPersistedUserUseCase: sl(),
-    ),
+        loginUseCase: sl(),
+        registerUseCase: sl(),
+        confirmEmailUseCase: sl(),
+        getPersistedUserUseCase: sl(),
+        forgotPasswordUseCase: sl(),
+        resendConfirmationUseCase: sl(),
+        resetPasswordUseCase: sl()),
   );
-
-  // TODO: register Home / Navigation / other feature dependencies here as they're built.
 }

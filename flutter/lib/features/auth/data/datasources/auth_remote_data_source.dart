@@ -16,6 +16,13 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<String> confirmEmail({required String email, required String otp});
+  Future<String> resendConfirmation({required String email});
+  Future<String> forgotPassword({required String email});
+  Future<String> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  });
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -78,6 +85,47 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return (response.data['message'] ?? 'Email confirmed') as String;
     } on DioException catch (e) {
       throw ServerException(_extractMessage(e) ?? 'Confirmation failed');
+    }
+  }
+
+  @override
+  Future<String> resendConfirmation({required String email}) async {
+    try {
+      final response = await dioClient.dio
+          .patch('/auth/resendConfirmationEmail', data: {'email': email});
+      return (response.data['message'] ?? 'OTP resent') as String;
+    } on DioException catch (e) {
+      throw ServerException(_extractMessage(e) ?? 'Resend failed');
+    }
+  }
+
+  @override
+  Future<String> forgotPassword({required String email}) async {
+    try {
+      final response = await dioClient.dio
+          .post('/auth/forgotPassword', data: {'email': email});
+      return (response.data['message'] ?? 'OTP sent') as String;
+    } on DioException catch (e) {
+      throw ServerException(_extractMessage(e) ?? 'Request failed');
+    }
+  }
+
+  @override
+  Future<String> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    try {
+      final response =
+          await dioClient.dio.post('/auth/verify/forgotPassword', data: {
+        'email': email,
+        'otp': otp,
+        'newPassword': newPassword,
+      });
+      return (response.data['message'] ?? 'Password reset') as String;
+    } on DioException catch (e) {
+      throw ServerException(_extractMessage(e) ?? 'Reset failed');
     }
   }
 

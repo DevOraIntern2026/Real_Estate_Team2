@@ -79,10 +79,44 @@ class AuthRepositoryImpl implements AuthRepository {
     if (token == null) return null;
     final claims = decodeJwtPayload(token);
     if (claims.isEmpty) return null;
-    // TODO: once Backend 1 confirms a /auth/refresh endpoint, also check
-    // the token's `exp` claim here and refresh instead of trusting a
-    // possibly-expired token.
     return UserModel.fromJwtClaims(claims);
+  }
+
+  @override
+  Future<Either<Failure, String>> resendConfirmation(
+      {required String email}) async {
+    if (!await networkInfo.isConnected) return const Left(NetworkFailure());
+    try {
+      return Right(await remoteDataSource.resendConfirmation(email: email));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> forgotPassword(
+      {required String email}) async {
+    if (!await networkInfo.isConnected) return const Left(NetworkFailure());
+    try {
+      return Right(await remoteDataSource.forgotPassword(email: email));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> resetPassword({
+    required String email,
+    required String otp,
+    required String newPassword,
+  }) async {
+    if (!await networkInfo.isConnected) return const Left(NetworkFailure());
+    try {
+      return Right(await remoteDataSource.resetPassword(
+          email: email, otp: otp, newPassword: newPassword));
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
   }
 
   @override

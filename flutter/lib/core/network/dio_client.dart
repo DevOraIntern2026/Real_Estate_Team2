@@ -27,8 +27,6 @@ class DioClient {
           return handler.next(options);
         },
         onError: (error, handler) {
-          // TODO: hook up a refresh-token flow on 401 once Backend 1
-          // confirms a /auth/refresh endpoint.
           return handler.next(error);
         },
       ),
