@@ -24,6 +24,7 @@ import UserProfile from '@/features/admin/Pages/Users/UserProfile'
 import Users from '@/features/admin/Pages/Users/Users'
 import { UsersProvider } from '@/features/admin/Pages/Users/UsersContext'
 import PropertyDetails from '@/features/properties/page/PropertyDetails'
+import FavoritesPage from '@/features/favorites/page/FavoritesPage'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -48,7 +49,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/property-details" element={<PropertyDetails />} />
+        <Route path="/property-details/:id" element={<PropertyDetails />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/customer-home" element={<CustomerHomeRoute />} />
         <Route path="/search" element={<SearchPage authenticated={false} />} />
         <Route path="/customer-search" element={<CustomerSearchRoute />} />
