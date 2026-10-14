@@ -5,7 +5,7 @@ import LoginPage from '@/features/auth/pages/login/LoginPage'
 import ResetPasswordPage from '@/features/auth/pages/reset-password/ResetPasswordPage'
 import SignUpPage from '@/features/auth/pages/sign-up/SignUpPage'
 import VerifyOtpPage from '@/features/auth/pages/verify-otp/VerifyOtpPage'
-import LandingPage from '@/features/landing/pages/LandingPage'
+//import LandingPage from '@/features/landing/pages/LandingPage'
 import CustomerHomePage from '@/features/customer/pages/CustomerHomePage'
 import SearchPage from '@/features/search/pages/SearchPage'
 import { getAuthSession } from '@/services/api/tokenStorage'
@@ -25,6 +25,9 @@ import Users from '@/features/admin/Pages/Users/Users'
 import { UsersProvider } from '@/features/admin/Pages/Users/UsersContext'
 import PropertyDetails from '@/features/properties/page/PropertyDetails'
 import FavoritesPage from '@/features/favorites/page/FavoritesPage'
+import ProfileSettingPage from '@/features/customer/pages/ProfileSettingPage'
+import MyInquiriesPage from '@/features/customer/pages/MyInquiriesPage'
+import { ProfileLayout } from '@/features/customer/components/ProfileLayout'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -48,7 +51,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        {/* <Route path="/" element={<LandingPage />} /> */}
+        <Route element={<ProfileLayout />}>
+          <Route path="/profile/settings" element={<ProfileSettingPage />} />
+          <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
+        </Route>
         <Route path="/property-details/:id" element={<PropertyDetails />} />
         <Route path="/favorites" element={<FavoritesPage />} />
         <Route path="/customer-home" element={<CustomerHomeRoute />} />
