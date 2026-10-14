@@ -1,67 +1,92 @@
 import 'package:dio/dio.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/network/dio_client.dart';
 import '../../domain/entities/user_entity.dart';
-import '../models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<UserModel> login({required String email, required String password});
-  Future<UserModel> register({
-    required String name,
+  Future<Map<String, String>> login(
+      {required String email, required String password});
+
+  Future<String> register({
+    required String username,
     required String email,
     required String password,
     required UserRole role,
   });
-  Future<UserModel> getCurrentUser();
+
+  Future<String> confirmEmail({required String email, required String otp});
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   final DioClient dioClient;
   AuthRemoteDataSourceImpl(this.dioClient);
 
+  static const Map<UserRole, String> _roleCodes = {
+    UserRole.customer: '2',
+    UserRole.owner: '1',
+    UserRole.agent: '3',
+    UserRole.admin: '4',
+  };
+
   @override
-  Future<UserModel> login({required String email, required String password}) async {
+  Future<Map<String, String>> login(
+      {required String email, required String password}) async {
     try {
-      final response = await dioClient.dio.post('/authentication/login', data: {
+      final response = await dioClient.dio.post('/auth/login', data: {
         'email': email,
         'password': password,
       });
-      // TODO: adjust once Backend 1 confirms the exact response shape,
-      // and save the returned token via a local data source (SharedPreferences).
-      return UserModel.fromJson(response.data['user'] ?? response.data);
+      final data = response.data['data'] as Map<String, dynamic>;
+      return {
+        'accessToken': data['accessToken'] as String,
+        'refreshToken': data['refreshToken'] as String,
+      };
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Login failed');
+      throw ServerException(_extractMessage(e) ?? 'Login failed');
     }
   }
 
   @override
-  Future<UserModel> register({
-    required String name,
+  Future<String> register({
+    required String username,
     required String email,
     required String password,
     required UserRole role,
   }) async {
     try {
-      final response = await dioClient.dio.post('/authentication/register', data: {
-        'name': name,
+      final response = await dioClient.dio.post('/auth/signup', data: {
+        'username': username,
         'email': email,
         'password': password,
-        // TODO: confirm the exact field name/values Backend 1 expects for role
-        'role': role.name,
+        'role': _roleCodes[role],
       });
-      return UserModel.fromJson(response.data['user'] ?? response.data);
+      return (response.data['message'] ?? 'Account created') as String;
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Registration failed');
+      throw ServerException(_extractMessage(e) ?? 'Registration failed');
     }
   }
 
   @override
-  Future<UserModel> getCurrentUser() async {
+  Future<String> confirmEmail(
+      {required String email, required String otp}) async {
     try {
-      final response = await dioClient.dio.get('/users/me');
-      return UserModel.fromJson(response.data['user'] ?? response.data);
+      final response = await dioClient.dio.patch('/auth/confirmEmail', data: {
+        'email': email,
+        'otp': otp,
+      });
+      return (response.data['message'] ?? 'Email confirmed') as String;
     } on DioException catch (e) {
-      throw ServerException(e.message ?? 'Failed to load user');
+      throw ServerException(_extractMessage(e) ?? 'Confirmation failed');
     }
+  }
+
+  String? _extractMessage(DioException e) {
+    final data = e.response?.data;
+    if (data is Map) {
+      if (data['message'] is String) return data['message'] as String;
+      if (data['Error'] is String) return data['Error'] as String;
+    }
+    return e.message;
   }
 }

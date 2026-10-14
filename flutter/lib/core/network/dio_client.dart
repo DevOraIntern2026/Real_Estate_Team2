@@ -1,16 +1,16 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:real_estate_app/core/helper/token_storage.dart';
+import 'package:real_estate_app/core/network/api_constants.dart';
 
 class DioClient {
   final Dio dio;
 
   DioClient._internal(this.dio);
 
-  factory DioClient() {
+  factory DioClient(TokenStorage tokenStorage) {
     final dio = Dio(
       BaseOptions(
-        // TODO: replace with the real API base URL once Backend team publishes it (see brief: /api groups)
-        baseUrl: 'https://api.devora-realestate.com/api',
+        baseUrl: ApiConstants.baseUrl,
         connectTimeout: const Duration(seconds: 15),
         receiveTimeout: const Duration(seconds: 15),
         headers: {'Content-Type': 'application/json'},
@@ -20,15 +20,15 @@ class DioClient {
     dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final prefs = await SharedPreferences.getInstance();
-          final token = prefs.getString('auth_token');
+          final token = await tokenStorage.getAccessToken();
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           return handler.next(options);
         },
         onError: (error, handler) {
-          // TODO: centralize 401/refresh-token handling here once auth API is ready
+          // TODO: hook up a refresh-token flow on 401 once Backend 1
+          // confirms a /auth/refresh endpoint.
           return handler.next(error);
         },
       ),

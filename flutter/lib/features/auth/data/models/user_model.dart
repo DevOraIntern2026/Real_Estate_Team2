@@ -3,27 +3,20 @@ import '../../domain/entities/user_entity.dart';
 class UserModel extends UserEntity {
   const UserModel({
     required super.id,
-    required super.name,
     required super.email,
     required super.role,
+    required super.isEmailVerified,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromJwtClaims(Map<String, dynamic> claims) {
+    final sub = claims['sub'];
+    final source = sub is Map<String, dynamic> ? sub : claims;
     return UserModel(
-      id: json['id'].toString(),
-      name: json['name'] ?? '',
-      email: json['email'] ?? '',
-      role: _roleFromString(json['role']),
+      id: (source['_id'] ?? source['id'] ?? '').toString(),
+      email: (source['email'] ?? '').toString(),
+      role: _roleFromString(source['role']?.toString()),
+      isEmailVerified: source['isEmailVerified'] == true,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'email': email,
-      'role': role.name,
-    };
   }
 
   static UserRole _roleFromString(String? value) {

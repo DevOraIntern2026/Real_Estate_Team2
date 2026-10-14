@@ -18,7 +18,10 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _nameController = TextEditingController();
+  // Backend calls this "username" (see /auth/signup), the mockup labels
+  // it "Full Name" — keeping the visible label, the field underneath
+  // maps to the real param name.
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
@@ -26,6 +29,11 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _agreedToTerms = true;
   UserRole _selectedRole = UserRole.customer;
 
+  // Only Customer / Owner / Agent can self-register; Admin accounts are
+  // provisioned separately (see brief: Admin manages users & approvals).
+  // NOTE: only customer's signup role code ('2') is confirmed against the
+  // real backend so far — Owner/Agent codes are a guess, see
+  // auth_remote_data_source.dart.
   static const _selectableRoles = [
     UserRole.customer,
     UserRole.owner,
@@ -34,7 +42,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
@@ -54,7 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _submit() {
-    if (_nameController.text.trim().isEmpty) {
+    if (_usernameController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Enter your full name')));
       return;
@@ -76,7 +84,7 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     context.read<AuthCubit>().register(
-          name: _nameController.text.trim(),
+          username: _usernameController.text.trim(),
           email: _emailController.text.trim(),
           password: _passwordController.text,
           role: _selectedRole,
@@ -89,8 +97,10 @@ class _RegisterPageState extends State<RegisterPage> {
       body: SafeArea(
         child: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
-            if (state is AuthAuthenticated) {
-              context.go('/home');
+            if (state is AuthRegistrationPending) {
+              // /auth/signup doesn't log the user in — it just sends an
+              // OTP to confirm the email next.
+              context.go('/confirm-email', extra: state.email);
             } else if (state is AuthError) {
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text(state.message)));
@@ -134,7 +144,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   CustomAuthField(
                     label: 'Full Name',
                     hint: 'Full Name',
-                    controller: _nameController,
+                    controller: _usernameController,
                   ),
                   const SizedBox(height: 16),
                   CustomAuthField(
@@ -212,9 +222,9 @@ class _RegisterPageState extends State<RegisterPage> {
                                     RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(30.sp)))),
-                            onPressed: _submit,
-                            child: const Text('Sign up',
-                                style: TextStyle(fontSize: 16)),
+                          onPressed: _submit,
+                          child: const Text('Sign up',
+                              style: TextStyle(fontSize: 16)),
                           ),
                         ),
                   const SizedBox(height: 16),
@@ -226,9 +236,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   SizedBox(
                     height: 40.h,
                     child: OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: const GoogleLogo(),
-                      label: const Text('Google'),
+                    onPressed: () {},
+                    icon: const GoogleLogo(),
+                    label: const Text('Google'),
                     ),
                   ),
                   const SizedBox(height: 24),

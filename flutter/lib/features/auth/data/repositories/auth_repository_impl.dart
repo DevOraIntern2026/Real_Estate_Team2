@@ -1,58 +1,93 @@
 import 'package:dartz/dartz.dart';
+import 'package:real_estate_app/core/helper/jwt_decoder.dart';
+import 'package:real_estate_app/core/helper/token_storage.dart';
+
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/network_info.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
+import '../models/user_model.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
   final NetworkInfo networkInfo;
+  final TokenStorage tokenStorage;
 
-  AuthRepositoryImpl({required this.remoteDataSource, required this.networkInfo});
+  AuthRepositoryImpl({
+    required this.remoteDataSource,
+    required this.networkInfo,
+    required this.tokenStorage,
+  });
 
   @override
-  Future<Either<Failure, UserEntity>> login({required String email, required String password}) async {
+  Future<Either<Failure, UserEntity>> login(
+      {required String email, required String password}) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
     try {
-      final user = await remoteDataSource.login(email: email, password: password);
-      return Right(user);
+      final tokens =
+          await remoteDataSource.login(email: email, password: password);
+      await tokenStorage.saveTokens(
+        accessToken: tokens['accessToken']!,
+        refreshToken: tokens['refreshToken']!,
+      );
+      final claims = decodeJwtPayload(tokens['accessToken']!);
+      return Right(UserModel.fromJwtClaims(claims));
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, UserEntity>> register({
-    required String name,
+  Future<Either<Failure, String>> register({
+    required String username,
     required String email,
     required String password,
     required UserRole role,
   }) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
     try {
-      final user = await remoteDataSource.register(name: name, email: email, password: password, role: role);
-      return Right(user);
+      final message = await remoteDataSource.register(
+        username: username,
+        email: email,
+        password: password,
+        role: role,
+      );
+      return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
   }
 
   @override
-  Future<Either<Failure, UserEntity>> getCurrentUser() async {
+  Future<Either<Failure, String>> confirmEmail(
+      {required String email, required String otp}) async {
     if (!await networkInfo.isConnected) return const Left(NetworkFailure());
     try {
-      final user = await remoteDataSource.getCurrentUser();
-      return Right(user);
+      final message =
+          await remoteDataSource.confirmEmail(email: email, otp: otp);
+      return Right(message);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     }
+  }
+
+  @override
+  Future<UserEntity?> getPersistedUser() async {
+    final token = await tokenStorage.getAccessToken();
+    if (token == null) return null;
+    final claims = decodeJwtPayload(token);
+    if (claims.isEmpty) return null;
+    // TODO: once Backend 1 confirms a /auth/refresh endpoint, also check
+    // the token's `exp` claim here and refresh instead of trusting a
+    // possibly-expired token.
+    return UserModel.fromJwtClaims(claims);
   }
 
   @override
   Future<Either<Failure, void>> logout() async {
-    // TODO: clear the stored token via a local data source once implemented
+    await tokenStorage.clear();
     return const Right(null);
   }
 }

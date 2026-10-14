@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+
 import '../../../../core/error/failures.dart';
 import '../entities/user_entity.dart';
 
@@ -8,14 +9,19 @@ abstract class AuthRepository {
     required String password,
   });
 
-  Future<Either<Failure, UserEntity>> register({
-    required String name,
+  Future<Either<Failure, String>> register({
+    required String username,
     required String email,
     required String password,
     required UserRole role,
   });
 
-  Future<Either<Failure, UserEntity>> getCurrentUser();
+  Future<Either<Failure, String>> confirmEmail({
+    required String email,
+    required String otp,
+  });
+
+  Future<UserEntity?> getPersistedUser();
 
   Future<Either<Failure, void>> logout();
 }
