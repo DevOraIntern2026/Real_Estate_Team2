@@ -11,18 +11,27 @@ import SearchPage from '@/features/search/pages/SearchPage'
 import { getAuthSession } from '@/services/api/tokenStorage'
 import MainLayout from '@/components/layout/MainLayout'
 import UsersLayout from '@/components/layout/UsersLayout'
-import { AdminProvider } from '@/features/admin/context/AdminContext'
-import { NotificationsProvider } from '@/features/admin/context/NotificationsContext'
-import { PropertiesProvider } from '@/features/admin/context/PropertiesContext'
-import ListingDetails from '@/features/admin/Pages/listing-details/ListingDetails'
-import Listing from '@/features/admin/Pages/Listing/Listing'
-import Notifications from '@/features/admin/Pages/Notification/Notification'
-import Overview from '@/features/admin/Pages/Overview/Overview'
-import Profile from '@/features/admin/Pages/Profile/Profile'
-import Reports from '@/features/admin/Pages/Reports/Reports'
-import UserProfile from '@/features/admin/Pages/Users/UserProfile'
-import Users from '@/features/admin/Pages/Users/Users'
-import { UsersProvider } from '@/features/admin/Pages/Users/UsersContext'
+import { AdminProvider } from '@/features/dashboard/context/AdminContext'
+import { NotificationsProvider } from '@/features/dashboard/context/NotificationsContext'
+import { PropertiesProvider } from '@/features/dashboard/context/PropertiesContext'
+import ListingDetails from '@/features/dashboard/Pages/listing-details/ListingDetails'
+import Listing from '@/features/dashboard/Pages/Listing/Listing'
+import Notifications from '@/features/dashboard/Pages/Notification/Notifications'
+import Overview from '@/features/dashboard/Pages/Overview/Overview'
+import Profile from '@/features/dashboard/Pages/Profile/Profile'
+import Reports from '@/features/dashboard/Pages/Reports/Reports'
+import UserProfile from '@/features/dashboard/Pages/Users/UserProfile'
+import Users from '@/features/dashboard/Pages/Users/Users'
+import { UsersProvider } from '@/features/dashboard/Pages/Users/UsersContext'
+import OwnerLayout from '@/components/layout/OwnerLayout'
+import { ADMIN_PATHS, OWNER_PATH } from '@/features/dashboard/constants/paths'
+import OwnerProviders from '@/features/dashboard/routes/OwnerProviders'
+import OwnerInquiries from '@/features/dashboard/Pages/owner/inquiries/OwnerInquiries'
+import OwnerOverview from '@/features/dashboard/Pages/owner/overview/OwnerOverview'
+import OwnerReports from '@/features/dashboard/Pages/owner/reports/OwnerReports'
+import OwnerNotifications from '@/features/dashboard/Pages/Notification/Notifications'
+import NotFoundPage from './NotFoundPage'
+import InquiryReply from '@/features/dashboard/Pages/owner/inquiries/InquiryReply'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -45,25 +54,22 @@ function CustomerSearchRoute() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/customer-home" element={<CustomerHomeRoute />} />
-        <Route path="/search" element={<SearchPage authenticated={false} />} />
-        <Route path="/customer-search" element={<CustomerSearchRoute />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
-
       <AdminProvider>
         <PropertiesProvider>
           <NotificationsProvider>
             <UsersProvider>
               <Routes>
-                <Route path="/admin" element={<MainLayout />}>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/customer-home" element={<CustomerHomeRoute />} />
+                <Route path="/search" element={<SearchPage authenticated={false} />} />
+                <Route path="/customer-search" element={<CustomerSearchRoute />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/verify-otp" element={<VerifyOtpPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path={ADMIN_PATHS.home} element={<MainLayout />}>
                   <Route index element={<Overview />} />
                   <Route path="listing">
                     <Route index element={<Listing />} />
@@ -77,6 +83,18 @@ function App() {
                   <Route path="reports" element={<Reports />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
+                <Route path={OWNER_PATH} element={<OwnerProviders />}>
+                  <Route element={<OwnerLayout />}>
+                    <Route index element={<OwnerOverview />} />
+                    <Route path="inquiries" element={<OwnerInquiries />} >
+                      <Route index element={<OwnerInquiries/>} />
+                      <Route path=':inquiryId' element={<InquiryReply/>} />
+                    </Route>
+                    <Route path="notifications" element={<OwnerNotifications canClear={false} />} />
+                    <Route path="reports" element={<OwnerReports />} />
+                  </Route>
+                </Route>
+                <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </UsersProvider>
           </NotificationsProvider>

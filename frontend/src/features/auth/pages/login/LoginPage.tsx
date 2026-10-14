@@ -17,7 +17,12 @@ function LoginPage() {
   const googleAuthMutation = useGoogleAuth()
   const handleSuccess = (result: LoginResult) => {
     const session = decodeAccessToken(result.tokens.accessToken)
-    navigate(session.role === 'customer' ? '/customer-home' : '/', { replace: true })
+    const destination = {
+      customer: '/customer-home',
+      owner: '/owner',
+      admin: '/admin',
+    }[session.role]
+    navigate(destination, { replace: true })
   }
   const handleLogin = (values: LoginFormValues) =>
     loginMutation.mutate(values, { onSuccess: handleSuccess })
@@ -56,4 +61,3 @@ function LoginPage() {
 }
 
 export default LoginPage
-

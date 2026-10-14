@@ -3,9 +3,9 @@ import { getAccessToken } from '@/services/api/tokenStorage'
 
 const baseURL = import.meta.env.VITE_API_BASE_URL
 
-if (!baseURL) {
-  throw new Error('VITE_API_BASE_URL is not configured.')
-}
+// if (!baseURL) {
+//   throw new Error('VITE_API_BASE_URL is not configured.')
+// }
 
 export const apiClient = axios.create({
   baseURL,
