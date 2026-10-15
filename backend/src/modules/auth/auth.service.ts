@@ -421,6 +421,8 @@ class AuthService {
     const uploaded = await uploadBufferToCloudinary({
       buffer: file.buffer,
       folder: "devora/real-estate/users",
+      originalname: file.originalname,
+      mimetype: file.mimetype,
     });
     await this.userRepo.updateOne({
       filter: { _id: new Types.ObjectId(userId) },
