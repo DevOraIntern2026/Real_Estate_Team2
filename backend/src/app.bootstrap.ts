@@ -15,6 +15,10 @@ import { inquiryRouter } from "./modules/inquiry";
 import { notificationRouter } from "./modules/notification";
 import { reportsRouter } from "./modules/reports";
 import { agentRouter } from "./modules/agent";
+import { aiRouter } from "./modules/ai";
+
+import path from "node:path";
+import fs from "node:fs";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -24,6 +28,13 @@ export const bootstrap = async () => {
   //////////// global middlewares
   app.use(cors());
   app.use(express.json());
+
+  // Ensure uploads directory exists and serve static files
+  const uploadsPath = path.resolve(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+  app.use("/uploads", express.static(uploadsPath));
 
   //////////// APIs (Supporting both /api/v1 and /api)
   const apiRouters: [string, any][] = [
@@ -37,6 +48,7 @@ export const bootstrap = async () => {
     ["/reports", reportsRouter],
     ["/agent", agentRouter],
     ["/me", meRouter],
+    ["/ai", aiRouter],
   ];
 
   for (const [path, router] of apiRouters) {
