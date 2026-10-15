@@ -47,6 +47,7 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     { name: "Auth", description: "Registration, login, email verification, password reset" },
     { name: "Categories", description: "Property category management (Admin-only for CUD)" },
     { name: "Properties", description: "Property CRUD, search, filtering, images & listing lifecycle" },
+    { name: "AI Assistant", description: "Natural language AI property recommendations" },
     ...adminSwaggerTags,
     ...ownerAgentSwaggerTags,
   ],
@@ -909,6 +910,46 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
         },
       },
     },
+
+    // ────────────────────── AI ASSISTANT ──────────────────────
+    "/ai/recommend": {
+      post: {
+        tags: ["AI Assistant"],
+        summary: "Get AI property recommendations",
+        description:
+          "Public. Interprets natural language requirements, extracts structured preferences, and matches real verified listings.",
+        operationId: "getAiRecommendations",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AIRecommendRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Recommendations, clarification response, or unsupported action notification",
+            content: {
+              "application/json": {
+                schema: {
+                  allOf: [
+                    { $ref: "#/components/schemas/SuccessResponse" },
+                    {
+                      type: "object",
+                      properties: { data: { $ref: "#/components/schemas/AIRecommendResponse" } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": errorResponse("Validation error (e.g. empty message or exceeding 2000 characters)"),
+          "429": errorResponse("Rate limit exceeded — too many requests to AI Assistant"),
+          "503": errorResponse("AI service temporarily unavailable"),
+        },
+      },
+    },
     ...adminSwaggerPaths,
     ...ownerAgentSwaggerPaths,
   },
@@ -1213,6 +1254,78 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
             },
           },
           cities: { type: "array", items: { type: "string" }, example: ["Cairo", "Alexandria"] },
+        },
+      },
+
+      // ─── AI Assistant DTOs ───
+      AIRecommendRequest: {
+        type: "object",
+        required: ["message"],
+        properties: {
+          message: {
+            type: "string",
+            minLength: 1,
+            maxLength: 2000,
+            example: "I need a 2-bedroom apartment for rent in New Cairo under 20000.",
+          },
+        },
+      },
+      AISoftPreferences: {
+        type: "object",
+        properties: {
+          quietArea: { type: "boolean", nullable: true },
+          nearUniversity: { type: "boolean", nullable: true },
+          parking: { type: "boolean", nullable: true },
+          balcony: { type: "boolean", nullable: true },
+        },
+      },
+      AIExtractedPreferences: {
+        type: "object",
+        properties: {
+          transactionType: {
+            type: "string",
+            enum: ["sale", "rent"],
+            nullable: true,
+          },
+          propertyType: {
+            type: "string",
+            nullable: true,
+            example: "apartment",
+          },
+          location: {
+            type: "string",
+            nullable: true,
+            example: "New Cairo",
+          },
+          minPrice: { type: "number", nullable: true },
+          maxPrice: { type: "number", nullable: true, example: 20000 },
+          bedrooms: { type: "integer", nullable: true, example: 2 },
+          bathrooms: { type: "integer", nullable: true },
+          minArea: { type: "number", nullable: true },
+          maxArea: { type: "number", nullable: true },
+          furnished: { type: "boolean", nullable: true },
+          preferences: { $ref: "#/components/schemas/AISoftPreferences" },
+        },
+      },
+      AIRecommendResponse: {
+        type: "object",
+        properties: {
+          success: { type: "boolean", example: true },
+          preferences: { $ref: "#/components/schemas/AIExtractedPreferences" },
+          needsClarification: { type: "boolean", example: false },
+          clarificationQuestion: { type: "string", nullable: true },
+          unsupportedAction: { type: "boolean", example: false },
+          actionMessage: { type: "string", nullable: true },
+          recommendations: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Property" },
+          },
+          meta: {
+            type: "object",
+            properties: {
+              count: { type: "integer", example: 1 },
+            },
+          },
         },
       },
       ...adminSwaggerSchemas,
