@@ -50,3 +50,10 @@ export const WEB_CLIENT_ID = (process.env.WEB_CLIENT_ID as string) || "";
 export const CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || "";
 export const CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || "";
 export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
+
+// AI Assistant Configuration
+export const AI_PROVIDER = process.env.AI_PROVIDER || "gemini";
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
+export const AI_MODEL = process.env.AI_MODEL || "gemini-1.5-flash";
+export const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS) || 10000;
+
