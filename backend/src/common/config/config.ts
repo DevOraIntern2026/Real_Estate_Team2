@@ -55,5 +55,7 @@ export const CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || "";
 export const AI_PROVIDER = process.env.AI_PROVIDER || "gemini";
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 export const AI_MODEL = process.env.AI_MODEL || "gemini-1.5-flash";
+export const AI_API_KEY = process.env.AI_API_KEY || process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || "";
+export const AI_BASE_URL = process.env.AI_BASE_URL || "https://api.openai.com/v1";
 export const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS) || 10000;
 
