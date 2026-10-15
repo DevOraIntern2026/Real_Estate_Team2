@@ -43,3 +43,18 @@ export class ForbiddenException extends ApplicationException {
     super(message, 403, cause);
   }
 }
+export class ServiceUnavailableException extends ApplicationException {
+  constructor(message: string = "Service unavailable", cause?: unknown) {
+    super(message, 503, cause);
+  }
+}
+export class AIServiceUnavailableException extends ServiceUnavailableException {
+  constructor(
+    message: string = "AI assistant is currently unavailable.",
+    code: string = "AI_SERVICE_UNAVAILABLE",
+    cause?: unknown,
+  ) {
+    super(message, { code, message, ...(cause && typeof cause === "object" ? cause : {}) });
+  }
+}
+
