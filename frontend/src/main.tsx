@@ -4,8 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
 import '@/styles/index.css'
 import App from '@/app/App'
+// import { installUnauthorizedRedirect } from "./features/dashboard/api/session";
 
 const queryClient = new QueryClient()
+// installUnauthorizedRedirect("/login"); 
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

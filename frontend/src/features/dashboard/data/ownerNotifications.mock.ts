@@ -1,4 +1,4 @@
-import type { AppNotification } from "../types/notification";
+import type { AppNotification } from "../../../types/notification";
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
 

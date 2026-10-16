@@ -1,4 +1,4 @@
-import type { Inquiry, InquiryReply } from "../types/inquiry";
+import type { Inquiry, InquiryReply } from "../../../types/inquiry";
 
 const hoursAgo = (h: number) => new Date(Date.now() - h * 3_600_000).toISOString();
 

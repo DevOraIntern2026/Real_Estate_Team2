@@ -1,4 +1,4 @@
-import type { AdminProfile } from "../types/admin";
+import type { AdminProfile } from "../../../types/admin";
 
 export const adminMock: AdminProfile = {
   id: "a1",

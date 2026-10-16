@@ -1,0 +1,55 @@
+// ---- request ----
+export type ListingStatusFilter =
+  | "all"
+  | "under_review"
+  | "change_required"
+  | "published"
+  | "rejected"
+  | "inactive"
+  | "sold_rented";
+
+export type Transaction = "sale" | "rent";
+
+export interface ListingsParams {
+  status: ListingStatusFilter;
+  transaction?: Transaction;
+  type?: string;
+  location?: string;
+  q?: string;
+  sort: string; // "-submittedAt" = newest first
+  page: number;
+  limit: number;
+}
+
+export type ListingCounts = Record<ListingStatusFilter, number>;
+
+// ---- response item (ASSUMED: same fields as pendingListings in /v1/admin/overview) ----
+export interface ListingSummaryDto {
+  id: string;
+  code: string;
+  title: string;
+  thumbnail?: string | null;
+  owner: { id: string; name: string; role?: string };
+  propertyType: string;
+  transaction: string;
+  area: string;
+  city?: string;
+  price: number;
+  currency: string;
+  status: string;
+  submittedAt: string;
+}
+
+// ---- what the table uses ----
+export interface ListingRowVm {
+  id: string;
+  code: string;
+  title: string;
+  ownerName: string;
+  type: string; // "Villa"
+  purpose: string; // "Rent"
+  location: string; // "Riverside, Cairo"
+  priceLabel: string; // "75,000/Mo EGP"
+  statusLabel: string; // "Under Review"
+  submittedAt: string; // ISO
+}

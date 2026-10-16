@@ -1,5 +1,3 @@
-import { AuthErrorCode } from "../enums";
-
 ////////////////////////// general error handler
 export class ApplicationException extends Error {
   constructor(
@@ -36,16 +34,7 @@ export class internalServerError extends ApplicationException {
   }
 }
 export class UnauthorizedException extends ApplicationException {
-  constructor(
-    {
-      message = "Internal server error",
-      cause,
-    }: {
-      message: string;
-      cause?: unknown;
-    },
-    code?: AuthErrorCode,
-  ) {
+  constructor(message: string = "Internal server error", cause?: unknown) {
     super(message, 401, cause);
   }
 }

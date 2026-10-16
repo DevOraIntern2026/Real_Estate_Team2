@@ -1,4 +1,4 @@
-import type { AdminProfile } from "../types/admin";
+import type { AdminProfile } from "../../../types/admin";
 
 // id "u1" = the owner of the first 5 mock properties (see properties.mock.ts)
 export const ownerMock: AdminProfile = {

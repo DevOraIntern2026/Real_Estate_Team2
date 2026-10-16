@@ -12,7 +12,3 @@ export type resendConfirmationEmailDto = z.infer<
 >;
 export type LoginDto = z.infer<typeof login.body>;
 export type SignupDto = z.infer<typeof signup.body>;
-export class LoginResponse {
-  accessToken!: string;
-  refreshToken!: string;
-}

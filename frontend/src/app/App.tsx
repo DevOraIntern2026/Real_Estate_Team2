@@ -17,7 +17,6 @@ import { PropertiesProvider } from '@/features/dashboard/context/PropertiesConte
 import ListingDetails from '@/features/dashboard/Pages/listing-details/ListingDetails'
 import Listing from '@/features/dashboard/Pages/Listing/Listing'
 import Notifications from '@/features/dashboard/Pages/Notification/Notifications'
-import Overview from '@/features/dashboard/Pages/Overview/Overview'
 import Profile from '@/features/dashboard/Pages/Profile/Profile'
 import Reports from '@/features/dashboard/Pages/Reports/Reports'
 import UserProfile from '@/features/dashboard/Pages/Users/UserProfile'
@@ -32,6 +31,7 @@ import OwnerReports from '@/features/dashboard/Pages/owner/reports/OwnerReports'
 import OwnerNotifications from '@/features/dashboard/Pages/Notification/Notifications'
 import NotFoundPage from './NotFoundPage'
 import InquiryReply from '@/features/dashboard/Pages/owner/inquiries/InquiryReply'
+import AdminOverview from '@/features/dashboard/Pages/Overview/AdminOverview'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -70,7 +70,7 @@ function App() {
                 <Route path="/verify-otp" element={<VerifyOtpPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
                 <Route path={ADMIN_PATHS.home} element={<MainLayout />}>
-                  <Route index element={<Overview />} />
+                  <Route index element={<AdminOverview/>} />
                   <Route path="listing">
                     <Route index element={<Listing />} />
                     <Route path=":listingId" element={<ListingDetails />} />

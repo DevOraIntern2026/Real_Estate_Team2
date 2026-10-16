@@ -8,7 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { inquiriesMock, inquiryRepliesMock } from "../data/inquiries.mock";
-import type { Inquiry, InquiryReply } from "../types/inquiry";
+import type { Inquiry, InquiryReply } from "../../../types/inquiry";
 
 type InquiriesContextValue = {
   inquiries: Inquiry[];

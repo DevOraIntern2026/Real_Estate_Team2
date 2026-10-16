@@ -1,8 +1,8 @@
-import { isValidObjectId } from "mongoose";
+import { Types } from "mongoose";
 import { z } from "zod";
 export const generalValidationFields = {
   id: z.string().refine((id) => {
-    return isValidObjectId(id);
+    return Types.ObjectId.isValid(id);
   }, "Invalid ID"),
   username: z.coerce
     .string({ error: "Make sure to include a valid username" })
@@ -14,19 +14,17 @@ export const generalValidationFields = {
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,16}$/, {
       error: "Make sure to follow the indicated password pattern",
     }),
-  role: z.enum(["1", "2"]).pipe(z.coerce.number()),
   phone: z
     .string("Phone number is required")
     .regex(/^(00201|\+201|01)(0|1|2|5)\d{8}$/, {
       error: "Make sure to enter a valid phone number",
     }),
-  // confirmPassword: z.coerce.string(),
-  // gender: z
-  //   .enum(["male", "female"], {
-  //     error: "Gender must be either male or female",
-  //   })
-  //   .default("male")
-  //   .optional(),
+  confirmPassword: z.coerce.string(),
+  gender: z
+    .enum(["male", "female"], {
+      error: "Gender must be either male or female",
+    })
+    .default("male"),
   otp: z.string("OTP code is required").regex(/^\d{6}$/, {
     error: "Make sure to enter a valid OTP code",
   }),

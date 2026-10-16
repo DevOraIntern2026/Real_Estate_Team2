@@ -6,68 +6,45 @@ import { Types } from "mongoose";
 
 export class RedisService {
   private readonly client: Redis;
+  private isConnected: boolean = false;
+  private hasReportedError: boolean = false;
+
   constructor() {
-    this.client = new Redis(REDIS_URL);
+    /////// with ioredis the db is connected by default when taken an instance from
+    this.client = new Redis(REDIS_URL, {
+      maxRetriesPerRequest: 1,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          // Slow down reconnection attempts to avoid terminal flooding
+          return 5000;
+        }
+        return Math.min(times * 1000, 3000);
+      },
+    });
     this.handleEvents();
   }
   public async connect() {
-    /////// with ioredis the db is connected by default when taken an instance from
-    // await this.client.connect();
-    console.log("Redis connected successfully");
+    if (this.isConnected) {
+      console.log("Redis connected successfully");
+    } else {
+      console.log("Redis service initialized");
+    }
   }
   private handleEvents() {
-    this.client.on("error", (err) => console.error("Redis error:", err));
-    this.client.on("ready", () => console.error("Redis is ready to use"));
-  }
-
-  ///////////////////////////JWT
-  redisUsedRefreshKey({
-    userId,
-    jti,
-  }: {
-    userId: string | Types.ObjectId;
-    jti: string;
-  }) {
-    return `refresh:used:${userId}:${jti}`;
-  }
-  redisRotationResultKey({
-    userId,
-    jti,
-  }: {
-    userId: string | Types.ObjectId;
-    jti: string;
-  }) {
-    return `refresh:result:${userId}:${jti}`;
-  }
-  redisRevokedFamilyKey({
-    userId,
-    familyId,
-  }: {
-    userId: string | Types.ObjectId;
-    familyId: string;
-  }) {
-    return `family:revoked:${userId}:${familyId}`;
-  }
-  async redisSetNX({
-    key,
-    value,
-    ttl,
-  }: {
-    key: string;
-    value: string;
-    ttl: number;
-  }): Promise<boolean> {
-    if (!Number.isFinite(ttl) || ttl <= 0) {
-      throw new internalServerError(`Invalid TTL for redis key "${key}"`);
-    }
-    try {
-      return (await this.client.set(key, value, "EX", ttl, "NX")) === "OK";
-    } catch (error) {
-      console.error("redisSetNX failed:", error);
-      throw new internalServerError(
-        "Something went wrong with setting the value within redis",
-      );
-    }
+    this.client.on("error", (err: any) => {
+      if (!this.hasReportedError) {
+        console.error(`⚠️ Redis error: ${err?.message || err}. (Check if Redis server is running or update REDIS_URL in .env.dev)`);
+        this.hasReportedError = true;
+      }
+    });
+    this.client.on("ready", () => {
+      this.isConnected = true;
+      this.hasReportedError = false;
+      console.log("Redis connected and ready to use");
+    });
+    this.client.on("close", () => {
+      this.isConnected = false;
+    });
   }
   /////////////////////////// redis operations
   async redisSet({
@@ -77,18 +54,14 @@ export class RedisService {
   }: {
     key: string;
     value: any;
-    ttl?: number;
+    ttl?: number | undefined;
   }): Promise<string | null> {
-    if (ttl !== undefined && (!Number.isFinite(ttl) || ttl <= 0)) {
-      throw new internalServerError(`Invalid TTL for redis key "${key}"`);
-    }
     try {
       const data = typeof value === "string" ? value : JSON.stringify(value);
-      return ttl !== undefined
+      return ttl
         ? await this.client.set(key, data, "EX", ttl)
         : await this.client.set(key, data);
     } catch (error) {
-      console.error("redisSet failed:", error);
       throw new internalServerError(
         "Something went wrong with setting the value within redis",
       );
@@ -101,7 +74,7 @@ export class RedisService {
   }: {
     key: string;
     value: string | object;
-    ttl: number;
+    ttl?: number | undefined;
   }): Promise<string | number | null> {
     try {
       // key has to exist before assigning it a different value
@@ -208,7 +181,15 @@ export class RedisService {
 
     return `RevokeToken::${userId.toString()}`;
   }
-
+  redisRevokeTokenKey({
+    userId,
+    jti,
+  }: {
+    userId: string | Types.ObjectId | undefined;
+    jti: string | undefined;
+  }): string {
+    return `${this.redisBaseRevokeTokenKey(userId)}::${jti}`;
+  }
   otpKey(
     email: string,
     { type = EmailEnum.CONFIRM_EMAIL }: { type?: EmailEnum } = {},
@@ -237,55 +218,6 @@ export class RedisService {
   }
   unverifiedAccountDuration(email: string): string {
     return `User::AccountTTL::${email}`;
-  } //////////////////////////////////////////////////////
-  /////////////////////////// Storing FCM Tokens
-  //////////////////////////////////////////////////////
-  FCM_key(userId: Types.ObjectId | string) {
-    return `user:FCM:${userId}`;
-  }
-  async addFCM(userId: string | Types.ObjectId, FCMToken: string) {
-    return await this.client.sadd(this.FCM_key(userId), FCMToken);
-  }
-
-  async removeFCM(userId: string | Types.ObjectId, FCMToken: string) {
-    return await this.client.srem(this.FCM_key(userId), FCMToken);
-  }
-
-  async getFCMs(userId: string | Types.ObjectId) {
-    return await this.client.smembers(this.FCM_key(userId));
-  }
-
-  async hasFCMs(userId: string | Types.ObjectId) {
-    return await this.client.scard(this.FCM_key(userId));
-  }
-
-  async removeFCMUser(userId: string | Types.ObjectId) {
-    return await this.client.del(this.FCM_key(userId));
-  }
-  //////////////////////////////////////////////////////
-  ////////////////////////////// socketIo
-  //////////////////////////////////////////////////////
-  socketKey(userId: string | Types.ObjectId) {
-    return `user:sockets:${userId.toString()}`;
-  }
-  async addSocket(userId: string | Types.ObjectId, socketId: string) {
-    return await this.client.sadd(this.socketKey(userId), socketId);
-  }
-
-  async removeSocket(userId: string | Types.ObjectId, socketId: string) {
-    return await this.client.srem(this.socketKey(userId), socketId);
-  }
-
-  async getSockets(userId: string | Types.ObjectId) {
-    return await this.client.smembers(this.socketKey(userId));
-  }
-
-  async hasSockets(userId: string | Types.ObjectId) {
-    return await this.client.scard(this.socketKey(userId));
-  }
-
-  async removeUserSockets(userId: string | Types.ObjectId) {
-    return await this.client.del(this.socketKey(userId));
   }
 }
 export const redisService = new RedisService();

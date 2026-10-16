@@ -9,7 +9,7 @@ import {
 } from "react";
 import { adminMock } from "../data/admin.mock";
 import { changePasswordRequest, deleteAccountRequest } from "../services/adminApi";
-import type { AdminProfile, EditableAdminFields } from "../types/admin";
+import type { AdminProfile, EditableAdminFields } from "../../../types/admin";
 
 type AdminContextValue = {
   admin: AdminProfile;
