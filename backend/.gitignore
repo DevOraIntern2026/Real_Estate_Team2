@@ -1,6 +1,14 @@
+<<<<<<< HEAD
+node_modules/
+dist/
+.env
+.env.*
+*.log
+=======
 
 src/common/config/
 node_modules/
 .env
 .env.*
 dist/
+>>>>>>> 88cc5fb (second update)

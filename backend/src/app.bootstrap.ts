@@ -8,6 +8,9 @@ import { globalErrorHandler } from "./middlewares";
 import { authRouter } from "./modules/auth";
 import { categoryRouter } from "./modules/category";
 import { propertyRouter } from "./modules/property";
+import landingPageRoute from "./modules/landing-page/landing-page.route";
+import searchPageRoute from "./modules/search-page/search-page.route";
+import propertyDetailsRoute from "./modules/properity details/property-details.route";
 
 // Takes a function following the common error-first callback style, i.e. taking an (err, value) => ... callback as the last argument, and returns a version that returns promises.
 // const s3WriteStream = promisify(pipeline);
@@ -23,7 +26,9 @@ export const bootstrap = async () => {
   app.use("/api/auth", authRouter);
   app.use("/api/categories", categoryRouter);
   app.use("/api/properties", propertyRouter);
-
+  app.use("/api/landingPage", landingPageRoute);
+  app.use("/api/search", searchPageRoute);
+  app.use("/api/property-details", propertyDetailsRoute);
   ////////////// Invalid Routing
   app.use("/*dummy", (req, res, next) => {
     return res.status(404).json({ Error: "Invalid route" });

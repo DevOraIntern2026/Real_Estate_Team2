@@ -36,7 +36,7 @@ const optionalAuthentication = async (
 
 ////////////////////////////////////////////////////////////// Public: search & filter
 router.get("/", validation(validators.listProperties), async (req, res) => {
-  const data = await propertyService.search(req.query as any);
+  const data = await propertyService.AllProperties(req.query as any);
   successResponse({ res, message: "Properties fetched successfully", data });
 });
 
