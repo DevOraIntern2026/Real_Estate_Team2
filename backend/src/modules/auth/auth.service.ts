@@ -2,6 +2,7 @@ import { OAuth2Client, TokenPayload } from "google-auth-library";
 import { DUMMY_HASH, WEB_CLIENT_ID } from "../../common/config/config";
 import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
 
+import { HydratedDocument, Types } from "mongoose";
 import {
   BadRequestException,
   ConflictException,
@@ -9,6 +10,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
+import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 import { TokenService } from "../../common/services/jwt";
 import { redisService, RedisService } from "../../common/services/redis";
 import { emailEmitter, generateOTP, sendEmail } from "../../common/utils/email";
@@ -25,8 +27,6 @@ import {
   resendConfirmationEmailDto,
   SignupDto,
 } from "./auth.dto";
-import { HydratedDocument, Types } from "mongoose";
-import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 export enum LoggedOutDevices {
   ALL,
   ONE_DEVICE,
@@ -166,6 +166,13 @@ class AuthService {
     checkMaxOtpRequests > 0
       ? await this.redis.redisIncrKey(maxRequests)
       : await this.redis.redisSet({ key: maxRequests, value: 1, ttl: 300 });
+
+    console.log(`\n==================================================`);
+    console.log(
+      `📧 [OTP SENT] To: ${email} | Subject: ${EmailConfig[subject].title}`,
+    );
+    console.log(`🔑 OTP Code: ${generatedOtp}`);
+    console.log(`==================================================\n`);
 
     await sendEmail({
       to: email,

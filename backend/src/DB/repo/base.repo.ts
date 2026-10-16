@@ -130,7 +130,7 @@ export abstract class DataBaseRepo<TRawDoc> {
     if (pageInt > 0) {
       options.skip = (pageInt - 1) * sizeInt;
       options.limit = sizeInt;
-      count = await this.model.countDocuments({ filter });
+      count = await this.model.countDocuments(filter || {});
     }
     const docs = await this.find({ filter: filter || {}, projection, options });
     return {
@@ -300,4 +300,8 @@ export abstract class DataBaseRepo<TRawDoc> {
   async distinct(field: string, filter?: QueryFilter<TRawDoc>): Promise<any[]> {
     return await this.model.distinct(field, filter as any);
   }
+  async countDocuments(filter?: QueryFilter<TRawDoc>): Promise<number> {
+    return await this.model.countDocuments(filter as any);
+  }
 }
+

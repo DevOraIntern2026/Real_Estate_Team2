@@ -39,6 +39,7 @@ export enum PropertyStatusEnum {
   INACTIVE,
   SOLD,
   RENTED,
+  CHANGE_REQUIRED,
 }
 
 // Statuses that are safe to show to the general public (property seekers)
@@ -81,6 +82,7 @@ export const PropertyStatusMap = {
   inactive: PropertyStatusEnum.INACTIVE,
   sold: PropertyStatusEnum.SOLD,
   rented: PropertyStatusEnum.RENTED,
+  change_required: PropertyStatusEnum.CHANGE_REQUIRED,
 } as const;
 
 // Reverse lookups (enum number -> label string) used when serializing responses

@@ -1,13 +1,13 @@
 // import type { Response, Request, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
+import { TokenType } from "../../common/enums";
 import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 import { successResponse } from "../../common/response";
+import { authentication } from "../../middlewares/authentication.middleware";
 import { validation } from "../../middlewares/validation.middleware";
 import authService from "./auth.service";
 import * as validators from "./auth.validation";
-import { authentication } from "../../middlewares";
-import type { Request, Response, NextFunction } from "express";
-import { TokenType } from "../../common/enums";
 const router = Router();
 ////////////////// System auth
 router.post(

@@ -1,0 +1,16 @@
+{
+  "name": "devora-ai-chatbot",
+  "version": "1.0.0",
+  "description": "DEVORA AI Property Assistant chatbot module",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p .",
+    "test": "node --test dist/tests/ai.test.js"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^5.9.3"
+  }
+}

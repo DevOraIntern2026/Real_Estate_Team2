@@ -1,5 +1,59 @@
+<<<<<<< HEAD
+=======
+# Dependencies
+>>>>>>> origin/main
 node_modules/
+.pnpm-store/
+
+# Production build output
+dist/
+build/
+
+# Environment files and credentials
 .env
 .env.*
+<<<<<<< HEAD
 dist/
 pnpm-lock.yaml
+=======
+.env.local
+.env.development.local
+.env.production.local
+.env.test
+.env.test.local
+!.env.example
+
+# Standalone development endpoint testing scripts & local runners
+scripts/
+test-*.js
+test-*.mjs
+check-*.js
+debug-*.js
+endpoint-test.js
+api-test.js
+
+# Logs and runtime dumps
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+
+# Coverage and test artifacts
+coverage/
+.nyc_output/
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+*.bak
+*.swp
+.idea/
+.vscode/
+
+# Local temporary uploads & scratch directories
+uploads/
+tmp/
+temp/
+>>>>>>> origin/main
