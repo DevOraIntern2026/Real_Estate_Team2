@@ -2,7 +2,6 @@ import { z } from "zod";
 import { generalValidationFields } from "../../common/validation";
 import {
   FurnishingMap,
-  PropertyStatusMap,
   PropertyTypeMap,
   TransactionTypeMap,
 } from "../../common/enums";
@@ -48,6 +47,7 @@ export const createProperty = {
       .optional(),
     amenities: z.array(z.string().max(40)).max(30).optional(),
     location: locationSchema,
+    ownerId: generalValidationFields.id.optional(),
   }),
 };
 
@@ -98,9 +98,13 @@ export const myProperties = {
   query: z.strictObject({
     page: z.coerce.string().optional(),
     limit: z.coerce.string().optional(),
-    status: z
-      .enum(Object.keys(PropertyStatusMap) as [string, ...string[]])
-      .optional(),
+    status: z.string().optional(),
+    transactionType: z.enum(["sale", "rent"]).optional(),
+    propertyType: z.string().optional(),
+    city: z.string().optional(),
+    q: z.string().optional(),
+    ownerId: generalValidationFields.id.optional(),
+    sort: z.string().optional(),
   }),
 };
 
@@ -118,5 +122,34 @@ export const deletePropertyImage = {
   params: z.strictObject({ id: generalValidationFields.id }),
   body: z.strictObject({
     imageUrl: z.url({ error: "A valid imageUrl is required" }),
+  }),
+};
+
+export const submitProperty = {
+  params: z.strictObject({ id: generalValidationFields.id }),
+  body: z
+    .strictObject({
+      confirmed: z.boolean().optional(),
+    })
+    .optional(),
+};
+
+export const setCoverImage = {
+  params: z.object({
+    id: generalValidationFields.id,
+    imageId: z.string().optional(),
+  }),
+  body: z
+    .object({
+      imageUrl: z.string().optional(),
+    })
+    .optional(),
+};
+
+export const assignProperty = {
+  params: z.strictObject({ id: generalValidationFields.id }),
+  body: z.strictObject({
+    clientId: generalValidationFields.id,
+    notes: z.string().optional(),
   }),
 };
