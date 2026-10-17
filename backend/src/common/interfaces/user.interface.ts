@@ -1,15 +1,16 @@
-import { GenderEnum, RoleEnum } from "../enums";
+import { GenderEnum, ProviderEnums, RoleEnum } from "../enums";
 
 export interface IUser {
   firstName: string;
   lastName: string;
   username?: string;
   email: string;
-  password: string;
+  password?: string;
   phone?: string;
   bio?: string;
   // friends?: Types.ObjectId[] | IUser[];
-  provider: number;
+  tokenVersion?: number;
+  provider: ProviderEnums;
   profileImage?: string;
   coverImages?: string[];
   role: RoleEnum;
@@ -21,4 +22,10 @@ export interface IUser {
   deletedAt?: Date;
   restoredAt?: Date;
   changedCredentialsTime?: Date;
+  status?: "active" | "suspended";
+  suspendedAt?: Date;
+  suspensionReason?: string;
+  location?: string;
+  licenseNumber?: string;
+  agencyName?: string;
 }

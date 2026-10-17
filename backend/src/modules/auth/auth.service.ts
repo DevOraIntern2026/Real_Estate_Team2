@@ -1,18 +1,16 @@
-import { DUMMY_HASH } from "../../common/config/config";
-import {
-  EmailConfig,
-  EmailEnum,
-  ProviderEnums,
-  RoleEnum,
-} from "../../common/enums";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+import { DUMMY_HASH, WEB_CLIENT_ID } from "../../common/config/config";
+import { EmailConfig, EmailEnum, ProviderEnums } from "../../common/enums";
 
+import { HydratedDocument, Types } from "mongoose";
 import {
   BadRequestException,
   ConflictException,
+  internalServerError,
   NotFoundException,
   UnauthorizedException,
 } from "../../common/exceptions";
-import { IUser } from "../../common/interfaces";
+import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 import { TokenService } from "../../common/services/jwt";
 import { redisService, RedisService } from "../../common/services/redis";
 import { emailEmitter, generateOTP, sendEmail } from "../../common/utils/email";
@@ -25,9 +23,14 @@ import { UserRepo } from "../../DB/repo/user.repo";
 import {
   ConfirmEmailDto,
   LoginDto,
+  LoginResponse,
   resendConfirmationEmailDto,
   SignupDto,
 } from "./auth.dto";
+export enum LoggedOutDevices {
+  ALL,
+  ONE_DEVICE,
+}
 
 class AuthService {
   private readonly userRepo: UserRepo;
@@ -43,9 +46,9 @@ class AuthService {
     username,
     email,
     password,
+    role = 2,
     phone,
-    role,
-  }: SignupDto): Promise<IUser> {
+  }: SignupDto): Promise<null> {
     const checkExistingUser = await this.userRepo.findOne({
       filter: { email },
       projection: "email",
@@ -55,19 +58,17 @@ class AuthService {
     if (checkExistingUser) {
       throw new ConflictException("This email already exists");
     }
-    const roleMap: Record<string, RoleEnum> = {
-      customer: RoleEnum.CUSTOMER,
-      owner: RoleEnum.OWNER,
-      agent: RoleEnum.AGENT,
-    };
+    if (role < 1 || role > 2) {
+      throw new BadRequestException("Invalid role input");
+    }
     const user =
       (await this.userRepo.createOne({
         data: {
           username,
           email,
+          role,
           password: password,
           phone: phone ? phone : null,
-          role: roleMap[role] ?? RoleEnum.CUSTOMER,
         },
       })) || [];
 
@@ -81,7 +82,7 @@ class AuthService {
       });
     });
 
-    return user;
+    return null;
   }
   async login(
     { email, password }: LoginDto,
@@ -94,6 +95,9 @@ class AuthService {
         confirmedAt: { $exists: true },
         paranoid: false,
       },
+      projection:
+        "id username email __v provider role paranoid tokenVersion password firstName lastName",
+      options: { lean: true },
     });
 
     if (!user) {
@@ -101,13 +105,19 @@ class AuthService {
         "Please make sure to verify your account before login",
       );
     }
-    if (!(await compareHash(user?.password ?? DUMMY_HASH, password))) {
-      throw new UnauthorizedException("Invalid login credentials");
+    const { password: userStoredPassword, ...userProfile } = user;
+    const correctPassword = await compareHash(
+      user?.password ?? DUMMY_HASH,
+      password,
+    );
+
+    if (!user || !correctPassword) {
+      throw new UnauthorizedException({ message: "Invalid login credentials" });
     }
     user.phone ? (user.phone = await decrypt(user.phone as string)) : null;
 
     //////////////////////////////////////////// using a secret key based on the user's role (admin | user)
-    return this.tokenService.createLoginTokens(user, issuer);
+    return this.tokenService.createLoginTokens(userProfile, issuer);
   }
   private async generateAndSendConfirmationOtp(
     email: string,
@@ -156,6 +166,13 @@ class AuthService {
     checkMaxOtpRequests > 0
       ? await this.redis.redisIncrKey(maxRequests)
       : await this.redis.redisSet({ key: maxRequests, value: 1, ttl: 300 });
+
+    console.log(`\n==================================================`);
+    console.log(
+      `📧 [OTP SENT] To: ${email} | Subject: ${EmailConfig[subject].title}`,
+    );
+    console.log(`🔑 OTP Code: ${generatedOtp}`);
+    console.log(`==================================================\n`);
 
     await sendEmail({
       to: email,
@@ -311,10 +328,106 @@ class AuthService {
     );
     await this.redis.redisDelKeys([...allOtpKeys, ...tokenKeys]);
   }
+
+  //////////////// Google login and signup
+  async verifyGoogleAccount(idToken: string): Promise<TokenPayload> {
+    const client = new OAuth2Client();
+    if (!WEB_CLIENT_ID) {
+      throw new internalServerError("missing web client ID");
+    }
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: WEB_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    if (!payload) throw new BadRequestException("No payload found");
+    if (!payload.email_verified) {
+      throw new BadRequestException(
+        "Failed to authenticate this account with gmail",
+      );
+    }
+    return payload;
+  }
+
+  async signupWithGmail(
+    idToken: string,
+    role: number,
+    issuer: string,
+  ): Promise<{
+    loginTokens: LoginResponse;
+    status?: number;
+  }> {
+    const payload = await this.verifyGoogleAccount(idToken);
+
+    const existingUser = await this.userRepo.findOne({
+      filter: {
+        email: payload.email as string,
+        confirmedAt: { $exists: true },
+      },
+    });
+    if (existingUser) {
+      return {
+        loginTokens: await this.tokenService.createLoginTokens(
+          existingUser,
+          issuer,
+        ),
+      };
+    }
+    const createdUser = await this.userRepo.createOne({
+      data: {
+        firstName: payload.given_name,
+        lastName: payload.family_name,
+        email: payload.email,
+        role,
+        provider: ProviderEnums.GOOGLE,
+        profileImage: payload.picture,
+        confirmedAt: new Date(),
+      },
+    });
+
+    return {
+      loginTokens: await this.tokenService.createLoginTokens(
+        createdUser,
+        issuer,
+      ),
+    };
+  }
+  //////////////// logout & refresh token
+  async logout(
+    { flag }: { flag: LoggedOutDevices },
+    user: HydratedDocument<IUser>,
+    { sub, familyId }: Pick<IAuthTokenPayload, "sub" | "familyId">,
+  ): Promise<void> {
+    if (flag === LoggedOutDevices.ALL) {
+      await this.revokeAllSessions(user._id);
+      return;
+    }
+    // This device only: kills its access + refresh tokens immediately.
+    await this.tokenService.revokeFamily(sub, familyId);
+  }
+  async revokeAllSessions(userId: string | Types.ObjectId) {
+    const id =
+      typeof userId === "string"
+        ? Types.ObjectId.createFromHexString(userId)
+        : userId;
+
+    await this.userRepo.findByIdAndUpdate({
+      _id: id,
+      update: { $inc: { tokenVersion: 1 } },
+    });
+  }
+
+  async logoutByToken(token: string): Promise<void> {
+    await this.tokenService.revokeSessionByToken(token);
+  }
+  async rotateToken(
+    user: HydratedDocument<IUser>,
+    payload: IAuthTokenPayload,
+    issuer: string,
+  ) {
+    return this.tokenService.rotate(user, payload, issuer);
+  }
 }
 
 // single tone design pattern instead of taking an instance on each use we export the instance itself
 export default new AuthService();
-
-//       { email, confirmEmail: { $exists: true }, provider: providerEnum.system },
-//
