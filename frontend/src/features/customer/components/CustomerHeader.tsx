@@ -164,12 +164,18 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
       </div>
 
       {isMenuOpen && (
-        <nav aria-label="Mobile navigation" className="absolute left-4 right-4 top-full z-30 flex flex-col gap-5 rounded-inner border border-border-grey-light bg-white p-5 shadow-2 lg:hidden">
-          {navigationLinks}
-          <Link className="text-landing-nav font-medium text-brand-700" onClick={closeMenus} to="/customer-home">
-            My home
-          </Link>
-        </nav>
+        <div className="fixed inset-0 z-50 bg-overlay/40 lg:hidden" onClick={closeMenus}>
+          <nav aria-label="Mobile navigation" aria-modal="true" className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] flex-col gap-6 rounded-r-2xl bg-white p-6 shadow-2" onClick={(event) => event.stopPropagation()} role="dialog">
+            <div className="flex items-center justify-between">
+              <AuthBrand href="/customer-home" variant="landing" />
+              <button aria-label="Close navigation menu" className="flex size-10 items-center justify-center rounded-full text-xl text-text-grey-dark hover:bg-brand-50" onClick={closeMenus} type="button">×</button>
+            </div>
+            <div className="flex flex-col gap-5 border-t border-border-grey-light pt-6">
+              {navigationLinks}
+              <Link className="text-landing-nav font-medium text-brand-700" onClick={closeMenus} to="/customer-home">My home</Link>
+            </div>
+          </nav>
+        </div>
       )}
     </header>
   )
