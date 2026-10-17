@@ -34,10 +34,17 @@ const optionalAuthentication = async (
   next();
 };
 
+<<<<<<< HEAD
+////////////////////////////////////////////////////////////// Public: search & filter
+router.get("/", validation(validators.listProperties), async (req, res) => {
+  const data = await propertyService.AllProperties(req.query as any);
+  successResponse({ res, message: "Properties fetched successfully", data });
+=======
 ////////////////////////////////////////////////////////////// Public: options & search
 router.get("/options", async (_req, res) => {
   const data = await propertyService.getOptions();
   successResponse({ res, message: "Property options fetched successfully", data });
+>>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
 });
 
 router.get("/meta/filters", async (_req, res) => {

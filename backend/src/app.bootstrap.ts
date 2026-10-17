@@ -15,10 +15,16 @@ import { dashboardRouter } from "./modules/dashboard";
 import { inquiryRouter } from "./modules/inquiry";
 import { notificationRouter } from "./modules/notification";
 import { propertyRouter } from "./modules/property";
+<<<<<<< HEAD
+import landingPageRoute from "./modules/landing-page/landing-page.route";
+import searchPageRoute from "./modules/search-page/search-page.route";
+import propertyDetailsRoute from "./modules/properity details/property-details.route";
+=======
 import { reportsRouter } from "./modules/reports";
 
 import fs from "node:fs";
 import path from "node:path";
+>>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -29,6 +35,15 @@ export const bootstrap = async () => {
   app.use(cors());
   app.use(express.json());
 
+<<<<<<< HEAD
+  //////////// APIs
+  app.use("/api/auth", authRouter);
+  app.use("/api/categories", categoryRouter);
+  app.use("/api/properties", propertyRouter);
+  app.use("/api/landingPage", landingPageRoute);
+  app.use("/api/search", searchPageRoute);
+  app.use("/api/property-details", propertyDetailsRoute);
+=======
   // Ensure uploads directory exists and serve static files
   const uploadsPath = path.resolve(process.cwd(), "uploads");
   if (!fs.existsSync(uploadsPath)) {
@@ -59,6 +74,7 @@ export const bootstrap = async () => {
   //////////// Swagger API Documentation
   setupSwagger(app);
 
+>>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
   ////////////// Invalid Routing
   app.use("/*dummy", (req, res, next) => {
     return res.status(404).json({ Error: "Invalid route" });
