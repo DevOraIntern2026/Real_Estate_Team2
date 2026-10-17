@@ -15,16 +15,13 @@ import { dashboardRouter } from "./modules/dashboard";
 import { inquiryRouter } from "./modules/inquiry";
 import { notificationRouter } from "./modules/notification";
 import { propertyRouter } from "./modules/property";
-<<<<<<< HEAD
+import { reportsRouter } from "./modules/reports";
 import landingPageRoute from "./modules/landing-page/landing-page.route";
 import searchPageRoute from "./modules/search-page/search-page.route";
 import propertyDetailsRoute from "./modules/properity details/property-details.route";
-=======
-import { reportsRouter } from "./modules/reports";
 
 import fs from "node:fs";
 import path from "node:path";
->>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -35,15 +32,6 @@ export const bootstrap = async () => {
   app.use(cors());
   app.use(express.json());
 
-<<<<<<< HEAD
-  //////////// APIs
-  app.use("/api/auth", authRouter);
-  app.use("/api/categories", categoryRouter);
-  app.use("/api/properties", propertyRouter);
-  app.use("/api/landingPage", landingPageRoute);
-  app.use("/api/search", searchPageRoute);
-  app.use("/api/property-details", propertyDetailsRoute);
-=======
   // Ensure uploads directory exists and serve static files
   const uploadsPath = path.resolve(process.cwd(), "uploads");
   if (!fs.existsSync(uploadsPath)) {
@@ -66,15 +54,22 @@ export const bootstrap = async () => {
     ["/ai", aiRouter],
   ];
 
-  for (const [path, router] of apiRouters) {
-    app.use(`/api/v1${path}`, router);
-    app.use(`/api${path}`, router);
+  for (const [routePath, router] of apiRouters) {
+    app.use(`/api/v1${routePath}`, router);
+    app.use(`/api${routePath}`, router);
   }
+
+  //////////// Landing page, search, and property details routes
+  app.use("/api/v1/landingPage", landingPageRoute);
+  app.use("/api/landingPage", landingPageRoute);
+  app.use("/api/v1/search", searchPageRoute);
+  app.use("/api/search", searchPageRoute);
+  app.use("/api/v1/property-details", propertyDetailsRoute);
+  app.use("/api/property-details", propertyDetailsRoute);
 
   //////////// Swagger API Documentation
   setupSwagger(app);
 
->>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
   ////////////// Invalid Routing
   app.use("/*dummy", (req, res, next) => {
     return res.status(404).json({ Error: "Invalid route" });
@@ -86,12 +81,12 @@ export const bootstrap = async () => {
   app.use(globalErrorHandler);
   ////////////// checking port connection
 
-  app.listen(PORT, (err) => {
+  app.listen(PORT, (_err) => {
     try {
       console.log(`app is running on port ${PORT}`);
       console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
     } catch (error) {
-      console.error(err);
+      console.error(error);
     }
   });
 };

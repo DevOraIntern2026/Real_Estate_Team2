@@ -1,4 +1,4 @@
-import { HydratedDocument, model, models, Schema, Types } from "mongoose";
+import { HydratedDocument, Model, model, models, Schema, Types } from "mongoose";
 import { IProperty } from "../../common/interfaces";
 import {
   FurnishingEnum,
@@ -171,5 +171,5 @@ propertySchema.pre(["deleteOne", "findOneAndDelete"], function () {
   }
 });
 
-export const propertyModel =
+export const propertyModel: Model<IProperty> =
   models.Property || model<IProperty>("Property", propertySchema);

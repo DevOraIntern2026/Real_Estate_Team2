@@ -36,13 +36,13 @@ export interface ILandingPageResponse {
     propertyTypes: EnumOption[];
     bedrooms: number[];
   };
-  hero: {
+  hero?: {
     title: string;
     subtitle: string;
     image: string;
     searchPlaceholder: string;
   };
-  exclusiveOffers: Array<{
+  exclusiveOffers?: Array<{
     id: string;
     title: string;
     subtitle: string;

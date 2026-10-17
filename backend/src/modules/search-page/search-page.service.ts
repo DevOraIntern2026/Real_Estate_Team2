@@ -70,8 +70,9 @@ class SearchPageService {
     // Areas (checkbox list) — supports ?area=New Cairo,Ain Sokhna
     if (query.city) {
       const cities = this.toList(query.city);
-      if (cities.length === 1) {
-        filter["location.city"] = new RegExp(this.escapeRegex(cities[0]), "i");
+      const firstCity = cities[0];
+      if (cities.length === 1 && firstCity !== undefined) {
+        filter["location.city"] = new RegExp(this.escapeRegex(firstCity), "i");
       } else if (cities.length > 1) {
         filter["location.city"] = {
           $in: cities.map((c) => new RegExp(`^${this.escapeRegex(c)}$`, "i")),
@@ -80,8 +81,9 @@ class SearchPageService {
     }
     if (query.area) {
       const areas = this.toList(query.area);
-      if (areas.length === 1) {
-        filter["location.area"] = new RegExp(this.escapeRegex(areas[0]), "i");
+      const firstArea = areas[0];
+      if (areas.length === 1 && firstArea !== undefined) {
+        filter["location.area"] = new RegExp(this.escapeRegex(firstArea), "i");
       } else if (areas.length > 1) {
         filter["location.area"] = {
           $in: areas.map((a) => new RegExp(`^${this.escapeRegex(a)}$`, "i")),

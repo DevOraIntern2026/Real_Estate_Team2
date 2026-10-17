@@ -1,6 +1,5 @@
 import { propertyModel } from "../../DB/models/property.model";
 import {
-  PropertyStatusEnum,
   PropertyTypeEnum,
   TransactionTypeEnum,
 } from "../../common/enums";

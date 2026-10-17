@@ -1,18 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-node_modules/
-dist/
-.env
-.env.*
-*.log
-=======
-
-src/common/config/
-=======
-=======
 # Dependencies
->>>>>>> origin/main
->>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
 node_modules/
 .pnpm-store/
 
@@ -23,14 +9,6 @@ build/
 # Environment files and credentials
 .env
 .env.*
-<<<<<<< HEAD
-dist/
->>>>>>> 88cc5fb (second update)
-=======
-<<<<<<< HEAD
-dist/
-pnpm-lock.yaml
-=======
 .env.local
 .env.development.local
 .env.production.local
@@ -71,5 +49,3 @@ Thumbs.db
 uploads/
 tmp/
 temp/
->>>>>>> origin/main
->>>>>>> d7af4f1fbbe40ed5c4edf5aa9858c94c21915cf3
