@@ -38,7 +38,7 @@ export function LandingFooter() {
       <div className="mx-auto mt-12 flex w-full max-w-landing flex-wrap items-center justify-between gap-5 border-t border-border-grey-light pt-6 text-body-sm text-text-grey-light">
         <div className="flex items-center gap-2"><img alt="" src={copyright} /><span>Homli Properties. All rights reserved.</span></div>
         <nav aria-label="Footer navigation" className="flex flex-wrap gap-x-8 gap-y-3 text-label-14 font-medium text-text-grey-dark">
-          {footerLinks.map((label) => <a className="hover:text-brand-700" href={label === 'Home' ? '#home' : label === 'Search' ? '#search' : label === 'Sell' ? '#contact' : '#about'} key={label}>{label}</a>)}
+          {footerLinks.map((label) => <a className="hover:text-brand-700" href={label === 'Home' ? '#home' : label === 'Search' ? '#search' : label === 'Sell' ? '#sell' : '#about'} key={label}>{label}</a>)}
         </nav>
       </div>
     </footer>

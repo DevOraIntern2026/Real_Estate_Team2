@@ -1,6 +1,5 @@
 import {
   ChatbotWidget,
-  ContactBanner,
   FeaturedCities,
   HeroSection,
   LandingFooter,
@@ -11,6 +10,7 @@ import {
   RecommendedProperties,
 } from '@/features/landing/components'
 import { useLandingPage } from '@/features/landing/hooks/useLandingPage'
+import { CustomerAgentBanner } from '@/features/customer/components/CustomerAgentBanner'
 
 export default function LandingPage() {
   const { data } = useLandingPage()
@@ -26,11 +26,9 @@ export default function LandingPage() {
         <FeaturedCities cities={data?.cities} />
         <RecommendedProperties properties={data?.discoverProperties} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} title="Discover Properties" />
         <RecommendedProperties properties={data?.topRecommended} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} />
-        <ContactBanner />
+        <CustomerAgentBanner />
       </main>
-      <div className="-mt-landing-chatbot-overlap">
-        <ChatbotWidget />
-      </div>
+      <ChatbotWidget />
       <div className="mt-landing-footer-gap">
         <LandingFooter />
       </div>

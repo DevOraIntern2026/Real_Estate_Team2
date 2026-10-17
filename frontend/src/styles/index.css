@@ -625,3 +625,10 @@
     color: var(--color-primary);
   }
 }
+.landing-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.landing-carousel-track {
+  scrollbar-width: none;
+}

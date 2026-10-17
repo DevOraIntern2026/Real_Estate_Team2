@@ -4,7 +4,7 @@ import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
 const navigation = [
   { label: 'Home', href: '/' },
   { label: 'Search', href: '/search' },
-  { label: 'Sell', href: '/#contact' },
+  { label: 'Sell', href: '/#sell' },
   { label: 'About', href: '/#about' },
 ]
 

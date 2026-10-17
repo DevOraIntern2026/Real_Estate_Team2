@@ -1,4 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
+import type { SearchFilterMetadata } from '@/features/search/types/search'
 
 export type SearchCriteria = {
   lookingFor: string[]
@@ -6,52 +7,80 @@ export type SearchCriteria = {
   propertyTypes: string[]
   bedrooms: string
   bathrooms: string
-  price: number
-  unitArea: number
+  minPrice: number | undefined
+  maxPrice: number | undefined
+  minArea: number | undefined
+  maxArea: number | undefined
   finishing: string[]
   amenities: string[]
 }
 
 export const initialSearchCriteria: SearchCriteria = {
-  lookingFor: ['For Rent'], areas: ['New Cairo', 'Ain Sokhna'], propertyTypes: ['Apartement', 'Villa'],
-  bedrooms: '', bathrooms: '', price: 450000000, unitArea: 400, finishing: ['Fully finished', 'Not finished core shell'], amenities: ['Garden', 'bicycles lanes'],
+  lookingFor: [],
+  areas: [],
+  propertyTypes: [],
+  bedrooms: '',
+  bathrooms: '',
+  minPrice: undefined,
+  maxPrice: undefined,
+  minArea: undefined,
+  maxArea: undefined,
+  finishing: [],
+  amenities: [],
 }
 
-type Props = { criteria: SearchCriteria; setCriteria: Dispatch<SetStateAction<SearchCriteria>>; onApply?: () => void }
-
-const filterOptions = {
-  lookingFor: ['For Rent', 'For Buy'],
-  areas: ['New Cairo', 'Future City', 'Ain Sokhna', 'New Heliopolis', 'Sheikh Zayed', '6th of October'],
-  propertyTypes: ['Apartement', 'Villa', 'Duplex'],
-  finishing: ['Fully finished', 'Semi finished', 'Not finished core shell', 'Fully finished furnished', 'Flexi finishing', 'Premium', 'White box', 'Luxury', 'Ultra-luxury'],
-  amenities: ['Garden', 'Has roof', 'bicycles lanes', 'Disability support', 'Swimming pool', 'Parking'],
+type FilterGroup = 'lookingFor' | 'areas' | 'propertyTypes' | 'finishing' | 'amenities'
+type Props = {
+  criteria: SearchCriteria
+  filters?: SearchFilterMetadata
+  setCriteria: Dispatch<SetStateAction<SearchCriteria>>
+  onApply?: () => void
 }
 
-const groupTitles: Record<keyof typeof filterOptions, string> = {
-  lookingFor: 'Looking for', areas: 'Areas', propertyTypes: 'Property Type', finishing: 'Finishing', amenities: 'Amenities',
+const groupTitles: Record<FilterGroup, string> = {
+  lookingFor: 'Looking for',
+  areas: 'Areas',
+  propertyTypes: 'Property Type',
+  finishing: 'Finishing',
+  amenities: 'Amenities',
 }
 
-export function SearchFilters({ criteria, setCriteria, onApply }: Props) {
+export function SearchFilters({ criteria, filters, setCriteria, onApply }: Props) {
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
-  const toggle = (key: 'lookingFor' | 'areas' | 'propertyTypes' | 'finishing' | 'amenities', value: string) => {
-    setCriteria((current) => ({ ...current, [key]: current[key].includes(value) ? current[key].filter((item) => item !== value) : [...current[key], value] }))
+  const filterOptions: Record<FilterGroup, { value: string; label: string }[]> = {
+    lookingFor: (filters?.lookingFor ?? []).map(({ value, label }) => ({ value: String(value), label })),
+    areas: (filters?.areas ?? []).map((value) => ({ value, label: value })),
+    propertyTypes: (filters?.propertyTypes ?? []).map(({ value, label }) => ({ value: String(value), label })),
+    finishing: (filters?.finishing ?? []).map(({ value, label }) => ({ value: String(value), label })),
+    amenities: (filters?.amenities ?? []).map((value) => ({ value, label: value })),
   }
-  const resetGroup = (key: keyof typeof filterOptions) => setCriteria((current) => ({ ...current, [key]: [] }))
-  const renderGroup = (key: keyof typeof filterOptions) => (
+
+  const toggle = (key: FilterGroup, value: string) => {
+    setCriteria((current) => ({
+      ...current,
+      [key]: current[key].includes(value)
+        ? current[key].filter((item) => item !== value)
+        : [...current[key], value],
+    }))
+  }
+
+  const resetGroup = (key: FilterGroup) => setCriteria((current) => ({ ...current, [key]: [] }))
+  const renderGroup = (key: FilterGroup) => (
     <section key={key}>
       <div className="mb-2 flex items-center justify-between">
         <h2 className="text-search-filter-heading font-bold text-text-grey-dark">{groupTitles[key]}</h2>
         {key !== 'lookingFor' && <button className="text-search-filter-reset text-text-grey-light underline" onClick={() => resetGroup(key)} type="button">Reset</button>}
       </div>
       <div className="flex flex-col gap-1">
-        {filterOptions[key].map((option, index) => (
-          <label className={`cursor-pointer items-center justify-between gap-2 text-search-filter-option text-text-grey-shade ${(key === 'areas' || key === 'amenities') && index > 3 && !expanded[key] ? 'hidden' : 'flex'}`} key={option}>
-            <span>{option}</span>
-            <input checked={criteria[key].includes(option)} className="size-search-checkbox cursor-pointer accent-brand-700" onChange={() => toggle(key, option)} type="checkbox" />
+        {filterOptions[key].map(({ value, label }, index) => (
+          <label className={`cursor-pointer items-center justify-between gap-2 text-search-filter-option text-text-grey-shade ${(key === 'areas' || key === 'amenities') && index > 3 && !expanded[key] ? 'hidden' : 'flex'}`} key={value}>
+            <span>{label}</span>
+            <input checked={criteria[key].includes(value)} className="size-search-checkbox cursor-pointer accent-brand-700" onChange={() => toggle(key, value)} type="checkbox" />
           </label>
         ))}
+        {filterOptions[key].length === 0 && <p className="text-search-filter-option text-text-grey-light">No options available</p>}
       </div>
-      {(key === 'areas' || key === 'amenities') && <button className="mt-1 text-search-filter-reset font-medium text-brand-700" onClick={() => setExpanded((current) => ({ ...current, [key]: !current[key] }))} type="button">{expanded[key] ? 'Show less' : 'Show all'}</button>}
+      {(key === 'areas' || key === 'amenities') && filterOptions[key].length > 4 && <button className="mt-1 text-search-filter-reset font-medium text-brand-700" onClick={() => setExpanded((current) => ({ ...current, [key]: !current[key] }))} type="button">{expanded[key] ? 'Show less' : 'Show all'}</button>}
     </section>
   )
 
@@ -61,21 +90,20 @@ export function SearchFilters({ criteria, setCriteria, onApply }: Props) {
       <div className="mt-5 flex flex-col gap-search-filter-group">
         {(['lookingFor', 'areas', 'propertyTypes'] as const).map(renderGroup)}
       </div>
-
       <section className="mt-search-filter-group">
         <h2 className="mb-2 text-search-filter-heading font-bold text-text-grey-dark">Bedrooms</h2>
         <div className="flex justify-between gap-1">
-          {['1', '2', '3', '4', '5+'].map((value) => <button aria-pressed={criteria.bedrooms === value} className={`size-search-choice rounded-full border border-border-grey-shade text-search-choice ${criteria.bedrooms === value ? 'border-brand-700 bg-brand-50 text-brand-700' : 'bg-white text-text-grey-shade'}`} key={value} onClick={() => setCriteria((current) => ({ ...current, bedrooms: current.bedrooms === value ? '' : value }))} type="button">{value}</button>)}
+          {(filters?.bedrooms ?? []).map((value) => <button aria-pressed={criteria.bedrooms === String(value)} className={`size-search-choice rounded-full border border-border-grey-shade text-search-choice ${criteria.bedrooms === String(value) ? 'border-brand-700 bg-brand-50 text-brand-700' : 'bg-white text-text-grey-shade'}`} key={value} onClick={() => setCriteria((current) => ({ ...current, bedrooms: current.bedrooms === String(value) ? '' : String(value) }))} type="button">{value}</button>)}
         </div>
       </section>
       <section className="mt-search-filter-group">
         <h2 className="mb-2 text-search-filter-heading font-bold text-text-grey-dark">Bathrooms</h2>
         <div className="flex justify-between gap-1">
-          {['0', '1', '2', '3', '4'].map((value) => <button aria-pressed={criteria.bathrooms === value} className={`size-search-choice rounded-full border border-border-grey-shade text-search-choice ${criteria.bathrooms === value ? 'border-brand-700 bg-brand-50 text-brand-700' : 'bg-white text-text-grey-shade'}`} key={value} onClick={() => setCriteria((current) => ({ ...current, bathrooms: current.bathrooms === value ? '' : value }))} type="button">{value}</button>)}
+          {(filters?.bathrooms ?? []).map((value) => <button aria-pressed={criteria.bathrooms === String(value)} className={`size-search-choice rounded-full border border-border-grey-shade text-search-choice ${criteria.bathrooms === String(value) ? 'border-brand-700 bg-brand-50 text-brand-700' : 'bg-white text-text-grey-shade'}`} key={value} onClick={() => setCriteria((current) => ({ ...current, bathrooms: current.bathrooms === String(value) ? '' : String(value) }))} type="button">{value}</button>)}
         </div>
       </section>
-      <RangeFilter label="Price Range" minimum="25,000" maximum="450,000,000" value={criteria.price} max={450000000} onChange={(price) => setCriteria((current) => ({ ...current, price }))} />
-      <RangeFilter label="Unit Area" minimum="50" maximum="400" value={criteria.unitArea} max={400} onChange={(unitArea) => setCriteria((current) => ({ ...current, unitArea }))} />
+      {filters?.priceRange && <RangeFilter label="Price Range" minimum={filters.priceRange.min} maximum={filters.priceRange.max} minValue={criteria.minPrice ?? filters.priceRange.min} maxValue={criteria.maxPrice ?? filters.priceRange.max} onMinimumChange={(minPrice) => setCriteria((current) => ({ ...current, minPrice: Math.min(minPrice, current.maxPrice ?? filters.priceRange.max) }))} onMaximumChange={(maxPrice) => setCriteria((current) => ({ ...current, maxPrice: Math.max(maxPrice, current.minPrice ?? filters.priceRange.min) }))} />}
+      {filters?.unitAreaRange && <RangeFilter label="Unit Area" minimum={filters.unitAreaRange.min} maximum={filters.unitAreaRange.max} minValue={criteria.minArea ?? filters.unitAreaRange.min} maxValue={criteria.maxArea ?? filters.unitAreaRange.max} onMinimumChange={(minArea) => setCriteria((current) => ({ ...current, minArea: Math.min(minArea, current.maxArea ?? filters.unitAreaRange.max) }))} onMaximumChange={(maxArea) => setCriteria((current) => ({ ...current, maxArea: Math.max(maxArea, current.minArea ?? filters.unitAreaRange.min) }))} />}
       <div className="mt-search-filter-group flex flex-col gap-search-filter-group">
         {(['finishing', 'amenities'] as const).map(renderGroup)}
       </div>
@@ -84,12 +112,14 @@ export function SearchFilters({ criteria, setCriteria, onApply }: Props) {
   )
 }
 
-function RangeFilter({ label, minimum, maximum, value, max, onChange }: { label: string; minimum: string; maximum: string; value: number; max: number; onChange: (value: number) => void }) {
+function RangeFilter({ label, minimum, maximum, minValue, maxValue, onMinimumChange, onMaximumChange }: { label: string; minimum: number; maximum: number; minValue: number; maxValue: number; onMinimumChange: (value: number) => void; onMaximumChange: (value: number) => void }) {
   return (
     <section className="mt-search-filter-group">
       <h2 className="mb-2 text-search-filter-heading font-bold text-text-grey-dark">{label}</h2>
-      <input aria-label={label} className="search-range w-full accent-brand-700" max={max} min={label === 'Price Range' ? 25000 : 50} onChange={(event) => onChange(Number(event.target.value))} type="range" value={value} />
-      <div className="mt-2 flex justify-between text-search-range text-text-grey-shade"><span><span className="block font-medium text-text-grey-dark">Minimum</span>{minimum}</span><span><span className="block font-medium text-text-grey-dark">Maximum</span>{label === 'Price Range' ? value.toLocaleString('en-US') : maximum}</span></div>
+      <div className="flex flex-col gap-2">
+        <label className="flex items-center justify-between gap-3 text-search-range text-text-grey-shade"><span>Minimum</span><input aria-label={`Minimum ${label}`} className="search-range min-w-0 flex-1 accent-brand-700" max={maximum} min={minimum} onChange={(event) => onMinimumChange(Number(event.target.value))} type="range" value={minValue} /><span className="min-w-12 text-right">{minValue.toLocaleString('en-US')}</span></label>
+        <label className="flex items-center justify-between gap-3 text-search-range text-text-grey-shade"><span>Maximum</span><input aria-label={`Maximum ${label}`} className="search-range min-w-0 flex-1 accent-brand-700" max={maximum} min={minimum} onChange={(event) => onMaximumChange(Number(event.target.value))} type="range" value={maxValue} /><span className="min-w-12 text-right">{maxValue.toLocaleString('en-US')}</span></label>
+      </div>
     </section>
   )
 }

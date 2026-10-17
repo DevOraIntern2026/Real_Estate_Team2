@@ -28,9 +28,7 @@ export default function CustomerHomePage() {
         <RecommendedProperties customerView properties={data?.topRecommended} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} />
         <CustomerAgentBanner />
       </main>
-      <div className="-mt-landing-chatbot-overlap">
-        <ChatbotWidget />
-      </div>
+      <ChatbotWidget />
       <div className="mt-landing-footer-gap">
         <LandingFooter />
       </div>

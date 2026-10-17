@@ -1,4 +1,5 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import ForgotPasswordPage from '@/features/auth/pages/forgot-password/ForgotPasswordPage'
 import EmailVerificationPage from '@/features/auth/pages/email-verification/EmailVerificationPage'
 import LoginPage from '@/features/auth/pages/login/LoginPage'
@@ -43,9 +44,26 @@ function CustomerSearchRoute() {
   return <SearchPage authenticated />
 }
 
+function HashScrollHandler() {
+  const { hash, pathname } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [hash, pathname])
+
+  return null
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <HashScrollHandler />
       <AdminProvider>
         <PropertiesProvider>
           <NotificationsProvider>
