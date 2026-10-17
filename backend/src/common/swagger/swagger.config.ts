@@ -11,6 +11,29 @@ import {
   ownerAgentSwaggerTags,
   ownerAgentSwaggerPaths,
 } from "./owner-agent.swagger";
+import {
+  userSwaggerTags,
+  userSwaggerPaths,
+} from "../../modules/user/user.swagger";
+import {
+  landingPageSwaggerTags,
+  landingPageSwaggerPaths,
+  landingPageSwaggerSchemas,
+} from "../../modules/landing-page/landing-page.swagger";
+import {
+  searchPageSwaggerTags,
+  searchPageSwaggerPaths,
+  searchPageSwaggerSchemas,
+} from "../../modules/search-page/search-page.swagger";
+import {
+  propertyDetailsSwaggerTags,
+  propertyDetailsSwaggerPaths,
+  propertyDetailsSwaggerSchemas,
+} from "../../modules/properity details/property-details.swagger";
+import { authSwaggerPaths } from "../../modules/auth/auth.swagger";
+import { propertySwaggerPaths } from "../../modules/property/property.swagger";
+import { notificationSwaggerPaths } from "../../modules/notification/notification.swagger";
+import { reportsSwaggerPaths } from "../../modules/reports/reports.swagger";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Reusable schema components
@@ -50,6 +73,10 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     { name: "AI Assistant", description: "Natural language AI property recommendations" },
     ...adminSwaggerTags,
     ...ownerAgentSwaggerTags,
+    ...userSwaggerTags,
+    ...landingPageSwaggerTags,
+    ...searchPageSwaggerTags,
+    ...propertyDetailsSwaggerTags,
   ],
 
   /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +89,7 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
         tags: ["Auth"],
         summary: "Register a new account",
         description:
-          "Creates a user with the chosen role (customer, owner, or agent). " +
+          "Creates a user with the chosen role ('1' for Owner, '2' for Customer). " +
           "An OTP is sent to the email for verification. Admin accounts cannot be created here.",
         operationId: "signup",
         requestBody: {
@@ -726,16 +753,69 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     },
 
     "/properties/{id}/submit": {
-      patch: {
+      post: {
         tags: ["Properties"],
-        summary: "Submit property for admin review (Owner / Agent)",
+        summary: "Submit draft/rejected property for review (POST)",
         description:
-          "Moves a Draft or Rejected property to Submitted status. Only the property owner can submit.",
-        operationId: "submitProperty",
+          "Moves a Draft or Rejected property to Submitted status. Accepts optional confirmed flag. Only the property owner can submit.",
+        operationId: "submitPropertyPost",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "id", in: "path", required: true, schema: { type: "string" } },
         ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { confirmed: { type: "boolean" } },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Property submitted for review",
+            content: {
+              "application/json": {
+                schema: {
+                  allOf: [
+                    { $ref: "#/components/schemas/SuccessResponse" },
+                    {
+                      type: "object",
+                      properties: { data: { $ref: "#/components/schemas/Property" } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": errorResponse("Only draft or rejected listings can be submitted"),
+          "401": errorResponse("Not authenticated"),
+          "403": errorResponse("Not the owner or forbidden"),
+          "404": errorResponse("Property not found"),
+        },
+      },
+      patch: {
+        tags: ["Properties"],
+        summary: "Submit property for admin review (PATCH)",
+        description:
+          "Moves a Draft or Rejected property to Submitted status. Only the property owner can submit.",
+        operationId: "submitPropertyPatch",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { confirmed: { type: "boolean" } },
+              },
+            },
+          },
+        },
         responses: {
           "200": {
             description: "Property submitted for review",
@@ -952,6 +1032,14 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     },
     ...adminSwaggerPaths,
     ...ownerAgentSwaggerPaths,
+    ...authSwaggerPaths,
+    ...propertySwaggerPaths,
+    ...notificationSwaggerPaths,
+    ...reportsSwaggerPaths,
+    ...userSwaggerPaths,
+    ...landingPageSwaggerPaths,
+    ...searchPageSwaggerPaths,
+    ...propertyDetailsSwaggerPaths,
   },
 
   /////////////////////////////////////////////////////////////////////////////
@@ -989,26 +1077,36 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
       // ─── Auth DTOs ───
       SignupRequest: {
         type: "object",
-        required: ["username", "email", "password", "confirmPassword"],
+        required: ["username", "email", "password", "role"],
         properties: {
-          username: { type: "string", minLength: 2, maxLength: 25, example: "Ahmed Salem" },
-          email: { type: "string", format: "email", example: "ahmed@example.com" },
+          username: {
+            type: "string",
+            minLength: 2,
+            maxLength: 25,
+            description: "Full name (First and Last name separated by space)",
+            example: "Kareem Mohamed",
+          },
+          email: {
+            type: "string",
+            format: "email",
+            example: "kimo4321p@gmail.com",
+          },
           password: {
             type: "string",
-            description: "8–16 chars, must include uppercase, lowercase, digit and special character",
-            example: "P@ssw0rd",
+            description:
+              "8–16 chars, must include uppercase, lowercase, digit, and special character",
+            example: "Kimo@1234",
           },
-          confirmPassword: { type: "string", example: "P@ssw0rd" },
-          phone: { type: "string", description: "Egyptian phone number", example: "01012345678" },
           role: {
             type: "string",
-            enum: ["customer", "owner", "agent"],
-            default: "customer",
+            enum: ["1", "2"],
+            description: "Target role: '1' for Owner, '2' for Customer",
+            example: "2",
           },
-          gender: {
+          phone: {
             type: "string",
-            enum: ["male", "female"],
-            default: "male",
+            description: "Optional Egyptian mobile number (e.g. 01012345678)",
+            example: "01012345678",
           },
         },
       },
@@ -1329,6 +1427,9 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
         },
       },
       ...adminSwaggerSchemas,
+      ...landingPageSwaggerSchemas,
+      ...searchPageSwaggerSchemas,
+      ...propertyDetailsSwaggerSchemas,
     },
   },
 };
