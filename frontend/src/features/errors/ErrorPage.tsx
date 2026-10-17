@@ -34,7 +34,7 @@ function ErrorIllustration({ code }: { code: ErrorCode }) {
 
   if (code === 403) {
     return (
-      <div className="relative h-[min(634px,76vh)] min-h-[360px] w-[min(530px,82vw)] flex-none border-b-[3px] border-solid border-[#e0e0e0]" aria-hidden="true">
+      <div className="relative h-[min(634px,76vh)] min-h-landing-footer-copy w-[min(530px,82vw)] flex-none border-b-[3px] border-solid border-[#e0e0e0]" aria-hidden="true">
         <img className="absolute left-[37.52%] top-0 block max-w-none" src={forbiddenNumber} alt="" />
         <img className="absolute left-0 top-[calc(17.87%+0.54px)] block max-w-none" src={stopSignIllustration} alt="" />
         <img className="absolute left-[38.44%] top-[calc(59.92%+1.8px)] block max-w-none" src={fenceIllustration} alt="" />
@@ -58,12 +58,12 @@ export default function ErrorPage({ code }: { code: ErrorCode }) {
 
   return (
     <main className="grid min-h-screen place-items-center overflow-hidden bg-bg-surface px-6 py-10 font-sans text-brand-700 max-[600px]:px-5 max-[600px]:py-6" data-error-code={code}>
-      <section className="flex w-full max-w-[892px] flex-col items-center gap-[23px] text-center max-[600px]:gap-7" aria-labelledby="error-title">
+      <section className="flex w-full max-w-223 flex-col items-center gap-5.75 text-center max-[600px]:gap-7" aria-labelledby="error-title">
         <ErrorIllustration code={code} />
         <div className="flex flex-col items-center gap-2">
-          <h1 id="error-title" className="m-0 text-[58px] leading-[1.1] font-bold text-brand-700 max-[600px]:text-[clamp(38px,10vw,48px)]">{copy.title}</h1>
+          <h1 id="error-title" className="m-0 text-[58px] leading-customer-agent-titlemer-agent-title font-bold text-brand-700 max-[600px]:text-[clamp(38px,10vw,48px)]">{copy.title}</h1>
           <p className="m-0 max-w-[36ch] text-2xl leading-[1.3] font-semibold text-text-grey-light max-[600px]:text-[17px]">{copy.description}</p>
-          <Link className="mt-5 grid min-h-12 w-[min(368px,84vw)] place-items-center rounded-full bg-brand-700 px-4 py-3 text-base font-medium text-white no-underline transition duration-200 hover:-translate-y-px hover:bg-brand-600 focus-visible:outline-3 focus-visible:outline-offset-[3px] focus-visible:outline-brand-400 max-[600px]:mt-[14px]" to={copy.href}>{copy.action}</Link>
+          <Link className="mt-5 grid min-h-12 w-[min(368px,84vw)] place-items-center rounded-full bg-brand-700 px-4 py-3 text-base font-medium text-white no-underline transition duration-200 hover:-translate-y-px hover:bg-brand-600 focus-visible:outline-3 focus-visible:outline-offset-[3px] focus-visible:outline-brand-400 max-[600px]:mt-3.5" to={copy.href}>{copy.action}</Link>
         </div>
       </section>
     </main>
