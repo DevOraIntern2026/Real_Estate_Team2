@@ -25,8 +25,45 @@ type SignaturesType = {
   refreshSignature: string | undefined;
 };
 
-const ACCESS_TTL = Number(ACCESS_TOKEN_EXPIRATION_TIME);
-const REFRESH_TTL = Number(REFRESH_TOKEN_EXPIRATION_TIME);
+const parseTtlSeconds = (
+  value: string | number | undefined | null,
+): number => {
+  if (value === null || value === undefined) {
+    throw new Error(`Invalid token expiration value: ${value}`);
+  }
+
+  const match = String(value).trim().match(/^(\d+)(s|m|h|d)?$/i);
+
+  if (match === null) {
+    throw new Error(`Invalid token expiration value: ${value}`);
+  }
+
+  const amount = Number(match[1]);
+  const unit = (match[2] || "s").toLowerCase();
+
+  const multipliers: Record<string, number> = {
+    s: 1,
+    m: 60,
+    h: 3600,
+    d: 86400,
+  };
+  const multiplier = multipliers[unit];
+
+  if (multiplier === undefined) {
+    throw new Error(`Invalid token expiration value: ${value}`);
+  }
+
+  const seconds = amount * multiplier;
+
+  if (!Number.isSafeInteger(seconds) || seconds <= 0) {
+    throw new Error("Token expiration must be a positive duration");
+  }
+
+  return seconds;
+};
+
+const ACCESS_TTL = parseTtlSeconds(ACCESS_TOKEN_EXPIRATION_TIME);
+const REFRESH_TTL = parseTtlSeconds(REFRESH_TOKEN_EXPIRATION_TIME);
 const ROTATION_GRACE = Number(REFRESH_ROTATION_GRACE_SECONDS ?? 10);
 for (const [name, value] of Object.entries({
   ACCESS_TTL,
