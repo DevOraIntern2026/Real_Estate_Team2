@@ -1,4 +1,3 @@
-import { DeleteOptions, UpdateOptions } from "mongodb";
 import {
   AnyKeys,
   CreateOptions,
@@ -16,6 +15,7 @@ import {
   UpdateResult,
   UpdateWithAggregationPipeline,
 } from "mongoose";
+import type { mongo } from "mongoose";
 import { IPaginate } from "../../common/interfaces";
 
 export abstract class DataBaseRepo<TRawDoc> {
@@ -186,7 +186,7 @@ export abstract class DataBaseRepo<TRawDoc> {
   }: {
     filter: QueryFilter<TRawDoc>;
     update: UpdateQuery<TRawDoc> | UpdateWithAggregationPipeline;
-    options?: UpdateOptions | null | undefined;
+    options?: mongo.UpdateOptions | null | undefined;
   }): Promise<UpdateResult> {
     if (Array.isArray(update)) {
       return await this.model.updateOne(filter, update, {
@@ -232,9 +232,10 @@ export abstract class DataBaseRepo<TRawDoc> {
     update: UpdateQuery<TRawDoc>;
     options?: (QueryOptions<TRawDoc> & ReturnsNewDoc) | null | undefined;
   }): Promise<HydratedDocument<TRawDoc> | null> {
+    const { $inc, ...rest } = update;
     return await this.model.findByIdAndUpdate(
       _id,
-      { ...update, $inc: { __v: 1 } },
+      { ...rest, $inc: { ...$inc, __v: 1 } },
       options,
     );
   }
@@ -245,7 +246,7 @@ export abstract class DataBaseRepo<TRawDoc> {
   }: {
     filter: QueryFilter<TRawDoc>;
     update: UpdateQuery<TRawDoc> | UpdateWithAggregationPipeline;
-    options?: UpdateOptions | null | undefined;
+    options?: mongo.UpdateOptions | null | undefined;
   }): Promise<UpdateResult> {
     return await this.model.updateMany(
       filter,
@@ -260,7 +261,7 @@ export abstract class DataBaseRepo<TRawDoc> {
     options,
   }: {
     filter: QueryFilter<TRawDoc>;
-    options?: DeleteOptions | null;
+    options?: mongo.DeleteOptions | null;
   }): Promise<DeleteResult> {
     return await this.model.deleteOne(filter, options);
   }
@@ -287,7 +288,7 @@ export abstract class DataBaseRepo<TRawDoc> {
     options,
   }: {
     filter: QueryFilter<TRawDoc>;
-    options?: DeleteOptions | null;
+    options?: mongo.DeleteOptions | null;
   }): Promise<DeleteResult> {
     return await this.model.deleteMany(filter, options);
   }

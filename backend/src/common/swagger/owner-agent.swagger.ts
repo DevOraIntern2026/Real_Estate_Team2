@@ -96,29 +96,6 @@ export const ownerAgentSwaggerPaths: Record<string, any> = {
       },
     },
   },
-  "/properties/{id}/submit": {
-    post: {
-      tags: ["Properties"],
-      summary: "Submit draft/rejected property for review",
-      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
-      security: [{ bearerAuth: [] }],
-      requestBody: {
-        content: {
-          "application/json": {
-            schema: {
-              type: "object",
-              properties: { confirmed: { type: "boolean" } },
-            },
-          },
-        },
-      },
-      responses: {
-        "200": { description: "Property submitted for review" },
-        "400": { description: "Incomplete property data" },
-        "403": { description: "Forbidden" },
-      },
-    },
-  },
   "/properties/{id}/assign": {
     patch: {
       tags: ["Properties"],

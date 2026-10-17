@@ -113,6 +113,116 @@ class PropertyService {
     return false;
   }
 
+  async AllProperties(dto: ListPropertiesDto): Promise<IPaginate<IProperty>> {
+    const {
+      page,
+      limit,
+      search,
+      category,
+      propertyType,
+      transactionType,
+      furnishing,
+      city,
+      area,
+      minPrice,
+      maxPrice,
+      minArea,
+      maxArea,
+      bedrooms,
+      bathrooms,
+      isFeatured,
+      sort,
+    } = dto;
+
+  // ---- coerce query strings → typed values ----
+  const toNum = (v: unknown): number | undefined => {
+    if (v === undefined || v === null || v === "") return undefined;
+    const n = Number(v);
+    return Number.isFinite(n) ? n : undefined;
+  };
+  const toBool = (v: unknown): boolean | undefined => {
+    if (v === undefined || v === null || v === "") return undefined;
+    if (typeof v === "boolean") return v;
+    const s = String(v).toLowerCase();
+    if (s === "true" || s === "1") return true;
+    if (s === "false" || s === "0") return false;
+    return undefined;
+  };
+
+  const pageNum  = toNum(page)  ?? 1;
+  const limitNum = toNum(limit) ?? 12;
+
+  const minP   = toNum(minPrice);
+  const maxP   = toNum(maxPrice);
+  const minA   = toNum(minArea);
+  const maxA   = toNum(maxArea);
+  const beds   = toNum(bedrooms);
+  const baths  = toNum(bathrooms);
+  const featured = toBool(isFeatured);
+
+  // ---- build filter: no status restriction, returns everything ----
+  const filter: Record<string, any> = {};
+
+  if (search) {
+    // If you have a text index, use $text; otherwise regex fallback
+    filter.$or = [
+      { title: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
+    ];
+  }
+
+  if (category) filter.category = new Types.ObjectId(category);
+
+  if (propertyType)
+    filter.propertyType =
+      PropertyTypeMap[propertyType as keyof typeof PropertyTypeMap];
+
+  if (transactionType)
+    filter.transactionType =
+      TransactionTypeMap[transactionType as keyof typeof TransactionTypeMap];
+
+  if (furnishing)
+    filter.furnishing = FurnishingMap[furnishing as keyof typeof FurnishingMap];
+
+  // location strings
+  if (city) filter["location.city"] = new RegExp(city, "i");
+  if (area) filter["location.area"] = new RegExp(area, "i");
+
+  // boolean
+  if (featured !== undefined) filter.isFeatured = featured;
+
+  // numeric comparisons
+  if (beds !== undefined)  filter.bedrooms  = { $gte: beds };
+  if (baths !== undefined) filter.bathrooms = { $gte: baths };
+
+  if (minP !== undefined || maxP !== undefined) {
+    filter.price = {};
+    if (minP !== undefined) filter.price.$gte = minP;
+    if (maxP !== undefined) filter.price.$lte = maxP;
+  }
+
+  // NOTE: `area` (numeric size) is separate from `location.area` (neighborhood)
+  if (minA !== undefined || maxA !== undefined) {
+    filter.area = {};
+    if (minA !== undefined) filter.area.$gte = minA;
+    if (maxA !== undefined) filter.area.$lte = maxA;
+  }
+
+  // ---- paginate ----
+  return this.propertyRepo.paginate({
+    filter,
+    page: String(pageNum),
+    limit: String(limitNum),
+    options: {
+      sort: SORT_MAP[sort || "newest"],
+      populate: [
+        { path: "category", select: "name slug icon" },
+        { path: "owner", select: "username email phone role" },
+      ],
+    },
+  });
+}
+
   ////////////////////////////////////////////////////////////// create
   async create(
     user: { id: string; role: RoleEnum },

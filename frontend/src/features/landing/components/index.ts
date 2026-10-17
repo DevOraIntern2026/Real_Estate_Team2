@@ -1,5 +1,4 @@
 export { ContactBanner } from './ContactBanner'
-export { ChatbotWidget } from './ChatbotWidget'
 export { FeaturedCities } from './FeaturedCities'
 export { HeroSection } from './HeroSection'
 export { LandingFooter } from './LandingFooter'

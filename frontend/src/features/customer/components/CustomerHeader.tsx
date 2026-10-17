@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
 import { useLogout } from '@/features/auth/hooks/useLogout'
 import { HeartIcon } from '@/features/landing/components/LandingIcons'
@@ -13,12 +13,13 @@ import {
 const navigation = [
   { label: 'Home', href: '/customer-home' },
   { label: 'Search', href: '/customer-search' },
-  { label: 'Sell', href: '/customer-home#contact' },
+  { label: 'Sell', href: '/customer-home#sell' },
   { label: 'About', href: '/customer-home#about' },
 ]
 
 export function CustomerHeader({ activePage = 'Home' }: { activePage?: string }) {
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const authSession = getAuthSession()
   const displayName = authSession?.name || 'Customer'
   const initials = displayName
@@ -45,11 +46,31 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
     })
   }
 
+  const handleNavigationClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    closeMenus()
+    const [targetPath, targetHash] = href.split('#')
+    if (!targetHash) return
+
+    event.preventDefault()
+    const scrollToTarget = (attempt = 0) => {
+      const target = document.getElementById(targetHash)
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      } else if (attempt < 20) {
+        window.setTimeout(() => scrollToTarget(attempt + 1), 50)
+      }
+    }
+
+    if (pathname !== targetPath) navigate(href)
+    else navigate(href, { replace: true })
+    window.setTimeout(() => scrollToTarget(), 0)
+  }
+
   const navigationLinks = navigation.map((item) => item.href.startsWith('/') ? (
     <Link
       className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`}
       key={item.label}
-      onClick={closeMenus}
+      onClick={(event) => handleNavigationClick(event, item.href)}
       to={item.href}
     >{item.label}</Link>
   ) : (
@@ -143,12 +164,18 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
       </div>
 
       {isMenuOpen && (
-        <nav aria-label="Mobile navigation" className="absolute left-4 right-4 top-full z-30 flex flex-col gap-5 rounded-inner border border-border-grey-light bg-white p-5 shadow-2 lg:hidden">
-          {navigationLinks}
-          <Link className="text-landing-nav font-medium text-brand-700" onClick={closeMenus} to="/customer-home">
-            My home
-          </Link>
-        </nav>
+        <div className="fixed inset-0 z-50 bg-overlay/40 lg:hidden" onClick={closeMenus}>
+          <nav aria-label="Mobile navigation" aria-modal="true" className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] flex-col gap-6 rounded-r-2xl bg-white p-6 shadow-2" onClick={(event) => event.stopPropagation()} role="dialog">
+            <div className="flex items-center justify-between">
+              <AuthBrand href="/customer-home" variant="landing" />
+              <button aria-label="Close navigation menu" className="flex size-10 items-center justify-center rounded-full text-xl text-text-grey-dark hover:bg-brand-50" onClick={closeMenus} type="button">×</button>
+            </div>
+            <div className="flex flex-col gap-5 border-t border-border-grey-light pt-6">
+              {navigationLinks}
+              <Link className="text-landing-nav font-medium text-brand-700" onClick={closeMenus} to="/customer-home">My home</Link>
+            </div>
+          </nav>
+        </div>
       )}
     </header>
   )

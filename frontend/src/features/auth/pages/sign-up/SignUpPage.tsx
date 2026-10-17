@@ -8,6 +8,8 @@ import {
 } from '@/features/auth/components/shared'
 import { SignUpForm } from './components/SignUpForm'
 import type { SignUpFormValues } from '@/features/auth/schemas/signUpSchema'
+import { decodeAccessToken } from '@/services/api/tokenStorage'
+import type { LoginResult } from '@/features/auth/api/authApi'
 
 function SignUpPage() {
   const navigate = useNavigate()
@@ -17,6 +19,10 @@ function SignUpPage() {
     },
   })
   const googleAuthMutation = useGoogleAuth()
+  const handleGoogleSuccess = (result: LoginResult) => {
+    const session = decodeAccessToken(result.tokens.accessToken)
+    navigate(session.role === 'customer' ? '/customer-home' : '/', { replace: true })
+  }
 
   const handleSignUp = (values: SignUpFormValues) => {
     signUpMutation.mutate({
@@ -48,7 +54,7 @@ function SignUpPage() {
                   idToken,
                   role,
                   rememberMe: false,
-                })
+                }, { onSuccess: handleGoogleSuccess })
               }
               onSubmit={handleSignUp}
             />

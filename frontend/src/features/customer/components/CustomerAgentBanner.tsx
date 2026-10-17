@@ -3,7 +3,7 @@ import buildingImage from '@/assets/images/customer-agent-building.png'
 
 export function CustomerAgentBanner() {
   return (
-    <section className="relative mx-auto mb-landing-section-bottom mt-landing-section-gap flex min-h-landing-contact w-full max-w-landing-search-panel items-center overflow-hidden rounded-outer bg-customer-agent-bg px-landing-contact-x max-landing-tablet:mx-6 max-landing-tablet:px-10 max-landing-mobile:mx-4 max-landing-mobile:min-h-landing-contact-mobile max-landing-mobile:px-6" id="contact">
+    <section className="relative mx-auto mb-landing-section-bottom mt-landing-section-gap flex min-h-landing-contact w-full max-w-landing-search-panel items-center overflow-hidden rounded-outer bg-customer-agent-bg px-landing-contact-x max-landing-tablet:mx-6 max-landing-tablet:px-10 max-landing-mobile:mx-4 max-landing-mobile:min-h-landing-contact-mobile max-landing-mobile:px-6" id="sell">
       <img alt="Modern property available for sale" className="pointer-events-none absolute top-customer-agent-art-top right-customer-agent-art-right z-0 h-customer-agent-art-height w-customer-agent-art-width object-contain opacity-50 max-landing-tablet:right-customer-agent-art-tablet max-landing-tablet:opacity-35 max-landing-mobile:top-0 max-landing-mobile:right-customer-agent-art-mobile max-landing-mobile:h-customer-agent-art-mobile max-landing-mobile:w-customer-agent-art-mobile max-landing-mobile:opacity-25" src={buildingImage} />
       <div className="relative z-1 max-w-customer-agent-copy">
         <p className="text-customer-agent-intro font-semibold leading-customer-agent-intro text-brand-700 max-landing-mobile:text-title-28">Become a Agent.</p>

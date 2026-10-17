@@ -11,6 +11,29 @@ import {
   ownerAgentSwaggerTags,
   ownerAgentSwaggerPaths,
 } from "./owner-agent.swagger";
+import {
+  userSwaggerTags,
+  userSwaggerPaths,
+} from "../../modules/user/user.swagger";
+import {
+  landingPageSwaggerTags,
+  landingPageSwaggerPaths,
+  landingPageSwaggerSchemas,
+} from "../../modules/landing-page/landing-page.swagger";
+import {
+  searchPageSwaggerTags,
+  searchPageSwaggerPaths,
+  searchPageSwaggerSchemas,
+} from "../../modules/search-page/search-page.swagger";
+import {
+  propertyDetailsSwaggerTags,
+  propertyDetailsSwaggerPaths,
+  propertyDetailsSwaggerSchemas,
+} from "../../modules/properity details/property-details.swagger";
+import { authSwaggerPaths } from "../../modules/auth/auth.swagger";
+import { propertySwaggerPaths } from "../../modules/property/property.swagger";
+import { notificationSwaggerPaths } from "../../modules/notification/notification.swagger";
+import { reportsSwaggerPaths } from "../../modules/reports/reports.swagger";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Reusable schema components
@@ -47,8 +70,13 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     { name: "Auth", description: "Registration, login, email verification, password reset" },
     { name: "Categories", description: "Property category management (Admin-only for CUD)" },
     { name: "Properties", description: "Property CRUD, search, filtering, images & listing lifecycle" },
+    { name: "AI Assistant", description: "Natural language AI property recommendations" },
     ...adminSwaggerTags,
     ...ownerAgentSwaggerTags,
+    ...userSwaggerTags,
+    ...landingPageSwaggerTags,
+    ...searchPageSwaggerTags,
+    ...propertyDetailsSwaggerTags,
   ],
 
   /////////////////////////////////////////////////////////////////////////////
@@ -61,7 +89,7 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
         tags: ["Auth"],
         summary: "Register a new account",
         description:
-          "Creates a user with the chosen role (customer, owner, or agent). " +
+          "Creates a user with the chosen role ('1' for Owner, '2' for Customer). " +
           "An OTP is sent to the email for verification. Admin accounts cannot be created here.",
         operationId: "signup",
         requestBody: {
@@ -725,16 +753,69 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
     },
 
     "/properties/{id}/submit": {
-      patch: {
+      post: {
         tags: ["Properties"],
-        summary: "Submit property for admin review (Owner / Agent)",
+        summary: "Submit draft/rejected property for review (POST)",
         description:
-          "Moves a Draft or Rejected property to Submitted status. Only the property owner can submit.",
-        operationId: "submitProperty",
+          "Moves a Draft or Rejected property to Submitted status. Accepts optional confirmed flag. Only the property owner can submit.",
+        operationId: "submitPropertyPost",
         security: [{ bearerAuth: [] }],
         parameters: [
           { name: "id", in: "path", required: true, schema: { type: "string" } },
         ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { confirmed: { type: "boolean" } },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Property submitted for review",
+            content: {
+              "application/json": {
+                schema: {
+                  allOf: [
+                    { $ref: "#/components/schemas/SuccessResponse" },
+                    {
+                      type: "object",
+                      properties: { data: { $ref: "#/components/schemas/Property" } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": errorResponse("Only draft or rejected listings can be submitted"),
+          "401": errorResponse("Not authenticated"),
+          "403": errorResponse("Not the owner or forbidden"),
+          "404": errorResponse("Property not found"),
+        },
+      },
+      patch: {
+        tags: ["Properties"],
+        summary: "Submit property for admin review (PATCH)",
+        description:
+          "Moves a Draft or Rejected property to Submitted status. Only the property owner can submit.",
+        operationId: "submitPropertyPatch",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
+        requestBody: {
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: { confirmed: { type: "boolean" } },
+              },
+            },
+          },
+        },
         responses: {
           "200": {
             description: "Property submitted for review",
@@ -909,8 +990,56 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
         },
       },
     },
+
+    // ────────────────────── AI ASSISTANT ──────────────────────
+    "/ai/recommend": {
+      post: {
+        tags: ["AI Assistant"],
+        summary: "Get AI property recommendations",
+        description:
+          "Public. Interprets natural language requirements, extracts structured preferences, and matches real verified listings.",
+        operationId: "getAiRecommendations",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/AIRecommendRequest" },
+            },
+          },
+        },
+        responses: {
+          "200": {
+            description: "Recommendations, clarification response, or unsupported action notification",
+            content: {
+              "application/json": {
+                schema: {
+                  allOf: [
+                    { $ref: "#/components/schemas/SuccessResponse" },
+                    {
+                      type: "object",
+                      properties: { data: { $ref: "#/components/schemas/AIRecommendResponse" } },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          "400": errorResponse("Validation error (e.g. empty message or exceeding 2000 characters)"),
+          "429": errorResponse("Rate limit exceeded — too many requests to AI Assistant"),
+          "503": errorResponse("AI service temporarily unavailable"),
+        },
+      },
+    },
     ...adminSwaggerPaths,
     ...ownerAgentSwaggerPaths,
+    ...authSwaggerPaths,
+    ...propertySwaggerPaths,
+    ...notificationSwaggerPaths,
+    ...reportsSwaggerPaths,
+    ...userSwaggerPaths,
+    ...landingPageSwaggerPaths,
+    ...searchPageSwaggerPaths,
+    ...propertyDetailsSwaggerPaths,
   },
 
   /////////////////////////////////////////////////////////////////////////////
@@ -948,26 +1077,36 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
       // ─── Auth DTOs ───
       SignupRequest: {
         type: "object",
-        required: ["username", "email", "password", "confirmPassword"],
+        required: ["username", "email", "password", "role"],
         properties: {
-          username: { type: "string", minLength: 2, maxLength: 25, example: "Ahmed Salem" },
-          email: { type: "string", format: "email", example: "ahmed@example.com" },
+          username: {
+            type: "string",
+            minLength: 2,
+            maxLength: 25,
+            description: "Full name (First and Last name separated by space)",
+            example: "Kareem Mohamed",
+          },
+          email: {
+            type: "string",
+            format: "email",
+            example: "kimo4321p@gmail.com",
+          },
           password: {
             type: "string",
-            description: "8–16 chars, must include uppercase, lowercase, digit and special character",
-            example: "P@ssw0rd",
+            description:
+              "8–16 chars, must include uppercase, lowercase, digit, and special character",
+            example: "Kimo@1234",
           },
-          confirmPassword: { type: "string", example: "P@ssw0rd" },
-          phone: { type: "string", description: "Egyptian phone number", example: "01012345678" },
           role: {
             type: "string",
-            enum: ["customer", "owner", "agent"],
-            default: "customer",
+            enum: ["1", "2"],
+            description: "Target role: '1' for Owner, '2' for Customer",
+            example: "2",
           },
-          gender: {
+          phone: {
             type: "string",
-            enum: ["male", "female"],
-            default: "male",
+            description: "Optional Egyptian mobile number (e.g. 01012345678)",
+            example: "01012345678",
           },
         },
       },
@@ -1215,7 +1354,82 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
           cities: { type: "array", items: { type: "string" }, example: ["Cairo", "Alexandria"] },
         },
       },
+
+      // ─── AI Assistant DTOs ───
+      AIRecommendRequest: {
+        type: "object",
+        required: ["message"],
+        properties: {
+          message: {
+            type: "string",
+            minLength: 1,
+            maxLength: 2000,
+            example: "I need a 2-bedroom apartment for rent in New Cairo under 20000.",
+          },
+        },
+      },
+      AISoftPreferences: {
+        type: "object",
+        properties: {
+          quietArea: { type: "boolean", nullable: true },
+          nearUniversity: { type: "boolean", nullable: true },
+          parking: { type: "boolean", nullable: true },
+          balcony: { type: "boolean", nullable: true },
+        },
+      },
+      AIExtractedPreferences: {
+        type: "object",
+        properties: {
+          transactionType: {
+            type: "string",
+            enum: ["sale", "rent"],
+            nullable: true,
+          },
+          propertyType: {
+            type: "string",
+            nullable: true,
+            example: "apartment",
+          },
+          location: {
+            type: "string",
+            nullable: true,
+            example: "New Cairo",
+          },
+          minPrice: { type: "number", nullable: true },
+          maxPrice: { type: "number", nullable: true, example: 20000 },
+          bedrooms: { type: "integer", nullable: true, example: 2 },
+          bathrooms: { type: "integer", nullable: true },
+          minArea: { type: "number", nullable: true },
+          maxArea: { type: "number", nullable: true },
+          furnished: { type: "boolean", nullable: true },
+          preferences: { $ref: "#/components/schemas/AISoftPreferences" },
+        },
+      },
+      AIRecommendResponse: {
+        type: "object",
+        properties: {
+          success: { type: "boolean", example: true },
+          preferences: { $ref: "#/components/schemas/AIExtractedPreferences" },
+          needsClarification: { type: "boolean", example: false },
+          clarificationQuestion: { type: "string", nullable: true },
+          unsupportedAction: { type: "boolean", example: false },
+          actionMessage: { type: "string", nullable: true },
+          recommendations: {
+            type: "array",
+            items: { $ref: "#/components/schemas/Property" },
+          },
+          meta: {
+            type: "object",
+            properties: {
+              count: { type: "integer", example: 1 },
+            },
+          },
+        },
+      },
       ...adminSwaggerSchemas,
+      ...landingPageSwaggerSchemas,
+      ...searchPageSwaggerSchemas,
+      ...propertyDetailsSwaggerSchemas,
     },
   },
 };

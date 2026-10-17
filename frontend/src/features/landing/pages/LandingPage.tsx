@@ -1,6 +1,4 @@
 import {
-  ChatbotWidget,
-  ContactBanner,
   FeaturedCities,
   HeroSection,
   LandingFooter,
@@ -10,23 +8,27 @@ import {
   PromoBanners,
   RecommendedProperties,
 } from '@/features/landing/components'
+import { ChatbotWidget } from '@/features/chatbot/components'
+import { useLandingPage } from '@/features/landing/hooks/useLandingPage'
+import { CustomerAgentBanner } from '@/features/customer/components/CustomerAgentBanner'
 
 export default function LandingPage() {
+  const { data } = useLandingPage()
+
   return (
     <div className="min-h-screen overflow-hidden bg-bg-surface">
       <LandingHeader />
       <main>
-        <HeroSection />
-        <PropertySearch />
+        <HeroSection totalProperties={data?.totalProperties} />
+        <PropertySearch filters={data?.filters} />
         <PromoBanners />
-        <PropertyCategories />
-        <FeaturedCities />
-        <RecommendedProperties />
-        <ContactBanner />
+        <PropertyCategories propertyTypes={data?.filters.propertyTypes} />
+        <FeaturedCities cities={data?.cities} />
+        <RecommendedProperties properties={data?.discoverProperties} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} title="Discover Properties" />
+        <RecommendedProperties properties={data?.topRecommended} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} />
+        <CustomerAgentBanner />
       </main>
-      <div className="-mt-landing-chatbot-overlap">
-        <ChatbotWidget />
-      </div>
+      <ChatbotWidget />
       <div className="mt-landing-footer-gap">
         <LandingFooter />
       </div>

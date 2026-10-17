@@ -60,7 +60,7 @@ function decodePayload(token: string): AccessTokenPayload {
   return JSON.parse(new TextDecoder().decode(payloadBytes)) as AccessTokenPayload
 }
 
-export function decodeAccessToken(token: string): AuthSession {
+export function decodeAccessToken(token: string, allowExpired = false): AuthSession {
   const payload = decodePayload(token)
   const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud]
   const tokenType = Number(audiences[0])
@@ -82,7 +82,7 @@ export function decodeAccessToken(token: string): AuthSession {
   if (!subjectId) {
     throw new Error('The access token does not identify a user.')
   }
-  if (typeof payload.exp !== 'number' || payload.exp <= Date.now() / 1000) {
+  if (typeof payload.exp !== 'number' || (!allowExpired && payload.exp <= Date.now() / 1000)) {
     throw new Error('The access token has expired.')
   }
 
@@ -116,6 +116,25 @@ export function getAccessToken() {
   )
 }
 
+export function getRefreshToken() {
+  return (
+    localStorage.getItem(REFRESH_TOKEN_KEY) ??
+    sessionStorage.getItem(REFRESH_TOKEN_KEY)
+  )
+}
+
+export function updateAuthTokens(tokens: AuthTokens) {
+  const storage = getActiveStorage()
+  if (!storage) throw new Error('No active authentication session was found.')
+
+  const authSession = decodeAccessToken(tokens.accessToken)
+  storage.setItem(ACCESS_TOKEN_KEY, tokens.accessToken)
+  storage.setItem(REFRESH_TOKEN_KEY, tokens.refreshToken)
+  storage.setItem(AUTH_SESSION_KEY, JSON.stringify(authSession))
+  cachedAccessToken = tokens.accessToken
+  cachedAuthSession = authSession
+}
+
 export function saveAuthTokens(tokens: AuthTokens, rememberMe: boolean) {
   const authSession = decodeAccessToken(tokens.accessToken)
   const storage = rememberMe ? localStorage : sessionStorage
@@ -143,7 +162,9 @@ export function getAuthSession(): AuthSession | null {
   }
 
   try {
-    const authSession = decodeAccessToken(accessToken)
+    // Keep the user's role available long enough for apiClient to refresh an
+    // expired access token instead of dropping a still-refreshable session.
+    const authSession = decodeAccessToken(accessToken, true)
     const storage = getActiveStorage()
     const persistedSession = storage?.getItem(AUTH_SESSION_KEY)
 

@@ -6,15 +6,22 @@ import { redisService } from "./common/services/redis";
 import { setupSwagger } from "./common/swagger/swagger.config";
 import { mongoDBConnection } from "./DB/db.connections";
 import { globalErrorHandler } from "./middlewares";
-import { authRouter, meRouter } from "./modules/auth";
-import { categoryRouter } from "./modules/category";
-import { propertyRouter } from "./modules/property";
 import { adminRouter } from "./modules/admin";
+import { agentRouter } from "./modules/agent";
+import { aiRouter } from "./modules/ai";
+import { authRouter, userRouter } from "./modules/auth";
+import { categoryRouter } from "./modules/category";
 import { dashboardRouter } from "./modules/dashboard";
 import { inquiryRouter } from "./modules/inquiry";
 import { notificationRouter } from "./modules/notification";
+import { propertyRouter } from "./modules/property";
 import { reportsRouter } from "./modules/reports";
-import { agentRouter } from "./modules/agent";
+import landingPageRoute from "./modules/landing-page/landing-page.route";
+import searchPageRoute from "./modules/search-page/search-page.route";
+import propertyDetailsRoute from "./modules/properity details/property-details.route";
+
+import fs from "node:fs";
+import path from "node:path";
 
 export const bootstrap = async () => {
   const app: Express = express();
@@ -24,6 +31,13 @@ export const bootstrap = async () => {
   //////////// global middlewares
   app.use(cors());
   app.use(express.json());
+
+  // Ensure uploads directory exists and serve static files
+  const uploadsPath = path.resolve(process.cwd(), "uploads");
+  if (!fs.existsSync(uploadsPath)) {
+    fs.mkdirSync(uploadsPath, { recursive: true });
+  }
+  app.use("/uploads", express.static(uploadsPath));
 
   //////////// APIs (Supporting both /api/v1 and /api)
   const apiRouters: [string, any][] = [
@@ -36,13 +50,22 @@ export const bootstrap = async () => {
     ["/notifications", notificationRouter],
     ["/reports", reportsRouter],
     ["/agent", agentRouter],
-    ["/me", meRouter],
+    ["/user", userRouter],
+    ["/ai", aiRouter],
   ];
 
-  for (const [path, router] of apiRouters) {
-    app.use(`/api/v1${path}`, router);
-    app.use(`/api${path}`, router);
+  for (const [routePath, router] of apiRouters) {
+    app.use(`/api/v1${routePath}`, router);
+    app.use(`/api${routePath}`, router);
   }
+
+  //////////// Landing page, search, and property details routes
+  app.use("/api/v1/landingPage", landingPageRoute);
+  app.use("/api/landingPage", landingPageRoute);
+  app.use("/api/v1/search", searchPageRoute);
+  app.use("/api/search", searchPageRoute);
+  app.use("/api/v1/property-details", propertyDetailsRoute);
+  app.use("/api/property-details", propertyDetailsRoute);
 
   //////////// Swagger API Documentation
   setupSwagger(app);
@@ -58,12 +81,12 @@ export const bootstrap = async () => {
   app.use(globalErrorHandler);
   ////////////// checking port connection
 
-  app.listen(PORT, (err) => {
+  app.listen(PORT, (_err) => {
     try {
       console.log(`app is running on port ${PORT}`);
       console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
     } catch (error) {
-      console.error(err);
+      console.error(error);
     }
   });
 };

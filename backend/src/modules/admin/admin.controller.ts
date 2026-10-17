@@ -4,8 +4,8 @@ import { imageUpload } from "../../common/utils/multer";
 import { authentication } from "../../middlewares/authentication.middleware";
 import { authorization } from "../../middlewares/authorization.middleware";
 import { validation } from "../../middlewares/validation.middleware";
-import authService from "../auth/auth.service";
-import * as authValidators from "../auth/auth.validation";
+import userService from "../user/user.service";
+import { editProfile } from "../user/user.validation";
 import adminService from "./admin.service";
 import * as validators from "./admin.validation";
 
@@ -230,27 +230,28 @@ router.delete("/notifications", async (req, res, next) => {
 ////////////////////////////////////////////////////////////////////////////////
 // 5) REPORTS
 ////////////////////////////////////////////////////////////////////////////////
-router.get("/reports", validation(validators.reports), async (req, res, next) => {
-  const data = await adminService.getReports(req.query);
-  return res.status(200).json(data);
-});
+router.get(
+  "/reports",
+  validation(validators.reports),
+  async (req, res, next) => {
+    const data = await adminService.getReports(req.query);
+    return res.status(200).json(data);
+  },
+);
 
 ////////////////////////////////////////////////////////////////////////////////
 // 6) ADMIN PROFILE ALIASES (Matching spec Section 9)
 ////////////////////////////////////////////////////////////////////////////////
 router.get(["/auth/me", "/profile"], async (req, res, next) => {
-  const data = await authService.getMe(req.user!._id.toString());
+  const data = await userService.getMe(req.user!._id.toString());
   return res.status(200).json(data);
 });
 
 router.patch(
   ["/auth/me", "/profile"],
-  validation(authValidators.editProfile),
+  validation(editProfile),
   async (req, res, next) => {
-    const data = await authService.updateMe(
-      req.user!._id.toString(),
-      req.body,
-    );
+    const data = await userService.updateMe(req.user!._id.toString(), req.body);
     return res.status(200).json(data);
   },
 );
@@ -259,32 +260,11 @@ router.post(
   ["/auth/me/photo", "/profile/photo"],
   imageUpload.single("file"),
   async (req, res, next) => {
-    const data = await authService.updatePhoto(
+    const data = await userService.updatePhoto(
       req.user!._id.toString(),
       req.file as Express.Multer.File,
     );
     return res.status(200).json(data);
-  },
-);
-
-router.post(
-  ["/auth/change-password", "/profile/password"],
-  validation(authValidators.changePassword),
-  async (req, res, next) => {
-    const result = await authService.changePassword(
-      req.user!._id.toString(),
-      req.body,
-    );
-    return res.status(200).json(result);
-  },
-);
-
-router.post(
-  "/auth/logout",
-  validation(authValidators.logout),
-  async (req, res, next) => {
-    await authService.logout(req.decoded, req.body?.refreshToken);
-    return res.status(204).send();
   },
 );
 

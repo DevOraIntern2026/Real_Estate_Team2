@@ -1,45 +1,48 @@
 // import type { Response, Request, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { Router } from "express";
-import { IUser } from "../../common/interfaces";
+import { TokenType } from "../../common/enums";
+import { IAuthTokenPayload, IUser } from "../../common/interfaces";
 import { successResponse } from "../../common/response";
-import { imageUpload } from "../../common/utils/multer";
 import { authentication } from "../../middlewares/authentication.middleware";
 import { validation } from "../../middlewares/validation.middleware";
 import authService from "./auth.service";
 import * as validators from "./auth.validation";
-
 const router = Router();
 ////////////////// System auth
 router.post(
   "/signup",
   validation(validators.signup),
-  async (req, res, next) => {
-    const data = await authService.signup(req.body);
+  async (req: Request, res: Response, next: NextFunction) => {
+    await authService.signup(req.body);
     successResponse<IUser>({
       message:
         "Account created successfully, a confirmation OTP was sent to your email",
       res,
-      data,
       status: 201,
     });
   },
 );
-router.post("/login", validation(validators.login), async (req, res, next) => {
-  const data = await authService.login(
-    req.body,
-    `${req.protocol}://${req.host}`,
-  );
-  successResponse({
-    message: "Login success",
-    res,
-    data,
-  });
-});
+router.post(
+  "/login",
+  validation(validators.login),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.login(
+      req.body,
+      `${req.protocol}://${req.host}`,
+    );
+    successResponse({
+      message: "Login success",
+      res,
+      data,
+    });
+  },
+);
 
 router.patch(
   "/confirmEmail",
   validation(validators.confirmEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.confirmEmail(req.body);
     return successResponse({
       res,
@@ -51,7 +54,7 @@ router.patch(
 router.patch(
   "/resendConfirmationEmail",
   validation(validators.resendConfirmationEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.resendConfirmationEmail(req.body);
     return successResponse({
       res,
@@ -65,7 +68,7 @@ router.patch(
 router.post(
   "/forgotPassword",
   validation(validators.resendConfirmationEmail),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.reqForgetPasswordOTP(req.body);
     successResponse({
       message: "An otp was sent to reset your password",
@@ -76,81 +79,64 @@ router.post(
 router.post(
   "/verify/forgotPassword",
   validation(validators.verifyPasswordReset),
-  async (req, res, next) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     await authService.changeForgottenPassword(req.body);
     successResponse({
       message: "Your password was reset successfully",
       res,
     });
   },
+  ////////////////// Google auth
+  router.post(
+    "/signup/gmail",
+    validation(validators.roleValidation),
+    async (req: Request, res: Response, next: NextFunction) => {
+      const account = await authService.signupWithGmail(
+        req.body.idToken,
+        req.body.role,
+        `${req.protocol}://${req.host}`,
+      );
+      successResponse({
+        message: "Account created successfully",
+        res,
+        data: account,
+      });
+    },
+  ),
 );
-
-/////////////////// Profile & Session Management (Admin / Users)
-router.get("/me", authentication(), async (req, res, next) => {
-  const data = await authService.getMe(req.user!._id.toString());
-  return res.status(200).json(data);
-});
-
-router.patch(
-  "/me",
-  authentication(),
-  validation(validators.editProfile),
-  async (req, res, next) => {
-    const data = await authService.updateMe(req.user!._id.toString(), req.body);
-    return res.status(200).json(data);
-  },
-);
-
-router.post(
-  "/me/photo",
-  authentication(),
-  imageUpload.single("file"),
-  async (req, res, next) => {
-    const data = await authService.updatePhoto(
-      req.user!._id.toString(),
-      req.file as Express.Multer.File,
-    );
-    return res.status(200).json(data);
-  },
-);
-
-router.post(
-  "/change-password",
-  authentication(),
-  validation(validators.changePassword),
-  async (req, res, next) => {
-    const result = await authService.changePassword(
-      req.user!._id.toString(),
-      req.body,
-    );
-    return res.status(200).json(result);
-  },
-);
-
 router.post(
   "/logout",
   authentication(),
-  validation(validators.logout),
-  async (req, res, next) => {
-    await authService.logout(req.decoded, req.body?.refreshToken);
-    return res.status(204).send();
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.logout(
+      req.body,
+      req.user,
+      req.decoded as IAuthTokenPayload,
+    );
+    return successResponse({
+      res,
+      data,
+      message:
+        req.body.flag === 0
+          ? "Logged out from all devices successfully"
+          : "Logged out from one device successfully",
+    });
   },
 );
-
 router.post(
-  "/refresh",
-  validation(validators.refreshToken),
-  async (req, res, next) => {
-    const data = await authService.refreshToken(
-      req.body.refreshToken,
+  "/rotateToken",
+  authentication(TokenType.REFRESH),
+  async (req: Request, res: Response, next: NextFunction) => {
+    const data = await authService.rotateToken(
+      req.user,
+      req.decoded as IAuthTokenPayload,
       `${req.protocol}://${req.host}`,
     );
-    successResponse({
-      message: "Token refreshed successfully",
+    return successResponse({
       res,
+      message: "Token rotation done",
       data,
     });
   },
 );
-
 export default router;

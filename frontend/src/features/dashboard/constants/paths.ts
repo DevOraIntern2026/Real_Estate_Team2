@@ -1,11 +1,11 @@
 // ---- admin ----
 export const ADMIN_PATHS = {
-  home: "/",
-  listing: "/listing",
-  users: "/users",
-  notification: "/notification",
-  reports: "/reports",
-  profile: "/profile",
+  home: "/admin",
+  listing: "/admin/listing",
+  users: "/admin/users",
+  notification: "/admin/notification",
+  reports: "/admin/reports",
+  profile: "/admin/profile",
 } as const;
 
 export const LISTING_PATH = ADMIN_PATHS.listing;

@@ -1,4 +1,6 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
+
 import ForgotPasswordPage from '@/features/auth/pages/forgot-password/ForgotPasswordPage'
 import EmailVerificationPage from '@/features/auth/pages/email-verification/EmailVerificationPage'
 import LoginPage from '@/features/auth/pages/login/LoginPage'
@@ -11,9 +13,19 @@ import SearchPage from '@/features/search/pages/SearchPage'
 import { getAuthSession } from '@/services/api/tokenStorage'
 import MainLayout from '@/components/layout/MainLayout'
 import UsersLayout from '@/components/layout/UsersLayout'
+import OwnerLayout from '@/components/layout/OwnerLayout'
 import { AdminProvider } from '@/features/dashboard/context/AdminContext'
 import { NotificationsProvider } from '@/features/dashboard/context/NotificationsContext'
 import { PropertiesProvider } from '@/features/dashboard/context/PropertiesContext'
+import { UsersProvider } from '@/features/dashboard/Pages/Users/UsersContext'
+import { ADMIN_PATHS, OWNER_PATH } from '@/features/dashboard/constants/paths'
+import OwnerProviders from '@/features/dashboard/routes/OwnerProviders'
+import OwnerInquiries from '@/features/dashboard/Pages/owner/inquiries/OwnerInquiries'
+import OwnerOverview from '@/features/dashboard/Pages/owner/overview/OwnerOverview'
+import OwnerReports from '@/features/dashboard/Pages/owner/reports/OwnerReports'
+import OwnerNotifications from '@/features/dashboard/Pages/Notification/Notifications'
+import InquiryReply from '@/features/dashboard/Pages/owner/inquiries/InquiryReply'
+import AdminOverview from '@/features/dashboard/Pages/Overview/AdminOverview'
 import ListingDetails from '@/features/dashboard/Pages/listing-details/ListingDetails'
 import Listing from '@/features/dashboard/Pages/Listing/Listing'
 import Notifications from '@/features/dashboard/Pages/Notification/Notifications'
@@ -21,17 +33,8 @@ import Profile from '@/features/dashboard/Pages/Profile/Profile'
 import Reports from '@/features/dashboard/Pages/Reports/Reports'
 import UserProfile from '@/features/dashboard/Pages/Users/UserProfile'
 import Users from '@/features/dashboard/Pages/Users/Users'
-import { UsersProvider } from '@/features/dashboard/Pages/Users/UsersContext'
-import OwnerLayout from '@/components/layout/OwnerLayout'
-import { ADMIN_PATHS, OWNER_PATH } from '@/features/dashboard/constants/paths'
-import OwnerProviders from '@/features/dashboard/routes/OwnerProviders'
-import OwnerInquiries from '@/features/dashboard/Pages/owner/inquiries/OwnerInquiries'
-import OwnerOverview from '@/features/dashboard/Pages/owner/overview/OwnerOverview'
-import OwnerReports from '@/features/dashboard/Pages/owner/reports/OwnerReports'
-import OwnerNotifications from '@/features/dashboard/Pages/Notification/Notifications'
+import ErrorPage from '@/features/errors/ErrorPage'
 import NotFoundPage from './NotFoundPage'
-import InquiryReply from '@/features/dashboard/Pages/owner/inquiries/InquiryReply'
-import AdminOverview from '@/features/dashboard/Pages/Overview/AdminOverview'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -51,9 +54,28 @@ function CustomerSearchRoute() {
   return <SearchPage authenticated />
 }
 
+function HashScrollHandler() {
+  const { hash, pathname } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+
+    const frame = window.requestAnimationFrame(() => {
+      document
+        .getElementById(decodeURIComponent(hash.slice(1)))
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [hash, pathname])
+
+  return null
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <HashScrollHandler />
       <AdminProvider>
         <PropertiesProvider>
           <NotificationsProvider>
@@ -69,8 +91,9 @@ function App() {
                 <Route path="/verify-email" element={<EmailVerificationPage />} />
                 <Route path="/verify-otp" element={<VerifyOtpPage />} />
                 <Route path="/signup" element={<SignUpPage />} />
+
                 <Route path={ADMIN_PATHS.home} element={<MainLayout />}>
-                  <Route index element={<AdminOverview/>} />
+                  <Route index element={<AdminOverview />} />
                   <Route path="listing">
                     <Route index element={<Listing />} />
                     <Route path=":listingId" element={<ListingDetails />} />
@@ -83,17 +106,21 @@ function App() {
                   <Route path="reports" element={<Reports />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
+
                 <Route path={OWNER_PATH} element={<OwnerProviders />}>
                   <Route element={<OwnerLayout />}>
                     <Route index element={<OwnerOverview />} />
-                    <Route path="inquiries" element={<OwnerInquiries />} >
-                      <Route index element={<OwnerInquiries/>} />
-                      <Route path=':inquiryId' element={<InquiryReply/>} />
+                    <Route path="inquiries">
+                      <Route index element={<OwnerInquiries />} />
+                      <Route path=":inquiryId" element={<InquiryReply />} />
                     </Route>
                     <Route path="notifications" element={<OwnerNotifications canClear={false} />} />
                     <Route path="reports" element={<OwnerReports />} />
                   </Route>
                 </Route>
+
+                <Route path="/error/401" element={<ErrorPage code={401} />} />
+                <Route path="/error/403" element={<ErrorPage code={403} />} />
                 <Route path="*" element={<NotFoundPage />} />
               </Routes>
             </UsersProvider>
@@ -104,4 +131,4 @@ function App() {
   )
 }
 
-export default App;
+export default App
