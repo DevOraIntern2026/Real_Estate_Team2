@@ -1,7 +1,7 @@
-import type { BadgeTone } from "../../components/common/StatusBadge";
-import type { TabItem } from "../../components/common/Tabs";
-import type { InquiryStatus } from "../../types/inquiry";
-import type { NotificationKind } from "../../types/notification";
+import type { BadgeTone } from "../../components/shared/StatusBadge";
+import type { TabItem } from "../../components/shared/Tabs";
+import type { InquiryStatus } from "@/types/inquiry";
+import type { NotificationKind } from "@/types/notification";
 
 export const NEW_INQUIRY_DAYS = 30;
 export const INQUIRIES_PAGE_SIZE = 4;

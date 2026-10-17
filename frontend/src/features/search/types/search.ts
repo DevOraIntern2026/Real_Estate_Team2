@@ -15,6 +15,34 @@ export type SearchFilterMetadata = {
   amenities: string[]
 }
 
+export type SearchCriteria = {
+  lookingFor: string[]
+  areas: string[]
+  propertyTypes: string[]
+  bedrooms: string
+  bathrooms: string
+  minPrice: number | undefined
+  maxPrice: number | undefined
+  minArea: number | undefined
+  maxArea: number | undefined
+  finishing: string[]
+  amenities: string[]
+}
+
+export const initialSearchCriteria: SearchCriteria = {
+  lookingFor: [],
+  areas: [],
+  propertyTypes: [],
+  bedrooms: '',
+  bathrooms: '',
+  minPrice: undefined,
+  maxPrice: undefined,
+  minArea: undefined,
+  maxArea: undefined,
+  finishing: [],
+  amenities: [],
+}
+
 export type SearchProperty = {
   _id: string
   title: string

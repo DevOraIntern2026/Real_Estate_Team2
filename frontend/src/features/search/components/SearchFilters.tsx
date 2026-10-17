@@ -1,33 +1,5 @@
 import { useState, type Dispatch, type SetStateAction } from 'react'
-import type { SearchFilterMetadata } from '@/features/search/types/search'
-
-export type SearchCriteria = {
-  lookingFor: string[]
-  areas: string[]
-  propertyTypes: string[]
-  bedrooms: string
-  bathrooms: string
-  minPrice: number | undefined
-  maxPrice: number | undefined
-  minArea: number | undefined
-  maxArea: number | undefined
-  finishing: string[]
-  amenities: string[]
-}
-
-export const initialSearchCriteria: SearchCriteria = {
-  lookingFor: [],
-  areas: [],
-  propertyTypes: [],
-  bedrooms: '',
-  bathrooms: '',
-  minPrice: undefined,
-  maxPrice: undefined,
-  minArea: undefined,
-  maxArea: undefined,
-  finishing: [],
-  amenities: [],
-}
+import type { SearchCriteria, SearchFilterMetadata } from '@/features/search/types/search'
 
 type FilterGroup = 'lookingFor' | 'areas' | 'propertyTypes' | 'finishing' | 'amenities'
 type Props = {

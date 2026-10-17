@@ -1,4 +1,4 @@
-import type { AppNotification } from "../../../types/notification";
+import type { AppNotification } from "@/types/notification";
 import { formatActivityTime } from "../../../utils/dateTime";
 import { NOTIFICATION_ICONS } from "../constants";
 

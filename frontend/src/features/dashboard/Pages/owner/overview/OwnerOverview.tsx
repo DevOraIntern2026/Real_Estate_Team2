@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../../components/shared/DataTable";
 import LinkButton from "../../../components/shared/LinkButton";
@@ -24,11 +24,11 @@ export default function OwnerOverview() {
   const navigate = useNavigate();
   const { owner, properties, inquiries } = useOwnerData();
   const { notifications } = useNotifications();
+  const [now] = useState(() => Date.now());
 
   const firstName = owner.name.split(" ")[0];
 
   const stats = useMemo(() => {
-    const now = Date.now();
     return [
       { label: "Total Property", value: properties.length },
       { label: "Published", value: properties.filter((p) => p.status === "Published").length },
@@ -42,7 +42,7 @@ export default function OwnerOverview() {
         ).length,
       },
     ];
-  }, [properties, inquiries]);
+  }, [properties, inquiries, now]);
 
   const recentProperties = useMemo(
     () => [...properties].sort(byNewest((p) => p.updatedAt)).slice(0, 3),

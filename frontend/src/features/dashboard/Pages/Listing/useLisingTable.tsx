@@ -1,24 +1,38 @@
 import { useMemo, useState } from "react";
 import type { TabItem } from "../../components/shared/Tabs";
 import { usePagination } from "../../../../hooks/usePagination";
-import type { Property } from "../../../../types/property";
-import { PAGE_SIZE, TABS_CONFIG, type PurposeFilter, type TabValue } from "./Constants";
+import type { Property, PropertyStatus } from "../../../../types/property";
+import { TABS_CONFIG, type PurposeFilter } from "./constants";
+import type { ListingStatusFilter } from "./types";
+
+const PROPERTY_STATUS_FILTER: Record<
+  PropertyStatus,
+  Exclude<ListingStatusFilter, "all">
+> = {
+  "Under Review": "under_review",
+  Published: "published",
+  Rejected: "rejected",
+  "Change Required": "change_required",
+  Inactive: "inactive",
+  "Sold/Rented": "sold_rented",
+};
 
 /** Tabs + search + 3 filters + pagination for the listing table. */
 export function useListingTable<T extends Property>(properties: T[]) {
-  const [tab, setTab] = useState<TabValue>("all");
+  const [tab, setTab] = useState<ListingStatusFilter>("all");
   const [search, setSearch] = useState("");
   const [purpose, setPurpose] = useState<PurposeFilter>("all");
   const [type, setType] = useState("all");
   const [city, setCity] = useState("all");
 
-  const tabs: TabItem<TabValue>[] = useMemo(
+  const tabs: TabItem<ListingStatusFilter>[] = useMemo(
     () =>
       TABS_CONFIG.map(({ label, value, showBadge }) => ({
         label,
         value,
         badge: showBadge
-          ? properties.filter((p) => p.status === value).length
+          ? properties.filter((p) => PROPERTY_STATUS_FILTER[p.status] === value)
+              .length
           : undefined,
       })),
     [properties]
@@ -27,8 +41,8 @@ export function useListingTable<T extends Property>(properties: T[]) {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return properties.filter((p) => {
-      if (tab !== "all" && p.status !== tab) return false;
-      if (purpose !== "all" && p.purpose !== purpose) return false;
+      if (tab !== "all" && PROPERTY_STATUS_FILTER[p.status] !== tab) return false;
+      if (purpose !== "all" && p.purpose.toLowerCase() !== purpose) return false;
       if (type !== "all" && p.type !== type) return false;
       if (city !== "all" && p.city !== city) return false;
       if (!q) return true;
@@ -40,11 +54,11 @@ export function useListingTable<T extends Property>(properties: T[]) {
 
   const { page, totalPages, pageItems, setPage, reset } = usePagination(
     filtered,
-    PAGE_SIZE
+    4
   );
 
   // any filter change sends the user back to page 1
-  const changeTab = (v: TabValue) => { setTab(v); reset(); };
+  const changeTab = (v: ListingStatusFilter) => { setTab(v); reset(); };
   const changeSearch = (v: string) => { setSearch(v); reset(); };
   const changePurpose = (v: PurposeFilter) => { setPurpose(v); reset(); };
   const changeType = (v: string) => { setType(v); reset(); };

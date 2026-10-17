@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useAdmin } from "../../context/AdminContext";
 import { useInquiries } from "../../context/InquiriesContext";
 import { useProperties } from "../../context/PropertiesContext";
-import type { InquiryRow } from "../../types/inquiry";
+import type { InquiryRow } from "@/types/inquiry";
 
 /** Everything that belongs to the logged-in owner. */
 export function useOwnerData() {

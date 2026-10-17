@@ -1,5 +1,5 @@
 import type { ReportSection } from "../../../components/reports/reportTypes";
-import type { Property } from "../../../types/property";
+import type { Property } from "@/types/property";
 
 /** Turns the owner's properties into the report sections (all numbers are computed). */
 export function buildOwnerReport(properties: Property[]): ReportSection[] {

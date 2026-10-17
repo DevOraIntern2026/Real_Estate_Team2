@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ChatMessage } from "../../../components/chat/chatTypes";
 import { useInquiries } from "../../../context/InquiriesContext";
-import type { InquiryRow } from "../../../types/inquiry";
+import type { InquiryRow } from "@/types/inquiry";
 
 /** First customer message + all the replies, as chat messages (oldest first). */
 export function useInquiryThread(inquiry: InquiryRow | undefined): ChatMessage[] {
