@@ -1,14 +1,18 @@
-import type { Property } from '../types/types'
+import type { PropertyData } from '../types/types'
 
-export default function PropertyAbout({ property }: { property: Property }) {
-  const { extra } = property
+export default function PropertyAbout({
+  property,
+  about,
+}: {
+  property: PropertyData
+  about: PropertyData['about']
+}) {
   const rows: Array<[string, string | number | undefined]> = [
-    ['Floor', property.floor],
-    ['Built up area', property.area],
-    ['Number of bedrooms', property.bedrooms],
-    ['Number of bathrooms', property.bathrooms],
-    ['Finishing', extra?.finishing],
-    ['Construction year', extra?.constructionYear],
+    ['Floor', about.floor],
+    ['Built up area', about.area],
+    ['Number of bedrooms', about.bedrooms],
+    ['Number of bathrooms', about.bathrooms],
+    ['Finishing', about.furnishing],
   ]
   const ordinal = (n: number) =>
     n === 1 ? '1st' : n === 2 ? '2nd' : n === 3 ? '3rd' : `${n}th`
@@ -27,14 +31,6 @@ export default function PropertyAbout({ property }: { property: Property }) {
               <dd>{label === 'Floor' ? ordinal(Number(value)) : value}</dd>
             </div>
           ),
-        )}
-        {extra?.delivery && (
-          <div className="flex items-center gap-2">
-            <dt>Delivery:</dt>
-            <dd className="bg-success-lighter text-success-dark text-caption-10 rounded-full px-2 py-1">
-              {extra.delivery}
-            </dd>
-          </div>
         )}
       </dl>
     </section>

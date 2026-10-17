@@ -1,38 +1,31 @@
 import {
-  Furnishing,
-  PropertyStatus,
-  PropertyType,
-  TransactionType,
-  type FurnishingValue,
   type PropertyLocation,
-  type PropertyStatusValue,
-  type PropertyTypeValue,
-  type TransactionTypeValue,
+  type PropertyData,
+  type PropertyAbout,
 } from '../types/types'
 
-export const propertyTypeLabel: Record<PropertyTypeValue, string> = {
-  [PropertyType.Apartment]: 'Apartment',
-  [PropertyType.Villa]: 'Villa',
-  [PropertyType.House]: 'House',
-  [PropertyType.Townhouse]: 'Townhouse',
-  [PropertyType.Studio]: 'Studio',
-  [PropertyType.Land]: 'Land',
-  [PropertyType.Commercial]: 'Commercial',
-}
+export const propertyTypeLabel: Record<PropertyData['propertyType'], string> = {
+  0: 'Apartment',
+  1: 'Villa',
+  2: 'Townhouse',
+} as unknown as Record<PropertyData['propertyType'], string>
 
-export const furnishingLabel: Record<FurnishingValue, string> = {
-  [Furnishing.Furnished]: 'Furnished',
-  [Furnishing.SemiFurnished]: 'Semi-furnished',
-  [Furnishing.Unfurnished]: 'Unfurnished',
+export const furnishingLabel: Record<
+  NonNullable<PropertyAbout['furnishing']>,
+  string
+> = {
+  0: 'Unfurnished',
+  1: 'Semi-furnished',
+  2: 'Furnished',
 }
 
 export function formatPrice(
   price: number,
   currency: string,
-  transactionType: TransactionTypeValue,
+  transactionType: PropertyData['transactionType'],
 ): string {
   const amount = new Intl.NumberFormat('en-US').format(price)
-  const suffix = transactionType === TransactionType.Rent ? '/month' : ''
+  const suffix = transactionType === 1 ? '/month' : ''
   return `${currency} ${amount}${suffix}`
 }
 
@@ -50,15 +43,13 @@ export interface ListingBadge {
 }
 
 export function getListingBadge(
-  transactionType: TransactionTypeValue,
-  status: PropertyStatusValue,
+  transactionType: PropertyData['transactionType'],
+  status: PropertyData['status'],
 ): ListingBadge {
-  if (status === PropertyStatus.Sold) return { label: 'Sold', tone: 'error' }
-  if (status === PropertyStatus.Rented)
-    return { label: 'Rented', tone: 'error' }
-  return transactionType === TransactionType.Rent
+  if (status === 2) return { label: 'Sold', tone: 'error' }
+  return transactionType === 1
     ? { label: 'For Rent', tone: 'info' }
-    : { label: 'For Buy', tone: 'info' }
+    : { label: 'For sale', tone: 'info' }
 }
 
 export function timeAgo(iso: string): string {

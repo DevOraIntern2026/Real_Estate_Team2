@@ -1,15 +1,16 @@
 import { useState, type ChangeEvent, type FormEvent } from 'react'
-import type { InquiryPayload, PropertyOwner } from '../types/types'
+import type { PropertyAgent } from '../types/types'
 import { isValidEmail } from '../utils/utils'
-import { submitInquiry } from '../mocks/mockData'
+import { submitInquiry, type InquiryPayload } from '../services/api'
 
 interface ContactAgentCardProps {
   propertyId: string
-  agent: PropertyOwner
+  agent: PropertyAgent
 }
 
 type FormValues = Omit<InquiryPayload, 'propertyId'>
 type FormErrors = Partial<Record<keyof FormValues, string>>
+
 const initialValues: FormValues = {
   fullName: '',
   email: '',
@@ -77,14 +78,12 @@ export default function ContactAgentCard({
       </h2>
 
       <div className="mt-3 flex items-center gap-3">
-        <img
-          src={agent.avatar}
-          alt={agent.name}
-          className="size-12 rounded-full object-cover"
-        />
+        <div className="flex size-12 items-center justify-center rounded-full bg-gray-200 font-semibold text-gray-700 uppercase">
+          {agent.username ? agent.username.charAt(0) : 'A'}
+        </div>
         <div className="text-label-14 leading-5">
-          <p className="font-medium">{agent.name}</p>
-          <p>{agent.phone}</p>
+          <p className="font-medium">{agent.username || 'Real Estate Agent'}</p>
+          <p>{agent.phone || 'Phone not available'}</p>
           <p>{agent.email}</p>
         </div>
       </div>

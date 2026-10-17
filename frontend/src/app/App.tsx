@@ -5,7 +5,7 @@ import LoginPage from '@/features/auth/pages/login/LoginPage'
 import ResetPasswordPage from '@/features/auth/pages/reset-password/ResetPasswordPage'
 import SignUpPage from '@/features/auth/pages/sign-up/SignUpPage'
 import VerifyOtpPage from '@/features/auth/pages/verify-otp/VerifyOtpPage'
-//import LandingPage from '@/features/landing/pages/LandingPage'
+import LandingPage from '@/features/landing/pages/LandingPage'
 import CustomerHomePage from '@/features/customer/pages/CustomerHomePage'
 import SearchPage from '@/features/search/pages/SearchPage'
 import { getAuthSession } from '@/services/api/tokenStorage'
@@ -51,7 +51,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* <Route path="/" element={<LandingPage />} /> */}
+        <Route path="/" element={<LandingPage />} />
         <Route element={<ProfileLayout />}>
           <Route path="/profile/settings" element={<ProfileSettingPage />} />
           <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
