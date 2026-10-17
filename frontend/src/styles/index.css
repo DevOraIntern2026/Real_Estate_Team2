@@ -6,6 +6,9 @@
   --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   --font-poppins: 'Poppins', sans-serif;
   --font-inter: 'Inter', sans-serif;
+  --spacing-chatbot-panel-width: 28rem;
+  --spacing-chatbot-panel-height: 42rem;
+  --spacing-chatbot-intro: 20rem;
 
   --text-auth-heading: 40px;
   --text-auth-heading--line-height: 48px;
@@ -427,6 +430,21 @@
   --text-search-sort-option: 14px;
   --breakpoint-search-tablet: 64rem;
   --breakpoint-search-mobile: 40rem;
+}
+
+@keyframes chatbot-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chatbot-panel-enter {
+  animation: chatbot-panel-enter 220ms ease-out both;
 }
 
 /* BASE LAYER */

@@ -1,5 +1,4 @@
 import {
-  ChatbotWidget,
   FeaturedCities,
   HeroSection,
   LandingFooter,
@@ -9,6 +8,7 @@ import {
   PromoBanners,
   RecommendedProperties,
 } from '@/features/landing/components'
+import { ChatbotWidget } from '@/features/chatbot/components'
 import { useLandingPage } from '@/features/landing/hooks/useLandingPage'
 import { CustomerAgentBanner } from '@/features/customer/components/CustomerAgentBanner'
 
