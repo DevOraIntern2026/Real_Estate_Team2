@@ -23,6 +23,7 @@ import Reports from '@/features/admin/Pages/Reports/Reports'
 import UserProfile from '@/features/admin/Pages/Users/UserProfile'
 import Users from '@/features/admin/Pages/Users/Users'
 import { UsersProvider } from '@/features/admin/Pages/Users/UsersContext'
+import ErrorPage from '@/features/errors/ErrorPage'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -45,24 +46,23 @@ function CustomerSearchRoute() {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/customer-home" element={<CustomerHomeRoute />} />
-        <Route path="/search" element={<SearchPage authenticated={false} />} />
-        <Route path="/customer-search" element={<CustomerSearchRoute />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
-
       <AdminProvider>
         <PropertiesProvider>
           <NotificationsProvider>
             <UsersProvider>
               <Routes>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/customer-home" element={<CustomerHomeRoute />} />
+                <Route path="/search" element={<SearchPage authenticated={false} />} />
+                <Route path="/customer-search" element={<CustomerSearchRoute />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/verify-email" element={<EmailVerificationPage />} />
+                <Route path="/verify-otp" element={<VerifyOtpPage />} />
+                <Route path="/signup" element={<SignUpPage />} />
+                <Route path="/error/401" element={<ErrorPage code={401} />} />
+                <Route path="/error/403" element={<ErrorPage code={403} />} />
                 <Route path="/admin" element={<MainLayout />}>
                   <Route index element={<Overview />} />
                   <Route path="listing">
@@ -77,6 +77,7 @@ function App() {
                   <Route path="reports" element={<Reports />} />
                   <Route path="profile" element={<Profile />} />
                 </Route>
+                <Route path="*" element={<ErrorPage code={404} />} />
               </Routes>
             </UsersProvider>
           </NotificationsProvider>
