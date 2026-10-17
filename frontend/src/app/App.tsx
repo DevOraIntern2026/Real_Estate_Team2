@@ -81,31 +81,18 @@ function App() {
   return (
     <BrowserRouter>
       <HashScrollHandler />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route element={<ProfileLayout />}>
-          <Route path="/profile/settings" element={<ProfileSettingPage />} />
-          <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
-        </Route>
-        <Route path="/property-details/:id" element={<PropertyDetails />} />
-        <Route path="/favorites" element={<FavoritesPage />} />
-        <Route path="/customer-home" element={<CustomerHomeRoute />} />
-        <Route path="/search" element={<SearchPage authenticated={false} />} />
-        <Route path="/customer-search" element={<CustomerSearchRoute />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/verify-otp" element={<VerifyOtpPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-      </Routes>
-
       <AdminProvider>
         <PropertiesProvider>
           <NotificationsProvider>
             <UsersProvider>
               <Routes>
                 <Route path="/" element={<LandingPage />} />
+                <Route element={<ProfileLayout />}>
+                  <Route path="/profile/settings" element={<ProfileSettingPage />} />
+                  <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
+                </Route>
+                <Route path="/property-details/:id" element={<PropertyDetails />} />
+                <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/customer-home" element={<CustomerHomeRoute />} />
                 <Route path="/search" element={<SearchPage authenticated={false} />} />
                 <Route path="/customer-search" element={<CustomerSearchRoute />} />

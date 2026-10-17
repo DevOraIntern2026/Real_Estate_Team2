@@ -1,7 +1,7 @@
 import { ApiError } from "./ApiError";
 import { tokenStorage } from "./tokenStorage";
 
-const BASE_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/$/, "");
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
 
 export type QueryParams = Record<string, string | number | boolean | null | undefined>;
 
