@@ -3,15 +3,17 @@ export type Gender = 'male' | 'female';
 
 export interface User {
   _id: string;
+  name: string;
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
-  phoneCode: string;
+  phoneCode?: string;
   gender?: Gender;
-  country?: string;
-  address: string;
-  zipCode: string;
+  location: string;
+  bio: string;
+  licenseNumber?: string;
+  agencyName?: string;
   role: UserRole;
   avatar?: string;
 }

@@ -1,22 +1,4 @@
 import type { Inquiry } from '../schema/inquiry.schema'
-import type { User } from '../types/user'
-
-export const mockUser: User = {
-  _id: '6ac5279aeca41412fe09fe01',
-  firstName: 'Nova',
-  lastName: 'Bennett',
-  email: 'john.doe@example.com',
-  phone: '10 000 00 000',
-  phoneCode: '+20',
-  gender: 'female',
-  country: 'Egypt',
-  address: 'Street 90, Fifth Settlement',
-  zipCode: '11835',
-  role: 'customer',
-  avatar:
-    'https://images.unsplash.com/photo-1546961329-78bef0414d7c?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
-}
-
 const img = (seed: string) => [`https://picsum.photos/seed/${seed}/200/200`]
 
 export const mockInquiries: Inquiry[] = [

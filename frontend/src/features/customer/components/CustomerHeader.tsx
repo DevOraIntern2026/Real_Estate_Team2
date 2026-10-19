@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
 import { useLogout } from '@/features/auth/hooks/useLogout'
 import { HeartIcon } from '@/features/landing/components/LandingIcons'
 import { getAuthSession } from '@/services/api/tokenStorage'
+import { useProfileStore } from '@/features/customer/hooks/useprofile'
 import {
   ChevronDownIcon,
   MenuIcon,
@@ -21,7 +22,8 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const authSession = getAuthSession()
-  const displayName = authSession?.name || 'Customer'
+  const { user, profileLoading, fetchUser } = useProfileStore()
+  const displayName = user?.name || authSession?.name || 'Customer'
   const initials = displayName
     .split(/\s+/)
     .filter(Boolean)
@@ -32,6 +34,10 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
+
+  useEffect(() => {
+    if (!user && !profileLoading) void fetchUser().catch(() => undefined)
+  }, [user, profileLoading, fetchUser])
 
   const closeMenus = () => {
     setIsMenuOpen(false)
@@ -93,9 +99,9 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
       </nav>
 
       <div className="flex shrink-0 items-center gap-8 text-brand-700 max-landing-tablet:gap-3 max-landing-mobile:gap-2">
-        <a aria-label="View featured properties" className="flex size-landing-action-icon items-center justify-center" href="#recommended" onClick={closeMenus}>
+        <Link aria-label="View favorites" className="flex size-landing-action-icon items-center justify-center" onClick={closeMenus} to="/favorites">
           <HeartIcon className="size-landing-action-icon" />
-        </a>
+        </Link>
 
         <div className="relative">
           <button
@@ -129,9 +135,13 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
             }}
             type="button"
           >
-            <span aria-hidden="true" className="flex size-landing-customer-avatar shrink-0 items-center justify-center rounded-full bg-brand-50 text-caption-12 font-bold text-brand-700">
-              {initials}
-            </span>
+            {user?.avatar ? (
+              <img aria-hidden="true" alt="" className="size-landing-customer-avatar shrink-0 rounded-full object-cover" src={user.avatar} />
+            ) : (
+              <span aria-hidden="true" className="flex size-landing-customer-avatar shrink-0 items-center justify-center rounded-full bg-brand-50 text-caption-12 font-bold text-brand-700">
+                {initials}
+              </span>
+            )}
             <span className="max-w-landing-profile-name truncate text-landing-profile-name font-medium text-white max-landing-mobile:hidden">
               {displayName}
             </span>
@@ -141,10 +151,13 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
             <div className="absolute right-0 top-full z-30 mt-3 w-landing-header-menu rounded-inner border border-border-grey-shade bg-white p-3 shadow-2">
               <div className="border-b border-border-grey-light px-2 pb-3">
                 <p className="text-body-sm font-medium text-text-grey-dark">
-                  {authSession?.name || 'Customer account'}
+                  {displayName}
                 </p>
                 <p className="mt-1 text-caption-12 text-text-grey-shade">Your Homli account</p>
               </div>
+              <Link className="mt-2 block w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50" onClick={closeMenus} to="/profile/settings">
+                Profile settings
+              </Link>
               <button className="mt-2 w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50 disabled:opacity-50" disabled={logoutMutation.isPending} onClick={handleLogout} type="button">
                 {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
               </button>
