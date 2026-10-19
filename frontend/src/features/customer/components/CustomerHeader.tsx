@@ -5,6 +5,7 @@ import { useLogout } from '@/features/auth/hooks/useLogout'
 import { HeartIcon } from '@/features/landing/components/LandingIcons'
 import { getAuthSession } from '@/services/api/tokenStorage'
 import { useProfileStore } from '@/features/customer/hooks/useprofile'
+import { customerNotificationsService, CUSTOMER_NOTIFICATIONS_UPDATED } from '@/features/customer/notifications/notifications.service'
 import {
   ChevronDownIcon,
   MenuIcon,
@@ -33,10 +34,26 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
   const logoutMutation = useLogout()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     if (!user && !profileLoading) void fetchUser().catch(() => undefined)
   }, [user, profileLoading, fetchUser])
+
+  useEffect(() => {
+    let active = true
+    const refreshUnreadCount = () => {
+      void customerNotificationsService.getUnreadCount()
+        .then((count) => { if (active) setUnreadCount(count) })
+        .catch(() => { if (active) setUnreadCount(0) })
+    }
+    refreshUnreadCount()
+    window.addEventListener(CUSTOMER_NOTIFICATIONS_UPDATED, refreshUnreadCount)
+    return () => {
+      active = false
+      window.removeEventListener(CUSTOMER_NOTIFICATIONS_UPDATED, refreshUnreadCount)
+    }
+  }, [])
 
   const closeMenus = () => {
     setIsMenuOpen(false)
@@ -102,14 +119,14 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
         </Link>
 
         <Link
-          aria-label="Notifications"
+          aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'}
           aria-current={pathname === '/notifications' ? 'page' : undefined}
           className="relative flex size-landing-action-icon items-center justify-center"
           onClick={closeMenus}
           to="/notifications"
         >
             <NotificationIcon className="size-landing-action-icon" />
-            <span aria-hidden="true" className="absolute right-0 top-0 size-2 rounded-full bg-brand-yellow" />
+            {unreadCount > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-yellow px-1 text-caption-10 font-bold text-brand-900">{unreadCount > 99 ? '99+' : unreadCount}</span>}
         </Link>
 
         <div className="relative">

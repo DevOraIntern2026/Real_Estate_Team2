@@ -8,7 +8,7 @@ import { useCustomerNotifications } from '../hooks/useCustomerNotifications'
 import { groupNotifications } from '@/features/dashboard/Pages/Notification/groupNotifications'
 
 export default function CustomerNotificationsPage() {
-  const { items, total, loading, loadingMore, error, markingAll, markAllAsRead, markAsRead, loadOlder, retry, canLoadMore } = useCustomerNotifications()
+  const { items, total, loading, loadingMore, error, markingAll, deletingIds, markAllAsRead, markAsRead, deleteNotification, loadOlder, retry, canLoadMore } = useCustomerNotifications()
   const groups = useMemo(() => groupNotifications(items), [items])
   const unreadCount = items.filter((item) => !item.read).length
 
@@ -42,7 +42,7 @@ export default function CustomerNotificationsPage() {
             </div>
           ) : (
             <>
-              {groups.map((group) => <NotificationGroup key={group.key} label={group.label} items={group.items} onRead={(id) => void markAsRead(id)} />)}
+              {groups.map((group) => <NotificationGroup key={group.key} label={group.label} items={group.items} onRead={(id) => void markAsRead(id)} onDelete={(id) => void deleteNotification(id)} deletingIds={deletingIds} />)}
               {canLoadMore && <div className="flex flex-col items-center gap-2 py-5">
                 <button type="button" disabled={loadingMore} onClick={loadOlder} className="inline-flex items-center gap-3 rounded-full px-4 py-2 text-body-sm text-text-grey-shade transition-colors hover:bg-bg-surface-variant disabled:opacity-60">
                   {loadingMore ? <LoaderCircle className="size-5 animate-spin" /> : <RotateCw className="size-5" />}

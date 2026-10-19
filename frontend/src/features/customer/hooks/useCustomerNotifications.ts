@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { customerNotificationsService, type CustomerNotification } from '../notifications/notifications.service'
+import { customerNotificationsService, notifyCustomerNotificationsUpdated, type CustomerNotification } from '../notifications/notifications.service'
 
 const PAGE_SIZE = 5
 
@@ -12,6 +12,7 @@ export function useCustomerNotifications() {
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState('')
   const [markingAll, setMarkingAll] = useState(false)
+  const [deletingIds, setDeletingIds] = useState<string[]>([])
 
   const load = useCallback(async (nextPage: number, append: boolean) => {
     setError('')
@@ -38,6 +39,7 @@ export function useCustomerNotifications() {
     try {
       await customerNotificationsService.markAllAsRead()
       setItems((current) => current.map((item) => ({ ...item, read: true })))
+      notifyCustomerNotificationsUpdated()
     } catch {
       setError('We couldn’t update your notifications. Please try again.')
     } finally {
@@ -49,12 +51,27 @@ export function useCustomerNotifications() {
     try {
       await customerNotificationsService.markAsRead(id)
       setItems((current) => current.map((item) => item.id === id ? { ...item, read: true } : item))
+      notifyCustomerNotificationsUpdated()
     } catch {
       setError('We couldn’t update this notification. Please try again.')
     }
   }
 
+  const deleteNotification = async (id: string) => {
+    setDeletingIds((current) => [...current, id])
+    try {
+      await customerNotificationsService.delete(id)
+      setItems((current) => current.filter((item) => item.id !== id))
+      setTotal((current) => Math.max(0, current - 1))
+      notifyCustomerNotificationsUpdated()
+    } catch {
+      setError('We couldn’t delete this notification. Please try again.')
+    } finally {
+      setDeletingIds((current) => current.filter((itemId) => itemId !== id))
+    }
+  }
+
   const loadOlder = () => { if (page < totalPages && !loadingMore) void load(page + 1, true) }
 
-  return { items, total, loading, loadingMore, error, markingAll, markAllAsRead, markAsRead, loadOlder, retry: () => load(1, false), canLoadMore: page < totalPages }
+  return { items, total, loading, loadingMore, error, markingAll, deletingIds, markAllAsRead, markAsRead, deleteNotification, loadOlder, retry: () => load(1, false), canLoadMore: page < totalPages }
 }

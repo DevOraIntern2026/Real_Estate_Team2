@@ -22,6 +22,11 @@ type NotificationDto = {
 
 type ApiEnvelope<T> = { message?: string; data: T }
 export type NotificationPage = { items: CustomerNotification[]; total: number; page: number; totalPages: number }
+export const CUSTOMER_NOTIFICATIONS_UPDATED = 'customer-notifications-updated'
+
+export function notifyCustomerNotificationsUpdated() {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(CUSTOMER_NOTIFICATIONS_UPDATED))
+}
 
 function mapNotification(dto: NotificationDto): CustomerNotification {
   return {
@@ -47,5 +52,14 @@ export const customerNotificationsService = {
 
   async markAsRead(id: string) {
     await apiClient.patch(`/notifications/${id}/read`)
+  },
+
+  async delete(id: string) {
+    await apiClient.delete(`/notifications/${id}`)
+  },
+
+  async getUnreadCount(): Promise<number> {
+    const response = await apiClient.get<ApiEnvelope<{ count: number }>>('/notifications/unread-count')
+    return response.data.data.count ?? 0
   },
 }

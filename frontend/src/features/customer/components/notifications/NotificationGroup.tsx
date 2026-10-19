@@ -1,7 +1,7 @@
 import type { CustomerNotification } from '../../notifications/notifications.service'
 import { NotificationCard } from './NotificationCard'
 
-export function NotificationGroup({ label, items, onRead }: { label: string; items: CustomerNotification[]; onRead: (id: string) => void }) {
+export function NotificationGroup({ label, items, onRead, onDelete, deletingIds }: { label: string; items: CustomerNotification[]; onRead: (id: string) => void; onDelete: (id: string) => void; deletingIds: string[] }) {
   const latest = items[0]?.createdAt
   const latestTime = latest ? new Date(latest) : null
   const showTime = latestTime && Number.isFinite(latestTime.getTime())
@@ -12,7 +12,7 @@ export function NotificationGroup({ label, items, onRead }: { label: string; ite
         <h2 className="text-title-18 font-medium text-text-grey-dark">{label}</h2>
         {showTime && <time className="text-title-18 text-text-grey-shade" dateTime={latestTime.toISOString()}>{latestTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</time>}
       </div>
-      <ul className="space-y-4">{items.map((item) => <NotificationCard key={item.id} notification={item} onRead={onRead} />)}</ul>
+      <ul className="space-y-4">{items.map((item) => <NotificationCard key={item.id} notification={item} onRead={onRead} onDelete={onDelete} deleting={deletingIds.includes(item.id)} />)}</ul>
     </section>
   )
 }
