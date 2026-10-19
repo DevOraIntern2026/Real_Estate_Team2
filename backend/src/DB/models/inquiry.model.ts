@@ -9,10 +9,10 @@ const inquirySchema = new Schema<IInquiry>(
     customer: { type: Schema.Types.ObjectId, ref: "User" },
     customerName: { type: String, required: true, maxLength: 100 },
     customerEmail: { type: String, required: true, maxLength: 100 },
-    customerPhone: { type: String, required: true, maxLength: 50 },
+    customerPhone: { type: String, required: true, maxLength: 150 },
     status: {
       type: String,
-      enum: ["new", "responded", "closed"],
+      enum: ["new", "responded", "closed", "pending", "replied"],
       default: "new",
     },
     subject: { type: String, maxLength: 200 },
@@ -32,7 +32,9 @@ const inquirySchema = new Schema<IInquiry>(
 inquirySchema.index({ property: 1 });
 inquirySchema.index({ owner: 1, status: 1 });
 inquirySchema.index({ agent: 1, status: 1 });
+inquirySchema.index({ customer: 1, status: 1 });
 inquirySchema.index({ customerEmail: 1 });
+inquirySchema.index({ customerPhone: 1 });
 inquirySchema.index({ createdAt: -1 });
 
 inquirySchema.pre(["findOne", "find"], function () {

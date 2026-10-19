@@ -4,6 +4,8 @@ export enum InquiryStatusEnum {
   NEW = "new",
   RESPONDED = "responded",
   CLOSED = "closed",
+  PENDING = "pending",
+  REPLIED = "replied",
 }
 
 export interface IInquiry {
@@ -15,7 +17,7 @@ export interface IInquiry {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  status: InquiryStatusEnum | "new" | "responded" | "closed";
+  status: InquiryStatusEnum | "new" | "responded" | "closed" | "pending" | "replied";
   subject?: string;
   message?: string;
   lastMessage?: string;
