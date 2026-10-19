@@ -25,3 +25,32 @@ export const clientIdParam = {
     id: generalValidationFields.id,
   }),
 };
+
+export const listAgentInquiries = {
+  query: z.strictObject({
+    status: z.enum(["all", "new", "responded", "closed", "pending", "replied"]).optional(),
+    search: z.string().optional(),
+    page: z.coerce.string().optional(),
+    limit: z.coerce.string().optional(),
+  }),
+};
+
+export const agentInquiryIdParam = {
+  params: z.strictObject({
+    inquiry_id: generalValidationFields.id,
+  }),
+};
+
+export const agentInquiryReply = {
+  params: z.strictObject({
+    inquiry_id: generalValidationFields.id,
+  }),
+  body: z
+    .strictObject({
+      text_content: z.string().min(1).max(2000).optional(),
+      text: z.string().min(1).max(2000).optional(),
+    })
+    .refine((data) => Boolean(data.text_content || data.text), {
+      message: "text_content or text is required",
+    }),
+};
