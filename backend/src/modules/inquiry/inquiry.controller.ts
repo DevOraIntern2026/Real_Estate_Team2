@@ -86,4 +86,16 @@ router.patch(
   },
 );
 
+router.patch(
+  "/:id/close",
+  validation(validators.inquiryIdParam),
+  async (req, res) => {
+    const data = await inquiryService.closeInquiry(
+      req.params.id as string,
+      { id: req.user._id.toString(), role: req.user.role, email: req.user.email },
+    );
+    successResponse({ res, message: "Inquiry closed successfully", data });
+  },
+);
+
 export default router;

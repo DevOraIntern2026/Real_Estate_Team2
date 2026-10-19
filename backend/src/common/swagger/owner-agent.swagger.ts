@@ -238,6 +238,156 @@ export const ownerAgentSwaggerPaths: Record<string, any> = {
       },
     },
   },
+  "/inquiries/{id}/close": {
+    patch: {
+      tags: ["Inquiries"],
+      summary: "Close or archive inquiry",
+      parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": { description: "Inquiry closed successfully" },
+        "403": { description: "Forbidden" },
+      },
+    },
+  },
+
+  // ────────────────────────── CUSTOMER INQUIRIES & CHATS ──────────────────────────
+  "/customer/inquiries": {
+    get: {
+      tags: ["Customer Inquiries"],
+      summary: "Fetch customer inquiries list (UI: My Inquiries)",
+      description: "Returns paginated list of inquiries created by the authenticated customer with status badges and profile info.",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: "status", in: "query", schema: { type: "string", enum: ["all", "pending", "replied", "closed"] } },
+        { name: "search", in: "query", schema: { type: "string" } },
+        { name: "sort_by", in: "query", schema: { type: "string", enum: ["newest", "oldest", "price_high", "price_low"] } },
+        { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+        { name: "limit", in: "query", schema: { type: "integer", default: 4 } },
+      ],
+      responses: {
+        "200": { description: "Customer inquiries fetched" },
+        "401": { description: "Unauthorized" },
+      },
+    },
+    post: {
+      tags: ["Customer Inquiries"],
+      summary: "Submit customer property inquiry",
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["propertyId", "message"],
+              properties: {
+                propertyId: { type: "string" },
+                message: { type: "string" },
+                customerName: { type: "string" },
+                customerEmail: { type: "string", format: "email" },
+                customerPhone: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "201": { description: "Inquiry submitted successfully" },
+      },
+    },
+  },
+  "/customer/chats/{chat_id}": {
+    get: {
+      tags: ["Customer Inquiries"],
+      summary: "Customer chat feed with sequential Date Dividers",
+      parameters: [{ name: "chat_id", in: "path", required: true, schema: { type: "string" } }],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": { description: "Chat feed retrieved with date dividers and embedded property card" },
+        "403": { description: "Forbidden" },
+      },
+    },
+  },
+  "/customer/chats/{chat_id}/messages": {
+    post: {
+      tags: ["Customer Inquiries"],
+      summary: "Customer sends follow-up message in chat thread",
+      parameters: [{ name: "chat_id", in: "path", required: true, schema: { type: "string" } }],
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              properties: {
+                text: { type: "string" },
+                text_content: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        "201": { description: "Message sent" },
+      },
+    },
+  },
+
+  // ────────────────────────── AGENT INQUIRIES DASHBOARD ──────────────────────────
+  "/agent/inquiries": {
+    get: {
+      tags: ["Agent Dashboard"],
+      summary: "Fetch agent inquiries dashboard (Table View)",
+      description: "Returns managed property inquiries with strict row mapping (type, snippet, phone, UI status, relative date).",
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        { name: "status", in: "query", schema: { type: "string", enum: ["all", "new", "responded", "closed"] } },
+        { name: "search", in: "query", schema: { type: "string" } },
+        { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+        { name: "limit", in: "query", schema: { type: "integer", default: 10 } },
+      ],
+      responses: {
+        "200": { description: "Agent inquiries table data retrieved" },
+        "403": { description: "Forbidden" },
+      },
+    },
+  },
+  "/agent/inquiries/{inquiry_id}": {
+    get: {
+      tags: ["Agent Dashboard"],
+      summary: "Specific Inquiry & Reply Hub for Agent",
+      parameters: [{ name: "inquiry_id", in: "path", required: true, schema: { type: "string" } }],
+      security: [{ bearerAuth: [] }],
+      responses: {
+        "200": { description: "Inquiry details, submitter profile card, and conversation thread" },
+      },
+    },
+  },
+  "/agent/inquiries/{inquiry_id}/replies": {
+    post: {
+      tags: ["Agent Dashboard"],
+      summary: "Agent post reply action (Auto-transitions status to Responded/Replied)",
+      parameters: [{ name: "inquiry_id", in: "path", required: true, schema: { type: "string" } }],
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["text_content"],
+              properties: { text_content: { type: "string" } },
+            },
+          },
+        },
+      },
+      responses: {
+        "201": { description: "Reply created and status automatically upgraded to Responded" },
+      },
+    },
+  },
 
   // Notifications
   "/notifications": {

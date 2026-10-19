@@ -11,6 +11,7 @@ import { agentRouter } from "./modules/agent";
 import { aiRouter } from "./modules/ai";
 import { authRouter, userRouter } from "./modules/auth";
 import { categoryRouter } from "./modules/category";
+import { customerRouter } from "./modules/customer";
 import { dashboardRouter } from "./modules/dashboard";
 import { inquiryRouter } from "./modules/inquiry";
 import { notificationRouter } from "./modules/notification";
@@ -50,6 +51,7 @@ export const bootstrap = async () => {
     ["/notifications", notificationRouter],
     ["/reports", reportsRouter],
     ["/agent", agentRouter],
+    ["/customer", customerRouter],
     ["/user", userRouter],
     ["/ai", aiRouter],
   ];
