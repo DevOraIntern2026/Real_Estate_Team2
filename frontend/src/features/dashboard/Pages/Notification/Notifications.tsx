@@ -40,7 +40,7 @@ export default function Notifications({ canClear = true }: { canClear?: boolean 
   };
 
   return (
-    <section className="p-8 text-[#241A12]">
+    <section className="p-8 text-ink">
       <PageHeader title={TEXT.title} subtitle={`${unreadCount} unread`}>
         <SearchInput
           value={search}

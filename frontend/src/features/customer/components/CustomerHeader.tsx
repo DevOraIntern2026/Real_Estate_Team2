@@ -33,7 +33,6 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
   const logoutMutation = useLogout()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
 
   useEffect(() => {
     if (!user && !profileLoading) void fetchUser().catch(() => undefined)
@@ -42,7 +41,6 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
   const closeMenus = () => {
     setIsMenuOpen(false)
     setIsProfileOpen(false)
-    setIsNotificationsOpen(false)
   }
 
   const handleLogout = () => {
@@ -103,26 +101,16 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
           <HeartIcon className="size-landing-action-icon" />
         </Link>
 
-        <div className="relative">
-          <button
-            aria-expanded={isNotificationsOpen}
-            aria-label="Notifications"
-            className="relative flex size-landing-action-icon items-center justify-center"
-            onClick={() => {
-              setIsNotificationsOpen((open) => !open)
-              setIsProfileOpen(false)
-            }}
-            type="button"
-          >
+        <Link
+          aria-label="Notifications"
+          aria-current={pathname === '/notifications' ? 'page' : undefined}
+          className="relative flex size-landing-action-icon items-center justify-center"
+          onClick={closeMenus}
+          to="/notifications"
+        >
             <NotificationIcon className="size-landing-action-icon" />
             <span aria-hidden="true" className="absolute right-0 top-0 size-2 rounded-full bg-brand-yellow" />
-          </button>
-          {isNotificationsOpen && (
-            <div className="absolute right-0 top-full z-30 mt-3 w-landing-header-menu rounded-inner border border-border-grey-shade bg-white p-4 text-label-14 text-text-grey-shade shadow-2">
-              You’re all caught up.
-            </div>
-          )}
-        </div>
+        </Link>
 
         <div className="relative">
           <button
@@ -131,7 +119,6 @@ export function CustomerHeader({ activePage = 'Home' }: { activePage?: string })
             className="flex h-landing-customer-profile items-center gap-2 rounded-button bg-brand-900 py-2 pl-2 pr-4 text-white max-landing-mobile:h-landing-avatar-icon max-landing-mobile:pr-2"
             onClick={() => {
               setIsProfileOpen((open) => !open)
-              setIsNotificationsOpen(false)
             }}
             type="button"
           >

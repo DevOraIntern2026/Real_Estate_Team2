@@ -2,7 +2,7 @@ import { HeartOff } from 'lucide-react'
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import Footer from '../components/Footer'
-import { Header } from '../components/Header'
+import { CustomerHeader } from '@/features/customer/components/CustomerHeader'
 import { PropertyCard, PropertyCardSkeleton } from '../components/PropertyCard'
 import { useFavoritesStore } from '../hooks/usefavorites'
 import { RecommendedProperties } from '../components/RecommendedProperties'
@@ -20,7 +20,7 @@ export default function FavoritesPage() {
 
   return (
     <>
-      <Header />
+      <CustomerHeader />
       <main className="max-w-search-page mx-auto w-full px-4 md:px-10 lg:px-20">
         {/* Favorites header */}
         <div className="rounded-outer bg-bg-white flex items-center justify-between gap-4 px-6 py-8 md:px-8">

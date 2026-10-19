@@ -19,6 +19,14 @@
   --text-auth-input: 14px;
   --text-auth-input--line-height: 18px;
 
+  /* Customer notifications */
+  --color-notification-border: #d8d8d8;
+  --spacing-notification-card: 92px;
+  --spacing-notifications-top: 24px;
+  --spacing-notifications-state: 420px;
+  --radius-notification-card: 16px;
+  --container-notifications: 1440px;
+
   /* Auth screen layout values from the Homli Figma frame */
   --container-auth-layout: 1232px;
   --spacing-auth-brand: 240px;

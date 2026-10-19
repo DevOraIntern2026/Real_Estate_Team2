@@ -39,6 +39,7 @@ import PropertyDetails from '@/features/properties/page/PropertyDetails'
 import FavoritesPage from '@/features/favorites/page/FavoritesPage'
 import ProfileSettingPage from '@/features/customer/pages/ProfileSettingPage'
 import MyInquiriesPage from '@/features/customer/pages/MyInquiriesPage'
+import CustomerNotificationsPage from '@/features/customer/pages/CustomerNotificationsPage'
 import { ProfileLayout } from '@/features/customer/components/ProfileLayout'
 
 function CustomerHomeRoute() {
@@ -94,6 +95,7 @@ function App() {
                 <Route path="/property-details/:id" element={<PropertyDetails />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/customer-home" element={<CustomerHomeRoute />} />
+                <Route path="/notifications" element={<CustomerNotificationsPage />} />
                 <Route path="/search" element={<SearchPage authenticated={false} />} />
                 <Route path="/customer-search" element={<CustomerSearchRoute />} />
                 <Route path="/login" element={<LoginPage />} />

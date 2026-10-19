@@ -1,22 +1,22 @@
 import type { AppNotification } from "../../../../types/notification";
 import { formatLocalDate, isToday } from "../../utils/dateTime";
 
-export type NotificationGroupData = {
+export type NotificationGroupData<T extends AppNotification = AppNotification> = {
   key: string;
   label: string;
-  items: AppNotification[];
+  items: T[];
 };
 
 /** Newest first, grouped by calendar day ("Today", "Sep 17, 2026", ...). */
-export function groupNotifications(
-  items: AppNotification[],
+export function groupNotifications<T extends AppNotification>(
+  items: T[],
   now: Date = new Date()
-): NotificationGroupData[] {
+): NotificationGroupData<T>[] {
   const sorted = [...items].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
-  const groups = new Map<string, NotificationGroupData>();
+  const groups = new Map<string, NotificationGroupData<T>>();
 
   for (const n of sorted) {
     const date = new Date(n.createdAt);
