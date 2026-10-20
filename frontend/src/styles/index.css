@@ -27,6 +27,16 @@
   --radius-notification-card: 16px;
   --container-notifications: 1440px;
 
+  /* Customer messages page */
+  --spacing-message-avatar: 24px;
+  --spacing-message-property-image: 48px;
+  --spacing-message-composer: 48px;
+  --spacing-message-panel: 458px;
+  --spacing-message-page-top: 24px;
+  --spacing-message-page-bottom: 64px;
+  --container-message-bubble: 42rem;
+  --container-message-file: 13rem;
+
   /* Auth screen layout values from the Homli Figma frame */
   --container-auth-layout: 1232px;
   --spacing-auth-brand: 240px;

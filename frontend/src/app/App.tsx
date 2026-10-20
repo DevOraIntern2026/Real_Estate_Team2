@@ -40,6 +40,7 @@ import FavoritesPage from '@/features/favorites/page/FavoritesPage'
 import ProfileSettingPage from '@/features/customer/pages/ProfileSettingPage'
 import MyInquiriesPage from '@/features/customer/pages/MyInquiriesPage'
 import CustomerNotificationsPage from '@/features/customer/pages/CustomerNotificationsPage'
+import CustomerMessagesPage from '@/features/customer/pages/CustomerMessagesPage'
 import { ProfileLayout } from '@/features/customer/components/ProfileLayout'
 
 function CustomerHomeRoute() {
@@ -58,6 +59,15 @@ function CustomerSearchRoute() {
   if (session.role !== 'customer') return <Navigate replace to="/" />
 
   return <SearchPage authenticated />
+}
+
+function CustomerMessageRoute() {
+  const session = getAuthSession()
+
+  if (!session) return <Navigate replace to="/login" />
+  if (session.role !== 'customer') return <Navigate replace to="/" />
+
+  return <CustomerMessagesPage />
 }
 
 function HashScrollHandler() {
@@ -95,6 +105,7 @@ function App() {
                 <Route path="/property-details/:id" element={<PropertyDetails />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
                 <Route path="/customer-home" element={<CustomerHomeRoute />} />
+                <Route path="/customer/messages" element={<CustomerMessageRoute />} />
                 <Route path="/notifications" element={<CustomerNotificationsPage />} />
                 <Route path="/search" element={<SearchPage authenticated={false} />} />
                 <Route path="/customer-search" element={<CustomerSearchRoute />} />
