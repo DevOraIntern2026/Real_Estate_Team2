@@ -10,6 +10,7 @@ interface ProfileState {
   inquiries: Inquiry[]
   total: number
   inquiriesLoading: boolean
+  inquiriesError: string | null
   query: InquiryQuery
   fetchUser: () => Promise<void>
   saveUser: (data: Partial<User>) => Promise<void>
@@ -26,6 +27,7 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
   inquiries: [],
   total: 0,
   inquiriesLoading: false,
+  inquiriesError: null,
   query: { status: 'all', search: '', sort: 'newest', page: 1, limit: 4 },
 
   fetchUser: async () => {
@@ -64,10 +66,12 @@ export const useProfileStore = create<ProfileState>((set, get) => ({
     set((s) => ({ query: { ...s.query, page: 1, ...patch } })),
 
   fetchInquiries: async () => {
-    set({ inquiriesLoading: true })
+    set({ inquiriesLoading: true, inquiriesError: null })
     try {
       const res = await profileService.getInquiries(get().query)
       set({ inquiries: res.items, total: res.total })
+    } catch (error) {
+      set({ inquiriesError: error instanceof Error ? error.message : 'Could not load your inquiries.' })
     } finally {
       set({ inquiriesLoading: false })
     }

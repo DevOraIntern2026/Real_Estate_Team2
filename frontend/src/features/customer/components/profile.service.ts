@@ -1,9 +1,28 @@
 import { apiClient } from '@/services/api/apiClient'
-import { mockInquiries } from '../mocks/mock-data'
 import type { Inquiry, InquiryQuery, Paginated } from '../schema/inquiry.schema'
 import type { User } from '../types/user'
 
 type ApiEnvelope<T> = { message?: string; data?: T }
+type ApiCustomerInquiry = {
+  _id?: string
+  id?: string
+  inquiry_id?: string
+  status?: string
+  createdAt?: string
+  property?: {
+    _id?: string
+    id?: string
+    slug?: string
+    title?: string
+    price?: number
+    currency?: string
+    transactionType?: string
+    thumbnail?: string
+    images?: string[]
+    location?: { city?: string; country?: string }
+  }
+  owner?: { _id?: string; id?: string; name?: string; title?: string; role?: string; avatar?: string }
+}
 type ApiProfile = Partial<User> & {
   id?: string
   _id?: string
@@ -83,23 +102,63 @@ export const profileService = {
     return { ...user, avatar: data.data.avatar ?? data.data.profileImage ?? '' }
   },
 
-  // Inquiry APIs were not included in the supplied endpoint documentation yet.
   async getInquiries(q: InquiryQuery): Promise<Paginated<Inquiry>> {
-    const term = q.search.trim().toLowerCase()
-    let list = mockInquiries.filter(
-      (i) =>
-        (q.status === 'all' || i.status === q.status) &&
-        (!term || i.property.title.toLowerCase().includes(term) || i.owner.name.toLowerCase().includes(term)),
-    )
-    list = [...list].sort((a, b) => {
-      switch (q.sort) {
-        case 'oldest': return +new Date(a.createdAt) - +new Date(b.createdAt)
-        case 'price_high': return b.property.price - a.property.price
-        case 'price_low': return a.property.price - b.property.price
-        default: return +new Date(b.createdAt) - +new Date(a.createdAt)
+    const { data } = await apiClient.get<ApiEnvelope<{
+      inquiries?: ApiCustomerInquiry[]
+      pagination?: { page?: number; limit?: number; total?: number; totalPages?: number }
+    }>>('/customer/inquiries', {
+      params: {
+        page: q.page,
+        limit: q.limit,
+        status: q.status === 'all' ? undefined : q.status,
+        search: q.search || undefined,
+        sort_by: q.sort,
+      },
+    })
+    const response = data.data
+    if (!response) throw new Error(data.message || 'The inquiries response was empty.')
+
+    const items = (response.inquiries ?? []).map((item): Inquiry => {
+      const property = item.property ?? {}
+      const owner = item.owner ?? {}
+      const images = property.images?.filter(Boolean) ?? []
+      if (!images.length && property.thumbnail) images.push(property.thumbnail)
+      const transactionType = property.transactionType?.toLowerCase() === 'rent' ? 'rent' : 'sale'
+      const rawStatus = item.status?.toLowerCase()
+      const status = rawStatus === 'replied' || rawStatus === 'responded'
+        ? 'replied'
+        : rawStatus === 'closed'
+          ? 'closed'
+          : 'pending'
+
+      return {
+        _id: item._id ?? item.inquiry_id ?? item.id ?? '',
+        status,
+        createdAt: item.createdAt ?? '',
+        property: {
+          _id: property._id ?? property.id ?? '',
+          slug: property.slug ?? '',
+          title: property.title ?? 'Property',
+          price: Math.max(0, property.price ?? 0),
+          currency: property.currency ?? 'EGP',
+          transactionType,
+          images,
+          location: { city: property.location?.city ?? '', country: property.location?.country ?? '' },
+        },
+        owner: {
+          _id: owner._id ?? owner.id ?? '',
+          name: owner.name ?? 'Property owner',
+          title: owner.title ?? owner.role ?? 'Property owner',
+          avatar: owner.avatar ?? '',
+        },
       }
     })
-    const start = (q.page - 1) * q.limit
-    return { items: list.slice(start, start + q.limit), total: list.length, page: q.page, limit: q.limit }
+
+    return {
+      items,
+      total: response.pagination?.total ?? items.length,
+      page: response.pagination?.page ?? q.page,
+      limit: response.pagination?.limit ?? q.limit,
+    }
   },
 }

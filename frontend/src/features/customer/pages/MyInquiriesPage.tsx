@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { ArrowRight, ListFilter, MapPin, Search } from 'lucide-react'
+import { ListFilter, MapPin, MessageCircle, Search } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Pagination } from '../components/Pagination'
@@ -10,6 +10,7 @@ import type {
   InquiryFilter,
   InquirySort,
 } from '../schema/inquiry.schema'
+import propertyFallback from '@/assets/images/property-available.png'
 
 const tabs: { value: InquiryFilter; label: string }[] = [
   { value: 'all', label: 'All' },
@@ -44,6 +45,7 @@ export default function MyInquiriesPage() {
     total,
     query,
     inquiriesLoading,
+    inquiriesError,
     setQuery,
     fetchInquiries,
   } = useProfileStore()
@@ -107,6 +109,13 @@ export default function MyInquiriesPage() {
         </label>
       </div>
 
+      {inquiriesError && (
+        <div role="alert" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-inner border border-error-light bg-error-lighter px-5 py-4 text-label-14 text-error-darker">
+          <span>{inquiriesError}</span>
+          <button type="button" onClick={() => void fetchInquiries()} className="font-medium underline">Try again</button>
+        </div>
+      )}
+
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-205 text-left">
           <thead>
@@ -128,14 +137,14 @@ export default function MyInquiriesPage() {
                 >
                   <td className="px-2 py-4">
                     <div className="flex items-center gap-4">
-                      <img
-                        src={i.property.images[0]}
+                        <img
+                        src={i.property.images[0] || propertyFallback}
                         alt=""
                         className="h-16 w-20 rounded-lg object-cover"
                       />
                       <div>
                         <Link
-                          to={`/properties/${i.property.slug}`}
+                          to={`/property-details/${i.property._id}`}
                           className="text-title-18 font-medium text-[#0f1a3a]"
                         >
                           {i.property.title}
@@ -158,11 +167,7 @@ export default function MyInquiriesPage() {
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <img
-                        src={i.owner.avatar}
-                        alt=""
-                        className="h-11 w-11 rounded-full object-cover"
-                      />
+                      {i.owner.avatar ? <img src={i.owner.avatar} alt="" className="h-11 w-11 rounded-full object-cover" /> : <span aria-hidden="true" className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-50 text-caption-12 font-semibold text-brand-700">{i.owner.name.split(/\s+/).map((part) => part[0]).slice(0, 2).join('').toUpperCase()}</span>}
                       <div>
                         <p className="font-medium">{i.owner.name}</p>
                         <p className="text-label-14 text-text-grey-shade">
@@ -180,10 +185,10 @@ export default function MyInquiriesPage() {
                   </td>
                   <td className="px-6 py-4">
                     <Link
-                      to={`/profile/inquiries/${i._id}`}
+                      to={`/customer/messages/${i._id}`}
                       className="flex items-center gap-2"
                     >
-                      View <ArrowRight className="h-4 w-4" />
+                      Message <MessageCircle className="h-4 w-4" />
                     </Link>
                   </td>
                 </tr>
@@ -191,7 +196,7 @@ export default function MyInquiriesPage() {
             })}
           </tbody>
         </table>
-        {!inquiriesLoading && inquiries.length === 0 && (
+        {!inquiriesLoading && !inquiriesError && inquiries.length === 0 && (
           <p className="text-text-grey-shade py-16 text-center">
             No inquiries match your filters. Clear the search or pick another
             status.
