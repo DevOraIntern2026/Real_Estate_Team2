@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import arrowForward from '@/assets/images/arrow-forward-light.svg'
 import { AreaIcon, BathIcon, BedIcon, HeartIcon, PinIcon } from '@/features/landing/components/LandingIcons'
 import type { LandingFilterOption, LandingProperty } from '@/features/landing/types/landingPage'
@@ -88,9 +89,9 @@ export function RecommendedProperties({
                 <span className="inline-flex items-center gap-2"><AreaIcon className="size-landing-icon" />{property.area} m²</span>
               </div>
               {customerView && (
-                <button className="mt-5 h-landing-detail-button w-full rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800" type="button">
+                <Link to={`/property-details/${property._id}`} className="mt-5 flex h-landing-detail-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">
                   View Details
-                </button>
+                </Link>
               )}
             </div>
           </article>

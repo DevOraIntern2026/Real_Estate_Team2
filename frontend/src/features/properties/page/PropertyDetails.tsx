@@ -79,7 +79,7 @@ const PropertyDetails: React.FC = () => {
             amenities={property.amenities || mockPropertyDetails.amenities}
           />
           <ContactAgentCard
-            propertyId={property._id || mockPropertyDetails._id}
+            propertyId={id || property._id}
             agent={property.agent || mockPropertyDetails.agent}
           />
         </div>

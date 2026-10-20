@@ -22,9 +22,9 @@ export default function InquiryReply() {
     return (
       <section className="p-8">
         <PageHeader title={TEXT.replyTitle} subtitle={TEXT.inquiriesSubtitle} />
-        <p className="py-10 text-center text-sm text-[#5A4F49]">
+        <p className="py-10 text-center text-sm text-muted">
           {TEXT.inquiryNotFound}{" "}
-          <Link to={OWNER_PATHS.inquiries} className="text-[#87400E] underline">
+          <Link to={OWNER_PATHS.inquiries} className="text-primary underline">
             {TEXT.backToInquiries}
           </Link>
         </p>
@@ -33,7 +33,7 @@ export default function InquiryReply() {
   }
 
   return (
-    <section className="p-8 text-[#241A12]">
+    <section className="p-8 text-ink">
       <PageHeader title={TEXT.replyTitle} subtitle={TEXT.inquiriesSubtitle} />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_3fr]">
@@ -44,7 +44,7 @@ export default function InquiryReply() {
 
         <section
           aria-label="Reply"
-          className="flex min-h-[28rem] flex-col rounded-sm border-[0.8px] border-[#87400E] p-4"
+          className="flex min-h-chatbot-panel-width flex-col rounded-sm border-[0.8px] border-primary p-4"
         >
           <ChatThread messages={messages} />
           <ChatComposer

@@ -8,7 +8,12 @@ interface ContactAgentCardProps {
   agent: PropertyAgent
 }
 
-type FormValues = Omit<InquiryPayload, 'propertyId'>
+type FormValues = {
+  fullName: string
+  email: string
+  phone: string
+  message: string
+}
 type FormErrors = Partial<Record<keyof FormValues, string>>
 
 const initialValues: FormValues = {
@@ -24,9 +29,14 @@ function validate(v: FormValues): FormErrors {
   if (!v.email.trim()) e.email = 'Enter your email'
   else if (!isValidEmail(v.email)) e.email = 'Enter a valid email address'
   if (!v.phone.trim()) e.phone = 'Enter your phone number'
-  else if (!/^\d{8,12}$/.test(v.phone.replace(/\s/g, '')))
-    e.phone = 'Enter a valid phone number'
+  else {
+    let phoneDigits = v.phone.replace(/\D/g, '')
+    if (phoneDigits.startsWith('20')) phoneDigits = phoneDigits.slice(2)
+    if (phoneDigits.startsWith('0')) phoneDigits = phoneDigits.slice(1)
+    if (!/^1\d{9}$/.test(phoneDigits)) e.phone = 'Enter a valid phone number'
+  }
   if (!v.message.trim()) e.message = 'Write your inquiry'
+  else if (v.message.trim().length < 5) e.message = 'Your inquiry must be at least 5 characters'
   return e
 }
 
@@ -39,6 +49,7 @@ export default function ContactAgentCard({
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'failed'>(
     'idle',
   )
+  const [resultMessage, setResultMessage] = useState('')
 
   const onChange =
     (field: keyof FormValues) =>
@@ -53,11 +64,25 @@ export default function ContactAgentCard({
     setErrors(found)
     if (Object.keys(found).length > 0) return
     setStatus('sending')
+    setResultMessage('')
     try {
-      await submitInquiry({ propertyId, ...values })
+      let phoneDigits = values.phone.replace(/\D/g, '')
+      if (phoneDigits.startsWith('20')) phoneDigits = phoneDigits.slice(2)
+      if (phoneDigits.startsWith('0')) phoneDigits = phoneDigits.slice(1)
+      const customerPhone = `+20${phoneDigits}`
+      const payload: InquiryPayload = {
+        propertyId,
+        customerName: values.fullName.trim(),
+        customerEmail: values.email.trim(),
+        customerPhone,
+        message: values.message.trim(),
+      }
+      const message = await submitInquiry(payload)
       setValues(initialValues)
+      setResultMessage(message)
       setStatus('sent')
-    } catch {
+    } catch (error) {
+      setResultMessage(error instanceof Error ? error.message : 'Could not submit your inquiry.')
       setStatus('failed')
     }
   }
@@ -128,7 +153,7 @@ export default function ContactAgentCard({
           </label>
           <div className="textfield__control text-overflow-ellipsis overflow-hidden whitespace-nowrap">
             <span className="text-label-14 border-border-grey-shade flex items-center gap-2 border-r pr-3">
-              <span aria-hidden>🇪🇬</span> +020
+              <span aria-hidden>🇪🇬</span> +20
             </span>
             <input
               id="inq-phone"
@@ -169,16 +194,8 @@ export default function ContactAgentCard({
         </button>
 
         <p role="status" className="text-caption-12 min-h-4">
-          {status === 'sent' && (
-            <span className="text-success-dark">
-              Inquiry sent. The agent will reply by email or phone.
-            </span>
-          )}
-          {status === 'failed' && (
-            <span className="text-error-dark">
-              We couldn't send your inquiry. Try again.
-            </span>
-          )}
+          {status === 'sent' && <span className="text-success-dark">{resultMessage}</span>}
+          {status === 'failed' && <span className="text-error-dark">{resultMessage} Try again.</span>}
         </p>
       </form>
     </aside>
