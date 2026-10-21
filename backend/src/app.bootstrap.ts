@@ -79,6 +79,7 @@ export const bootstrap = async () => {
     ["/agent", agentRouter],
     ["/customer", customerRouter],
     ["/user", userRouter],
+    ["/me", userRouter],
     ["/ai", aiRouter],
   ];
 

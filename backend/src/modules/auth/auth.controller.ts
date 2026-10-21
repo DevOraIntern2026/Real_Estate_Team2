@@ -8,6 +8,7 @@ import { authentication } from "../../middlewares/authentication.middleware";
 import { validation } from "../../middlewares/validation.middleware";
 import authService from "./auth.service";
 import * as validators from "./auth.validation";
+import userService from "../user/user.service";
 const router = Router();
 ////////////////// System auth
 router.post(
@@ -34,6 +35,19 @@ router.post(
     successResponse({
       message: "Login success",
       res,
+      data,
+    });
+  },
+);
+
+router.get(
+  "/me",
+  authentication(),
+  async (req: Request, res: Response, _next: NextFunction) => {
+    const data = await userService.getMe(req.user!._id.toString());
+    return successResponse({
+      res,
+      message: "Profile fetched successfully",
       data,
     });
   },

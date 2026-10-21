@@ -10,7 +10,7 @@ import { editProfile } from "./user.validation";
 const router = Router();
 router.use(authentication());
 
-router.get("/", async (req, res) => {
+router.get(["/", "/me"], async (req, res) => {
   const data = await userService.getMe(req.user!._id.toString());
   successResponse({ res, message: "Profile fetched successfully", data });
 });
