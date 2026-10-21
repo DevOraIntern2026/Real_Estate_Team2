@@ -7,6 +7,8 @@ import {
   ACCESS_TOKEN_EXPIRATION_TIME,
   ADMIN_REFRESH_TOKEN_SECRET_KEY,
   ADMIN_TOKEN_SECRET_KEY,
+  AGENT_REFRESH_TOKEN_SECRET_KEY,
+  AGENT_TOKEN_SECRET_KEY,
   CUSTOMER_REFRESH_TOKEN_SECRET_KEY,
   CUSTOMER_TOKEN_SECRET_KEY,
   OWNER_REFRESH_TOKEN_SECRET_KEY,
@@ -142,6 +144,14 @@ export class TokenService {
 
         audience = AudienceEnum.OWNER;
         break;
+      case RoleEnum.AGENT:
+        signatures = {
+          accessSignature: AGENT_TOKEN_SECRET_KEY,
+          refreshSignature: AGENT_REFRESH_TOKEN_SECRET_KEY,
+        };
+
+        audience = AudienceEnum.AGENT;
+        break;
       default:
         signatures = {
           accessSignature: CUSTOMER_TOKEN_SECRET_KEY,
@@ -157,13 +167,25 @@ export class TokenService {
     tokenType: TokenType,
     audience: number,
   ): string | undefined {
-    const isSystem = audience === Number(AudienceEnum.ADMIN);
-    if (tokenType === TokenType.REFRESH) {
-      return isSystem
-        ? ADMIN_REFRESH_TOKEN_SECRET_KEY
-        : CUSTOMER_REFRESH_TOKEN_SECRET_KEY;
+    switch (audience) {
+      case Number(AudienceEnum.ADMIN):
+        return tokenType === TokenType.REFRESH
+          ? ADMIN_REFRESH_TOKEN_SECRET_KEY
+          : ADMIN_TOKEN_SECRET_KEY;
+      case Number(AudienceEnum.OWNER):
+        return tokenType === TokenType.REFRESH
+          ? OWNER_REFRESH_TOKEN_SECRET_KEY
+          : OWNER_TOKEN_SECRET_KEY;
+      case Number(AudienceEnum.AGENT):
+        return tokenType === TokenType.REFRESH
+          ? AGENT_REFRESH_TOKEN_SECRET_KEY
+          : AGENT_TOKEN_SECRET_KEY;
+      case Number(AudienceEnum.USER):
+      default:
+        return tokenType === TokenType.REFRESH
+          ? CUSTOMER_REFRESH_TOKEN_SECRET_KEY
+          : CUSTOMER_TOKEN_SECRET_KEY;
     }
-    return isSystem ? ADMIN_TOKEN_SECRET_KEY : CUSTOMER_TOKEN_SECRET_KEY;
   }
 
   async createLoginTokens(
@@ -229,10 +251,48 @@ export class TokenService {
       throw new BadRequestException("Invalid token type");
     }
 
-    const decodedToken = this.verify({
-      token,
-      secretOrPrivateKey: this.getSecret(tokenType, Number(audienceRaw)),
-    });
+    const primarySecret = this.getSecret(tokenType, Number(audienceRaw));
+    let decodedToken: IAuthTokenPayload | undefined;
+    try {
+      decodedToken = this.verify({
+        token,
+        secretOrPrivateKey: primarySecret,
+      });
+    } catch (err: any) {
+      // Fallback: check if signed with any valid application secret
+      const candidateSecrets = [
+        tokenType === TokenType.REFRESH
+          ? OWNER_REFRESH_TOKEN_SECRET_KEY
+          : OWNER_TOKEN_SECRET_KEY,
+        tokenType === TokenType.REFRESH
+          ? AGENT_REFRESH_TOKEN_SECRET_KEY
+          : AGENT_TOKEN_SECRET_KEY,
+        tokenType === TokenType.REFRESH
+          ? CUSTOMER_REFRESH_TOKEN_SECRET_KEY
+          : CUSTOMER_TOKEN_SECRET_KEY,
+        tokenType === TokenType.REFRESH
+          ? ADMIN_REFRESH_TOKEN_SECRET_KEY
+          : ADMIN_TOKEN_SECRET_KEY,
+      ].filter((s): s is string => Boolean(s && s !== primarySecret));
+
+      let verified = false;
+      for (const fallbackSecret of candidateSecrets) {
+        try {
+          decodedToken = this.verify({
+            token,
+            secretOrPrivateKey: fallbackSecret,
+          });
+          verified = true;
+          break;
+        } catch {
+          // continue checking
+        }
+      }
+
+      if (!verified || !decodedToken) {
+        throw err;
+      }
+    }
 
     // Tokens issued before this rollout have no familyId: force re-login.
     if (!decodedToken.sub || !decodedToken.familyId) {
