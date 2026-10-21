@@ -92,65 +92,70 @@ function App() {
   return (
     <BrowserRouter>
       <HashScrollHandler />
-      <AdminProvider>
-        <PropertiesProvider>
-          <NotificationsProvider>
-            <UsersProvider>
-              <Routes>
-                <Route path="/" element={<LandingPage />} />
-                <Route element={<ProfileLayout />}>
-                  <Route path="/profile/settings" element={<ProfileSettingPage />} />
-                  <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
-                </Route>
-                <Route path="/property-details/:id" element={<PropertyDetails />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-                <Route path="/customer-home" element={<CustomerHomeRoute />} />
-                <Route path="/customer/messages/:chatId" element={<CustomerMessageRoute />} />
-                <Route path="/notifications" element={<CustomerNotificationsPage />} />
-                <Route path="/search" element={<SearchPage authenticated={false} />} />
-                <Route path="/customer-search" element={<CustomerSearchRoute />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/reset-password" element={<ResetPasswordPage />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                <Route path="/verify-email" element={<EmailVerificationPage />} />
-                <Route path="/verify-otp" element={<VerifyOtpPage />} />
-                <Route path="/signup" element={<SignUpPage />} />
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route element={<ProfileLayout />}>
+          <Route path="/profile/settings" element={<ProfileSettingPage />} />
+          <Route path="/profile/inquiries" element={<MyInquiriesPage />} />
+        </Route>
+        <Route path="/property-details/:id" element={<PropertyDetails />} />
+        <Route path="/favorites" element={<FavoritesPage />} />
+        <Route path="/customer-home" element={<CustomerHomeRoute />} />
+        <Route path="/customer/messages/:chatId" element={<CustomerMessageRoute />} />
+        <Route path="/notifications" element={<CustomerNotificationsPage />} />
+        <Route path="/search" element={<SearchPage authenticated={false} />} />
+        <Route path="/customer-search" element={<CustomerSearchRoute />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
 
-                <Route path={ADMIN_PATHS.home} element={<MainLayout />}>
-                  <Route index element={<AdminOverview />} />
-                  <Route path="listing">
-                    <Route index element={<Listing />} />
-                    <Route path=":listingId" element={<ListingDetails />} />
-                  </Route>
-                  <Route path="users" element={<UsersLayout />}>
-                    <Route index element={<Users />} />
-                    <Route path=":userId" element={<UserProfile />} />
-                  </Route>
-                  <Route path="notification" element={<Notifications />} />
-                  <Route path="reports" element={<Reports />} />
-                  <Route path="profile" element={<Profile />} />
-                </Route>
+        <Route
+          path={ADMIN_PATHS.home}
+          element={
+            <AdminProvider>
+              <PropertiesProvider>
+                <NotificationsProvider>
+                  <UsersProvider>
+                    <MainLayout />
+                  </UsersProvider>
+                </NotificationsProvider>
+              </PropertiesProvider>
+            </AdminProvider>
+          }
+        >
+          <Route index element={<AdminOverview />} />
+          <Route path="listing">
+            <Route index element={<Listing />} />
+            <Route path=":listingId" element={<ListingDetails />} />
+          </Route>
+          <Route path="users" element={<UsersLayout />}>
+            <Route index element={<Users />} />
+            <Route path=":userId" element={<UserProfile />} />
+          </Route>
+          <Route path="notification" element={<Notifications />} />
+          <Route path="reports" element={<Reports />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
 
-                <Route path={OWNER_PATH} element={<OwnerProviders />}>
-                  <Route element={<OwnerLayout />}>
-                    <Route index element={<OwnerOverview />} />
-                    <Route path="inquiries">
-                      <Route index element={<OwnerInquiries />} />
-                      <Route path=":inquiryId" element={<InquiryReply />} />
-                    </Route>
-                    <Route path="notifications" element={<OwnerNotifications canClear={false} />} />
-                    <Route path="reports" element={<OwnerReports />} />
-                  </Route>
-                </Route>
+        <Route path={OWNER_PATH} element={<OwnerProviders />}>
+          <Route element={<OwnerLayout />}>
+            <Route index element={<OwnerOverview />} />
+            <Route path="inquiries">
+              <Route index element={<OwnerInquiries />} />
+              <Route path=":inquiryId" element={<InquiryReply />} />
+            </Route>
+            <Route path="notifications" element={<OwnerNotifications canClear={false} />} />
+            <Route path="reports" element={<OwnerReports />} />
+          </Route>
+        </Route>
 
-                <Route path="/error/401" element={<ErrorPage code={401} />} />
-                <Route path="/error/403" element={<ErrorPage code={403} />} />
-                <Route path="*" element={<NotFoundPage />} />
-              </Routes>
-            </UsersProvider>
-          </NotificationsProvider>
-        </PropertiesProvider>
-      </AdminProvider>
+        <Route path="/error/401" element={<ErrorPage code={401} />} />
+        <Route path="/error/403" element={<ErrorPage code={403} />} />
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
     </BrowserRouter>
   )
 }
