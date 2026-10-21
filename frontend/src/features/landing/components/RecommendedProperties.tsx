@@ -68,14 +68,14 @@ export function RecommendedProperties({
         </button>
         <div className="landing-carousel-track flex gap-6 overflow-x-auto scroll-smooth" onMouseEnter={() => setIsPaused(true)} onMouseLeave={() => setIsPaused(false)} onTouchStart={() => setIsPaused(true)} onTouchEnd={() => setIsPaused(false)} ref={trackRef}>
         {properties.map((property) => (
-          <article className="w-[calc(33.333%-16px)] shrink-0 overflow-hidden rounded-inner bg-white shadow-1 max-landing-tablet:w-[calc(50%-12px)] max-landing-mobile:w-[85%]" data-property-card key={property._id}>
+          <article className="flex w-[calc(33.333%-16px)] shrink-0 flex-col overflow-hidden rounded-inner bg-white shadow-1 max-landing-tablet:w-[calc(50%-12px)] max-landing-mobile:w-[85%]" data-property-card key={property._id}>
             <div className="relative h-landing-property-image">
               {property.image && <img alt={property.title} className="size-full object-cover" src={property.image} />}
               <span className="absolute left-6 top-6 rounded-button bg-brand-50 px-3 py-2 text-label-14 font-medium text-brand-700">{transactionTypeName(property.transactionType, transactionTypes)}</span>
               <button aria-label={`Save ${property.title}`} className="absolute right-6 top-6 flex size-12 items-center justify-center rounded-full bg-white text-brand-700" type="button"><HeartIcon className="size-landing-heart-icon" /></button>
               <span className="absolute bottom-6 left-6 rounded-button bg-brand-50 px-3 py-2 text-label-14 text-brand-700">{propertyTypeName(property.propertyType, propertyTypes)}</span>
             </div>
-            <div className="p-6">
+            <div className="flex flex-1 flex-col p-6">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-landing-card-title font-bold text-text-grey-dark">{property.title}</h3>
               </div>
@@ -86,9 +86,11 @@ export function RecommendedProperties({
                 <span className="inline-flex items-center gap-2"><BathIcon className="size-landing-icon" />{property.bathrooms} Baths</span>
                 <span className="inline-flex items-center gap-2"><AreaIcon className="size-landing-icon" />{property.area} m²</span>
               </div>
-              <Link to={`/property-details/${property._id}`} className="mt-5 flex h-landing-detail-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">
-                View Details
-              </Link>
+              <div className="mt-auto pt-5">
+                <Link to={`/property-details/${property._id}`} className="flex h-landing-detail-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">
+                  View Details
+                </Link>
+              </div>
             </div>
           </article>
         ))}

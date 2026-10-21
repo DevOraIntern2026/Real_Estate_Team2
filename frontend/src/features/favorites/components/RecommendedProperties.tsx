@@ -77,7 +77,7 @@ export function RecommendedProperties({
       <div className="max-landing-tablet:grid-cols-2 max-landing-mobile:grid-cols-1 mt-10 grid grid-cols-3 gap-6">
         {displayedProperties.map((property) => (
           <article
-            className="rounded-inner shadow-1 overflow-hidden bg-white"
+            className="rounded-inner shadow-1 flex flex-col overflow-hidden bg-white"
             key={property.title}
           >
             <div className="h-landing-property-image relative">
@@ -100,7 +100,7 @@ export function RecommendedProperties({
                 {property.kind}
               </span>
             </div>
-            <div className="p-6">
+            <div className="flex flex-1 flex-col p-6">
               <div className="flex items-start justify-between gap-3">
                 <h3 className="text-landing-card-title text-text-grey-dark font-bold">
                   {property.title}
@@ -132,10 +132,7 @@ export function RecommendedProperties({
                 </span>
               </div>
               {customerView && (
-                <button
-                  className="h-landing-detail-button rounded-button bg-brand-700 text-label-14 hover:bg-brand-800 mt-5 w-full font-medium text-white transition-colors"
-                  type="button"
-                >
+                <button className="h-landing-detail-button rounded-button bg-brand-700 text-label-14 hover:bg-brand-800 mt-auto w-full font-medium text-white transition-colors" type="button">
                   View Details
                 </button>
               )}
