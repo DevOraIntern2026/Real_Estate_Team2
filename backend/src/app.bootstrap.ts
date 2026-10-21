@@ -24,11 +24,31 @@ import propertyDetailsRoute from "./modules/properity details/property-details.r
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  getCloudinaryConfig,
+  isCloudinaryConfigured,
+  verifyCloudinaryConnection,
+} from "./common/utils/cloudinary";
+
 export const bootstrap = async () => {
   const app: Express = express();
   //////////// DB connections
   await mongoDBConnection();
   await redisService.connect();
+  if (isCloudinaryConfigured()) {
+    const isCloudinaryActive = await verifyCloudinaryConnection();
+    if (isCloudinaryActive) {
+      console.log(
+        `☁️ Cloudinary is connected and ready (${getCloudinaryConfig().cloud_name})`,
+      );
+    } else {
+      console.warn("⚠️ Cloudinary ping failed. Check network or credentials.");
+    }
+  } else {
+    console.warn(
+      "⚠️ Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
+    );
+  }
   //////////// global middlewares
   app.use(cors());
   app.use(express.json());
