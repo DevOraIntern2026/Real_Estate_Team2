@@ -14,6 +14,10 @@ export function usePropertyDetails(id: string): State {
     let cancelled = false
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState({ status: 'loading' })
+    if (!id) {
+      setState({ status: 'error', message: 'A property ID is required to load its details.' })
+      return () => { cancelled = true }
+    }
     getPropertyDetails(id)
       .then((data) => {
         if (!cancelled) {

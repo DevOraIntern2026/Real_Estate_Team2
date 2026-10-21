@@ -24,8 +24,8 @@ export default function CustomerHomePage() {
         <PromoBanners />
         <PropertyCategories propertyTypes={data?.filters.propertyTypes} />
         <FeaturedCities cities={data?.cities} />
-        <RecommendedProperties customerView properties={data?.discoverProperties} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} title="Discover Properties" />
-        <RecommendedProperties customerView properties={data?.topRecommended} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} />
+        <RecommendedProperties properties={data?.discoverProperties} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} title="Discover Properties" />
+        <RecommendedProperties properties={data?.topRecommended} propertyTypes={data?.filters.propertyTypes} transactionTypes={data?.filters.transactionTypes} />
         <CustomerAgentBanner />
       </main>
       <ChatbotWidget />

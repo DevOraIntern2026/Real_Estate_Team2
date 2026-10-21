@@ -4,6 +4,7 @@ export interface PropertyLocation {
   area: string
   state?: string
   country?: string
+  coordinates?: { lat?: number; lng?: number }
 }
 
 export interface PropertyAbout {
@@ -12,6 +13,8 @@ export interface PropertyAbout {
   area: number
   floor?: number
   furnishing?: number
+  completionYear?: number
+  readyBy?: string
 }
 
 export interface PropertyAgent {
@@ -19,14 +22,16 @@ export interface PropertyAgent {
   username: string
   email: string
   phone: string | null
-  role: number
+  role: number | string
+  avatar?: string
 }
 
 export interface RelatedProperty {
   _id: string
   title: string
+  slug?: string
   image: string
-  status: number
+  status?: number
   propertyType: number
   transactionType: number
   price: number
@@ -34,6 +39,7 @@ export interface RelatedProperty {
   bedrooms: number
   bathrooms: number
   area: number
+  isFeatured?: boolean
   location: {
     city: string
     area: string
@@ -59,6 +65,8 @@ export interface PropertyData {
     city: string
     area: string
     state?: string
+    country?: string
+    coordinates?: { lat?: number; lng?: number }
   }
   about: PropertyAbout
   amenities: string[]
@@ -66,6 +74,7 @@ export interface PropertyData {
   reviews: {
     count: number
     averageRating: number
+    items?: Review[]
   }
   related: RelatedProperty[]
 }

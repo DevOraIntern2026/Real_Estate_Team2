@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { CustomerHeader } from '@/features/customer/components/CustomerHeader'
-import { LandingHeader } from '@/features/landing/components/LandingHeader'
+import { LandingFooter, LandingHeader } from '@/features/landing/components'
+import { getAuthSession } from '@/services/api/tokenStorage'
 import { SearchIcon, SortIcon } from '@/features/search/components/SearchIcons'
 import { SearchFilters } from '@/features/search/components/SearchFilters'
 import { initialSearchCriteria, type SearchCriteria } from '@/features/search/types/search'
@@ -48,6 +49,7 @@ function toSearchQuery(criteria: SearchCriteria): Omit<SearchQuery, 'search' | '
 }
 
 export default function SearchPage({ authenticated }: { authenticated: boolean }) {
+  const showCustomerChrome = authenticated || getAuthSession()?.role === 'customer'
   const [urlParams, setUrlParams] = useSearchParams()
   const [search, setSearch] = useState(() => urlParams.get('search') ?? '')
   const [sort, setSort] = useState<NonNullable<SearchQuery['sort']>>('newest')
@@ -92,10 +94,10 @@ export default function SearchPage({ authenticated }: { authenticated: boolean }
 
   return (
     <div className="min-h-screen bg-bg-light">
-      {authenticated ? <CustomerHeader activePage="Search" /> : <LandingHeader activePage="Search" />}
+      {showCustomerChrome ? <CustomerHeader activePage="Search" /> : <LandingHeader activePage="Search" />}
       <main className="mx-auto w-full max-w-search-page px-search-page-x pb-search-page-bottom pt-search-page-top max-search-mobile:px-search-page-mobile-x">
         <nav aria-label="Breadcrumb" className="mb-search-breadcrumb flex items-center gap-3 text-search-breadcrumb">
-          <Link className="text-text-grey-light transition-colors hover:text-brand-700" to={authenticated ? '/customer-home' : '/'}>Home</Link>
+          <Link className="text-text-grey-light transition-colors hover:text-brand-700" to={showCustomerChrome ? '/customer-home' : '/'}>Home</Link>
           <span className="text-text-grey-light">›</span>
           <span aria-current="page" className="font-medium text-brand-700">Search</span>
         </nav>
@@ -148,6 +150,7 @@ export default function SearchPage({ authenticated }: { authenticated: boolean }
           <SearchFilters criteria={criteria} filters={data?.filters} onApply={applyFilters} setCriteria={setCriteria} />
         </div>
       </div>}
+      <LandingFooter />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { AreaIcon, BathIcon, BedIcon, HeartIcon, PinIcon } from '@/features/landing/components/LandingIcons'
 import type { SearchFilterOption, SearchProperty } from '@/features/search/types/search'
 
@@ -31,7 +32,7 @@ export function SearchPropertyCard({ property, propertyTypes = [], transactionTy
           <span className="inline-flex items-center gap-1.5"><BathIcon className="size-search-meta-icon" />{property.bathrooms} Baths</span>
           <span className="inline-flex items-center gap-1.5"><AreaIcon className="size-search-meta-icon" />{property.area} m²</span>
         </div>
-        <button className="mt-4 h-search-card-button w-full rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800" type="button">View Details</button>
+        <Link to={`/property-details/${property._id}`} className="mt-4 flex h-search-card-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">View Details</Link>
       </div>
     </article>
   )

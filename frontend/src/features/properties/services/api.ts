@@ -1,6 +1,5 @@
 import axios from 'axios'
-import type { PropertyApiResponse, PropertyData } from '../types/types'
-import { mockPropertyDetails } from '../mocks/mockData'
+import type { PropertyApiResponse, PropertyData, Review } from '../types/types'
 import { apiClient } from '@/services/api/apiClient'
 import { getAccessToken } from '@/services/api/tokenStorage'
 
@@ -57,20 +56,53 @@ export const submitInquiry = async (payload: InquiryPayload): Promise<string> =>
         ?? findValidationMessage((responseData as { cause?: unknown } | undefined)?.cause)
       throw new Error(serverMessage ?? validationMessage ?? (error.response
         ? `The server could not submit your inquiry (${error.response.status}).`
-        : 'Could not connect to the server. Check that the API is running and try again.'))
+        : 'Could not connect to the server. Check that the API is running and try again.'), { cause: error })
     }
     throw error
   }
 }
 
 export const getPropertyDetails = async (id: string): Promise<PropertyData> => {
-  try {
-    const response = await apiClient.get<PropertyApiResponse>(
-      `/property-details/${id}`,
-    )
-    return response.data.data
-  } catch {
-    console.warn('API in down, falling back to mock data')
-    return mockPropertyDetails
+  if (!id) throw new Error('A property ID is required to load its details.')
+
+  const response = await apiClient.get<PropertyApiResponse>(
+    `/property-details/${encodeURIComponent(id)}`,
+  )
+  const raw = response.data.data
+  if (!raw?._id) throw new Error(response.data.message || 'The property details response was empty.')
+
+  const images = Array.isArray(raw.images) ? raw.images.filter((image) => typeof image === 'string' && image.trim()) : []
+  if (!images.length && raw.coverImage) images.push(raw.coverImage)
+  const rawReviews = (raw.reviews?.items ?? []) as Array<Partial<Review> & { user?: { name?: string; avatar?: string } }>
+  const reviews = rawReviews
+    .filter((review) => Boolean(review.author || review.user?.name) && typeof review.comment === 'string' && typeof review.rating === 'number')
+    .map((review, index): Review => ({
+      _id: review._id || `review-${index}`,
+      avatar: review.avatar || review.user?.avatar || '',
+      author: review.author || review.user?.name || 'Customer',
+      rating: review.rating ?? 0,
+      comment: review.comment ?? '',
+      createdAt: review.createdAt || '',
+    }))
+
+  return {
+    ...raw,
+    images,
+    coverImage: raw.coverImage || images[0] || '',
+    location: { ...raw.location, city: raw.location?.city ?? '', area: raw.location?.area ?? '' },
+    about: {
+      ...raw.about,
+      bedrooms: raw.about?.bedrooms ?? 0,
+      bathrooms: raw.about?.bathrooms ?? 0,
+      area: raw.about?.area ?? 0,
+    },
+    agent: raw.agent ?? { _id: '', username: '', email: '', phone: null, role: 'agent' },
+    amenities: Array.isArray(raw.amenities) ? raw.amenities : [],
+    reviews: {
+      count: raw.reviews?.count ?? reviews.length,
+      averageRating: raw.reviews?.averageRating ?? 0,
+      items: reviews,
+    },
+    related: Array.isArray(raw.related) ? raw.related : [],
   }
 }

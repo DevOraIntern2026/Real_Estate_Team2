@@ -11,13 +11,11 @@ const transactionTypeName = (value: number, transactionTypes: LandingFilterOptio
   transactionTypes.find((type) => type.value === value)?.label ?? ''
 
 export function RecommendedProperties({
-  customerView = false,
   properties = [],
   propertyTypes = [],
   transactionTypes = [],
   title = 'Top Recommended',
 }: {
-  customerView?: boolean
   properties?: LandingProperty[]
   propertyTypes?: LandingFilterOption[]
   transactionTypes?: LandingFilterOption[]
@@ -88,11 +86,9 @@ export function RecommendedProperties({
                 <span className="inline-flex items-center gap-2"><BathIcon className="size-landing-icon" />{property.bathrooms} Baths</span>
                 <span className="inline-flex items-center gap-2"><AreaIcon className="size-landing-icon" />{property.area} m²</span>
               </div>
-              {customerView && (
-                <Link to={`/property-details/${property._id}`} className="mt-5 flex h-landing-detail-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">
-                  View Details
-                </Link>
-              )}
+              <Link to={`/property-details/${property._id}`} className="mt-5 flex h-landing-detail-button w-full items-center justify-center rounded-button bg-brand-700 text-label-14 font-medium text-white transition-colors hover:bg-brand-800">
+                View Details
+              </Link>
             </div>
           </article>
         ))}

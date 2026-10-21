@@ -11,13 +11,16 @@ import {
 import { ChatbotWidget } from '@/features/chatbot/components'
 import { useLandingPage } from '@/features/landing/hooks/useLandingPage'
 import { CustomerAgentBanner } from '@/features/customer/components/CustomerAgentBanner'
+import { CustomerHeader } from '@/features/customer/components/CustomerHeader'
+import { getAuthSession } from '@/services/api/tokenStorage'
 
 export default function LandingPage() {
   const { data } = useLandingPage()
+  const isCustomer = getAuthSession()?.role === 'customer'
 
   return (
     <div className="min-h-screen overflow-hidden bg-bg-surface">
-      <LandingHeader />
+      {isCustomer ? <CustomerHeader /> : <LandingHeader />}
       <main>
         <HeroSection totalProperties={data?.totalProperties} />
         <PropertySearch filters={data?.filters} />
