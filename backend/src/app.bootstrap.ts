@@ -82,13 +82,16 @@ export const bootstrap = async () => {
   ////////////// global error handling
   app.use(globalErrorHandler);
   ////////////// checking port connection
+  if (!process.env.VERCEL) {
+    app.listen(PORT, (_err) => {
+      try {
+        console.log(`app is running on port ${PORT}`);
+        console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
 
-  app.listen(PORT, (_err) => {
-    try {
-      console.log(`app is running on port ${PORT}`);
-      console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  return app;
 };
