@@ -1,5 +1,4 @@
 import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
 import type { Express } from "express";
 import {
   adminSwaggerTags,
@@ -1436,24 +1435,59 @@ const swaggerDefinition: swaggerJsdoc.OAS3Definition = {
 
 const swaggerSpec = swaggerJsdoc({ definition: swaggerDefinition, apis: [] });
 
-export const setupSwagger = (app: Express): void => {
-  app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec, {
-      customSiteTitle: "DEVORA API Docs",
-      customCss: ".swagger-ui .topbar { display: none }",
-      swaggerOptions: {
+const getSwaggerHtml = (): string => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DEVORA API Docs</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui.min.css" />
+  <link rel="icon" type="image/png" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/favicon-32x32.png" />
+  <style>
+    html { box-sizing: border-box; overflow-y: scroll; }
+    *, *:before, *:after { box-sizing: inherit; }
+    body { margin: 0; background: #fafafa; }
+    .swagger-ui .topbar { display: none !important; }
+    .swagger-ui .info { margin: 25px 0; }
+  </style>
+</head>
+<body>
+  <div id="swagger-ui"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-bundle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.18.2/swagger-ui-standalone-preset.js"></script>
+  <script>
+    window.onload = function() {
+      window.ui = SwaggerUIBundle({
+        url: "/api-docs.json",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout",
         persistAuthorization: true,
         docExpansion: "list",
-        filter: true,
-      },
-    }),
-  );
+        filter: true
+      });
+    };
+  </script>
+</body>
+</html>`;
 
+export const setupSwagger = (app: Express): void => {
   // Raw JSON spec for Postman import / code generators
-  app.get("/api-docs.json", (_req, res) => {
+  app.get(["/api-docs.json", "/api-docs/swagger.json"], (_req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
+  });
+
+  // Standalone Swagger UI HTML powered by CDN (works on Vercel & locally)
+  app.get(["/api-docs", "/api-docs/"], (_req, res) => {
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(getSwaggerHtml());
   });
 };
