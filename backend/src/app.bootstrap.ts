@@ -53,12 +53,18 @@ export const bootstrap = async () => {
   app.use(cors());
   app.use(express.json());
 
-  // Ensure uploads directory exists and serve static files
-  const uploadsPath = path.resolve(process.cwd(), "uploads");
-  if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+  // Ensure uploads directory exists and serve static files (local development only)
+  if (!process.env.VERCEL) {
+    try {
+      const uploadsPath = path.resolve(process.cwd(), "uploads");
+      if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+      }
+      app.use("/uploads", express.static(uploadsPath));
+    } catch (err) {
+      console.warn("⚠️ Could not initialize local uploads folder:", err);
+    }
   }
-  app.use("/uploads", express.static(uploadsPath));
 
   //////////// APIs (Supporting both /api/v1 and /api)
   const apiRouters: [string, any][] = [

@@ -12,7 +12,6 @@
     "target": "es2023",
     // For nodejs:
     "lib": ["esnext"],
-    "types": ["express", "node", "multer"],
     "skipDefaultLibCheck": true,
     // and npm install -D @types/node
     // Other Outputs
