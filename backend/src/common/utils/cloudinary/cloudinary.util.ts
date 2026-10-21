@@ -8,24 +8,53 @@ import {
   CLOUDINARY_CLOUD_NAME,
   PORT,
 } from "../../config/config";
+import { BadRequestException } from "../../exceptions";
 
-cloudinary.config({
-  cloud_name: CLOUDINARY_CLOUD_NAME as string,
-  api_key: CLOUDINARY_API_KEY as string,
-  api_secret: CLOUDINARY_API_SECRET as string,
-  secure: true,
-});
+export const getCloudinaryConfig = () => {
+  const cloud_name =
+    process.env.CLOUDINARY_CLOUD_NAME || CLOUDINARY_CLOUD_NAME || "";
+  const api_key = process.env.CLOUDINARY_API_KEY || CLOUDINARY_API_KEY || "";
+  const api_secret =
+    process.env.CLOUDINARY_API_SECRET || CLOUDINARY_API_SECRET || "";
+
+  return { cloud_name, api_key, api_secret };
+};
+
+export const ensureCloudinaryConfigured = (): void => {
+  const { cloud_name, api_key, api_secret } = getCloudinaryConfig();
+  cloudinary.config({
+    cloud_name,
+    api_key,
+    api_secret,
+    secure: true,
+  });
+};
+
+ensureCloudinaryConfigured();
 
 export const PROPERTY_IMAGES_FOLDER = "devora/real-estate/properties";
 
-const isCloudinaryConfigured = (): boolean => {
+export const isCloudinaryConfigured = (): boolean => {
+  const { cloud_name, api_key, api_secret } = getCloudinaryConfig();
   return Boolean(
-    CLOUDINARY_CLOUD_NAME &&
-    CLOUDINARY_API_KEY &&
-    CLOUDINARY_API_SECRET &&
-    !CLOUDINARY_API_SECRET.includes("<") &&
-    CLOUDINARY_API_SECRET.trim().length > 0,
+    cloud_name &&
+    api_key &&
+    api_secret &&
+    !api_secret.includes("<") &&
+    api_secret.trim().length > 0,
   );
+};
+
+export const verifyCloudinaryConnection = async (): Promise<boolean> => {
+  if (!isCloudinaryConfigured()) return false;
+  try {
+    ensureCloudinaryConfigured();
+    const res = await cloudinary.api.ping();
+    return res.status === "ok";
+  } catch (error) {
+    console.error("⚠️ Cloudinary ping check failed:", error);
+    return false;
+  }
 };
 
 export const saveBufferLocally = ({
@@ -90,7 +119,7 @@ export const saveBufferLocally = ({
   } as unknown as UploadApiResponse;
 };
 
-// Streams a buffer straight to Cloudinary, with automatic fallback to local uploads/ folder
+// Streams a buffer straight to Cloudinary, with optional fallback only if ALLOW_LOCAL_UPLOADS=true
 export const uploadBufferToCloudinary = async ({
   buffer,
   folder = PROPERTY_IMAGES_FOLDER,
@@ -104,11 +133,18 @@ export const uploadBufferToCloudinary = async ({
   originalname?: string | undefined;
   mimetype?: string | undefined;
 }): Promise<UploadApiResponse> => {
+  ensureCloudinaryConfigured();
+
   if (!isCloudinaryConfigured()) {
-    console.info(
-      `ℹ️ Cloudinary credentials not configured or incomplete. Saving image locally to uploads/${folder}...`,
+    if (process.env.ALLOW_LOCAL_UPLOADS === "true") {
+      console.info(
+        `ℹ️ Cloudinary credentials not configured or incomplete. Saving image locally to uploads/${folder}...`,
+      );
+      return saveBufferLocally({ buffer, folder, originalname, mimetype });
+    }
+    throw new BadRequestException(
+      "Cloudinary credentials (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) are missing or incomplete. Please configure them in your environment.",
     );
-    return saveBufferLocally({ buffer, folder, originalname, mimetype });
   }
 
   try {
@@ -132,10 +168,15 @@ export const uploadBufferToCloudinary = async ({
       uploadStream.end(buffer);
     });
   } catch (error: any) {
-    console.warn(
-      `⚠️ Cloudinary upload failed (${error?.message || "Unknown error"}). Falling back to local uploads/ storage.`,
+    if (process.env.ALLOW_LOCAL_UPLOADS === "true") {
+      console.warn(
+        `⚠️ Cloudinary upload failed (${error?.message || "Unknown error"}). Falling back to local uploads/ storage.`,
+      );
+      return saveBufferLocally({ buffer, folder, originalname, mimetype });
+    }
+    throw new BadRequestException(
+      `Failed to upload image to Cloudinary: ${error?.message || "Unknown error"}`,
     );
-    return saveBufferLocally({ buffer, folder, originalname, mimetype });
   }
 };
 
@@ -174,6 +215,7 @@ export const deleteFromCloudinary = async (publicId: string): Promise<void> => {
     return;
   }
 
+  ensureCloudinaryConfigured();
   if (isCloudinaryConfigured()) {
     try {
       await cloudinary.uploader.destroy(publicId, { resource_type: "image" });
@@ -195,6 +237,7 @@ export const deleteManyFromCloudinary = async (
     await deleteFromCloudinary(id);
   }
 
+  ensureCloudinaryConfigured();
   if (remoteIds.length && isCloudinaryConfigured()) {
     try {
       await cloudinary.api.delete_resources(remoteIds, {

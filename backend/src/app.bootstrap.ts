@@ -24,21 +24,47 @@ import propertyDetailsRoute from "./modules/properity details/property-details.r
 import fs from "node:fs";
 import path from "node:path";
 
+import {
+  getCloudinaryConfig,
+  isCloudinaryConfigured,
+  verifyCloudinaryConnection,
+} from "./common/utils/cloudinary";
+
 export const bootstrap = async () => {
   const app: Express = express();
   //////////// DB connections
   await mongoDBConnection();
   await redisService.connect();
+  if (isCloudinaryConfigured()) {
+    const isCloudinaryActive = await verifyCloudinaryConnection();
+    if (isCloudinaryActive) {
+      console.log(
+        `☁️ Cloudinary is connected and ready (${getCloudinaryConfig().cloud_name})`,
+      );
+    } else {
+      console.warn("⚠️ Cloudinary ping failed. Check network or credentials.");
+    }
+  } else {
+    console.warn(
+      "⚠️ Cloudinary is not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET.",
+    );
+  }
   //////////// global middlewares
   app.use(cors());
   app.use(express.json());
 
-  // Ensure uploads directory exists and serve static files
-  const uploadsPath = path.resolve(process.cwd(), "uploads");
-  if (!fs.existsSync(uploadsPath)) {
-    fs.mkdirSync(uploadsPath, { recursive: true });
+  // Ensure uploads directory exists and serve static files (local development only)
+  if (!process.env.VERCEL) {
+    try {
+      const uploadsPath = path.resolve(process.cwd(), "uploads");
+      if (!fs.existsSync(uploadsPath)) {
+        fs.mkdirSync(uploadsPath, { recursive: true });
+      }
+      app.use("/uploads", express.static(uploadsPath));
+    } catch (err) {
+      console.warn("⚠️ Could not initialize local uploads folder:", err);
+    }
   }
-  app.use("/uploads", express.static(uploadsPath));
 
   //////////// APIs (Supporting both /api/v1 and /api)
   const apiRouters: [string, any][] = [
@@ -82,13 +108,16 @@ export const bootstrap = async () => {
   ////////////// global error handling
   app.use(globalErrorHandler);
   ////////////// checking port connection
+  if (!process.env.VERCEL) {
+    app.listen(PORT, (_err) => {
+      try {
+        console.log(`app is running on port ${PORT}`);
+        console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  }
 
-  app.listen(PORT, (_err) => {
-    try {
-      console.log(`app is running on port ${PORT}`);
-      console.log(`📄 API Docs available at http://localhost:${PORT}/api-docs`);
-    } catch (error) {
-      console.error(error);
-    }
-  });
+  return app;
 };

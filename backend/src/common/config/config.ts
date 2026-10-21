@@ -1,7 +1,14 @@
 import { config } from "dotenv";
 import { resolve } from "node:path";
 
-config({ path: resolve(`.env.${process.env.NODE_ENV || "dev"}`) });
+import fs from "node:fs";
+
+const envPath = resolve(`.env.${process.env.NODE_ENV || "dev"}`);
+if (fs.existsSync(envPath)) {
+  config({ path: envPath });
+} else {
+  config();
+}
 
 export const PORT = process.env.PORT || "3000";
 export const DB_URI = process.env.DB_URI || "";
