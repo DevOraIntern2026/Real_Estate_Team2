@@ -33,6 +33,7 @@ export function useAdmin(): AdminSession {
   return ctx;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const adminProfileKey = ["admin", "profile"] as const;
 
 function Gate({ children }: { children: ReactNode }) {
@@ -51,6 +52,8 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     queryKey: adminProfileKey,
     queryFn: async ({ signal }) => normalizeAdminProfile(await fetchAdminProfile(signal)),
     staleTime: 5 * 60_000,
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   // wait for the refetch, so the UI already shows the new data when the dialog closes

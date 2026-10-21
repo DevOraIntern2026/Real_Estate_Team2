@@ -1,4 +1,4 @@
-import type { Option } from "../../components/common/FilterDropdown";
+import type { Option } from "../../components/shared/FilterDropdown";
 import { formatPriceLabel, prettify, toPropertyStatus } from "../../utils/labels";
 import type { ListingCounts, ListingRowVm, ListingStatusFilter, ListingSummaryDto } from "./types";
 
@@ -8,17 +8,29 @@ const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null &
 // ---------- list rows ----------
 /** `fallbackOwnerName` is used when the API doesn't send an owner (e.g. inside a user's own listings). */
 export function toListingRowVm(dto: ListingSummaryDto, fallbackOwnerName = ""): ListingRowVm {
+  const propertyType = dto.type ?? dto.propertyType ?? "Property";
+  const transaction = dto.transaction ?? "";
+  const [typeFromLabel, purposeFromLabel] = (dto.typeLabel ?? "").split(/\s*[-/]\s*/, 2);
+  const type = propertyType === "Property" && typeFromLabel ? typeFromLabel : prettify(propertyType);
+  const purpose = transaction
+    ? prettify(transaction)
+    : purposeFromLabel
+      ? prettify(purposeFromLabel)
+      : "—";
+
   return {
-    id: dto.id,
-    code: dto.code,
-    title: dto.title,
+    id: dto.id ?? dto._id ?? "",
+    code: dto.code ?? "",
+    title: dto.title ?? "Untitled property",
     ownerName: dto.owner?.name ?? fallbackOwnerName,
-    type: prettify(dto.propertyType),
-    purpose: prettify(dto.transaction),
-    location: [dto.area, dto.city].filter(Boolean).join(", "),
-    priceLabel: formatPriceLabel(dto.price, dto.currency, dto.transaction),
-    statusLabel: toPropertyStatus(dto.status) ?? prettify(dto.status),
-    submittedAt: dto.submittedAt,
+    type,
+    purpose,
+    location: dto.location ?? ([dto.area, dto.city].filter(Boolean).join(", ") || "—"),
+    priceLabel: formatPriceLabel(dto.price ?? 0, dto.currency ?? "EGP", transaction),
+    statusLabel: dto.status
+      ? toPropertyStatus(dto.status) ?? prettify(dto.status)
+      : "Unknown",
+    submittedAt: dto.submittedAt ?? "",
   };
 }
 

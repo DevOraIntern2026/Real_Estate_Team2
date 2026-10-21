@@ -23,21 +23,26 @@ export interface ListingsParams {
 
 export type ListingCounts = Record<ListingStatusFilter, number>;
 
-// ---- response item (ASSUMED: same fields as pendingListings in /v1/admin/overview) ----
+// ---- response item from GET /v1/admin/listings (legacy aliases retained for overview payloads) ----
 export interface ListingSummaryDto {
-  id: string;
-  code: string;
-  title: string;
+  id?: string;
+  _id?: string;
+  code?: string;
+  title?: string;
   thumbnail?: string | null;
-  owner?: { id: string; name: string; role?: string }; // missing inside a user's own listings
-  propertyType: string;
-  transaction: string;
-  area: string;
+  owner?: { id?: string; name?: string; role?: string } | null;
+  type?: string;
+  typeLabel?: string;
+  propertyType?: string;
+  transaction?: string;
+  location?: string;
+  area?: string;
   city?: string;
-  price: number;
-  currency: string;
-  status: string;
-  submittedAt: string;
+  price?: number;
+  priceUnit?: string;
+  currency?: string;
+  status?: string;
+  submittedAt?: string;
 }
 
 // ---- what the table uses ----

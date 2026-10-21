@@ -70,6 +70,25 @@ function CustomerMessageRoute() {
   return <CustomerMessagesPage />
 }
 
+function AdminDashboardRoute() {
+  const session = getAuthSession()
+
+  if (!session) return <Navigate replace to="/login" />
+  if (session.role !== 'admin') return <Navigate replace to="/" />
+
+  return (
+    <AdminProvider>
+      <PropertiesProvider>
+        <NotificationsProvider>
+          <UsersProvider>
+            <MainLayout />
+          </UsersProvider>
+        </NotificationsProvider>
+      </PropertiesProvider>
+    </AdminProvider>
+  )
+}
+
 function HashScrollHandler() {
   const { hash, pathname } = useLocation()
 
@@ -112,20 +131,7 @@ function App() {
         <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/signup" element={<SignUpPage />} />
 
-        <Route
-          path={ADMIN_PATHS.home}
-          element={
-            <AdminProvider>
-              <PropertiesProvider>
-                <NotificationsProvider>
-                  <UsersProvider>
-                    <MainLayout />
-                  </UsersProvider>
-                </NotificationsProvider>
-              </PropertiesProvider>
-            </AdminProvider>
-          }
-        >
+        <Route path={ADMIN_PATHS.home} element={<AdminDashboardRoute />}>
           <Route index element={<AdminOverview />} />
           <Route path="listing">
             <Route index element={<Listing />} />
