@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import { InquiriesProvider } from "../context/InquiriesContext";
 import { MockSessionProvider } from "../context/MockSessionProvider";
 import { NotificationsProvider } from "../context/NotificationsContext";
+import { PropertiesProvider } from "../context/PropertiesContext";
 import { ownerNotificationsMock } from "../data/ownerNotifications.mock";
 import { ownerMock } from "../data/owner.mock";
 
@@ -9,11 +10,13 @@ import { ownerMock } from "../data/owner.mock";
 export default function OwnerProviders() {
   return (
     <MockSessionProvider initialAdmin={ownerMock}>
-      <NotificationsProvider initialNotifications={ownerNotificationsMock}>
-        <InquiriesProvider>
-          <Outlet />
-        </InquiriesProvider>
-      </NotificationsProvider>
+      <PropertiesProvider>
+        <NotificationsProvider initialNotifications={ownerNotificationsMock}>
+          <InquiriesProvider>
+            <Outlet />
+          </InquiriesProvider>
+        </NotificationsProvider>
+      </PropertiesProvider>
     </MockSessionProvider>
   );
 }
