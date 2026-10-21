@@ -12,15 +12,10 @@ export default function ProfileCard({ user }: { user: User }) {
         items={[
           {
             label: "Status",
-            value: (
-              <StatusBadge
-                label={user.status}
-                tone={STATUS_TONE[user.status]}
-              />
-            ),
+            value: <StatusBadge label={user.status} tone={STATUS_TONE[user.status]} />,
           },
-          { label: "Phone", value: user.phone },
-          { label: "Location", value: user.location },
+          { label: "Phone", value: user.phone || "—" },
+          { label: "Location", value: user.location || "—" },
           { label: "Joined", value: formatDate(user.joined) },
         ]}
       />

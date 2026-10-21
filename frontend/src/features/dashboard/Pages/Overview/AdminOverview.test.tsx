@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { setUnauthorizedHandler, tokenStorage } from "../../api";
-import { AdminProvider } from "../../context/AdminContext";
+import { setUnauthorizedHandler, tokenStorage } from "../../../../api";
+import { MockSessionProvider as AdminProvider } from "../../context/MockSessionProvider";
 import AdminOverview from "./AdminOverview";
 import { notificationKind, prettify, toPropertyStatus } from "./mappers";
 
@@ -96,7 +97,6 @@ test("403 shows the server's { Error } message, Try again refetches and recovers
   expect(await screen.findByText("Total User")).toBeTruthy();
   expect(fetchMock).toHaveBeenCalledTimes(2);
 });
-
 
 test("401 triggers the global unauthorized handler", async () => {
   const handler = vi.fn();

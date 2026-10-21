@@ -7,6 +7,7 @@ export interface AdminProfile {
   name: string;
   email: string;
   phone: string;
+  location?: string;
   avatar?: string; // image URL
 }
 

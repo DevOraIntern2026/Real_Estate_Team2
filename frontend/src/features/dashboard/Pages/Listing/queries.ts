@@ -13,7 +13,7 @@ export const filtersKey = [...adminListingsRoot, "filters"] as const;
 
 const toRows = (page: Paginated<ListingSummaryDto>): Paginated<ListingRowVm> => ({
   ...page,
-  items: page.items.map(toListingRowVm),
+  items: page.items.map((item) => toListingRowVm(item)), // NOT .map(toListingRowVm): map would pass the index as 2nd argument
 });
 
 export function useAdminListings(params: ListingsParams) {

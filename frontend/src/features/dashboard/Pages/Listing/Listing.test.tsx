@@ -3,8 +3,8 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, expect, test, vi } from "vitest";
-import { setUnauthorizedHandler, tokenStorage } from "../../api";
-import { AdminProvider } from "../../context/AdminContext";
+import { setUnauthorizedHandler, tokenStorage } from "../../../../api";
+import { MockSessionProvider as AdminProvider } from "../../context/MockSessionProvider";
 import Listing from "./Listing";
 
 const item = (n: number, over: Record<string, unknown> = {}) => ({

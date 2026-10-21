@@ -10,14 +10,10 @@ type ChangePasswordDialogProps = {
   open: boolean;
   onCancel: () => void;
   /** reject / throw an Error to show its message inside the dialog */
-  onSubmit: (current: string, next: string) => Promise<void>;
+  onSubmit: (current: string, next: string, confirm: string) => Promise<void>;
 };
 
-export default function ChangePasswordDialog({
-  open,
-  onCancel,
-  onSubmit,
-}: ChangePasswordDialogProps) {
+export default function ChangePasswordDialog({ open, onCancel, onSubmit }: ChangePasswordDialogProps) {
   return (
     <Modal open={open} title={TEXT.changePassword} onClose={onCancel}>
       <PasswordForm onCancel={onCancel} onSubmit={onSubmit} />
@@ -25,10 +21,7 @@ export default function ChangePasswordDialog({
   );
 }
 
-function PasswordForm({
-  onCancel,
-  onSubmit,
-}: Omit<ChangePasswordDialogProps, "open">) {
+function PasswordForm({ onCancel, onSubmit }: Omit<ChangePasswordDialogProps, "open">) {
   const [current, setCurrent] = useState("");
   const [next, setNext] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -46,7 +39,7 @@ function PasswordForm({
     setLoading(true);
     setError(null);
     try {
-      await onSubmit(current, next);
+      await onSubmit(current, next, confirm);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
@@ -56,25 +49,13 @@ function PasswordForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-5 space-y-4">
-      <PasswordField
-        label="Current Password"
-        value={current}
-        onChange={setCurrent}
-        autoComplete="current-password"
-      />
-      <PasswordField
-        label="New Password"
-        value={next}
-        onChange={setNext}
+      <PasswordField label="Current Password" value={current} onChange={setCurrent}
+        autoComplete="current-password" />
+      <PasswordField label="New Password" value={next} onChange={setNext}
+        autoComplete="new-password" />
+      <PasswordField label="Confirm New Password" value={confirm} onChange={setConfirm}
         autoComplete="new-password"
-      />
-      <PasswordField
-        label="Confirm New Password"
-        value={confirm}
-        onChange={setConfirm}
-        autoComplete="new-password"
-        error={confirm !== "" && !matches ? "Passwords do not match" : undefined}
-      />
+        error={confirm !== "" && !matches ? "Passwords do not match" : undefined} />
 
       <PasswordChecklist checks={checks} />
 
@@ -84,13 +65,8 @@ function PasswordForm({
         </p>
       )}
 
-      <DialogActions
-        submit
-        confirmLabel="Update Password"
-        confirmDisabled={!canSubmit}
-        disabled={loading}
-        onCancel={onCancel}
-      />
+      <DialogActions submit confirmLabel="Update Password"
+        confirmDisabled={!canSubmit} disabled={loading} onCancel={onCancel} />
     </form>
   );
 }
