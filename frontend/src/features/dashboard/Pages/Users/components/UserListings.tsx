@@ -32,7 +32,7 @@ export default function UserListings({
 }: UserListingsProps) {
   return (
     <section className="mt-8">
-      <h2 className="mb-2 text-sm font-medium text-[#241A12]">Listings</h2>
+      <h2 className="mb-2 text-sm font-medium text-ink">Listings</h2>
 
       {isLoading ? (
         <LoadingState rows={3} />
@@ -47,7 +47,7 @@ export default function UserListings({
               getRowKey={(r) => r.id}
               showHeader={false}
               onRowClick={onSelect}
-              empty={<p className="py-8 text-center text-sm text-[#5A4F49]">{TEXT.noUserListings}</p>}
+              empty={<p className="py-8 text-center text-sm text-muted">{TEXT.noUserListings}</p>}
             />
           </div>
           <Pagination page={page} totalPages={totalPages} onChange={onPageChange} />

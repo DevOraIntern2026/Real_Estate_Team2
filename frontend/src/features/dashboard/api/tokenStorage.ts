@@ -1,3 +1,8 @@
+import {
+  clearAuthTokens,
+  getAccessToken,
+} from "@/services/api/tokenStorage";
+
 const KEY = "ACCESS_TOKEN";
 
 // localStorage is simple, but any XSS bug can read it. If the backend can set an
@@ -5,7 +10,9 @@ const KEY = "ACCESS_TOKEN";
 export const tokenStorage = {
   get(): string | null {
     try {
-      return sessionStorage.getItem(KEY);
+      // Login can persist the token in either storage depending on "Remember me".
+      // Use the same source as the rest of the app instead of assuming sessionStorage.
+      return getAccessToken();
     } catch {
       return null; // storage blocked (private mode, etc.)
     }
@@ -19,7 +26,7 @@ export const tokenStorage = {
   },
   clear(): void {
     try {
-      sessionStorage.removeItem(KEY);
+      clearAuthTokens();
     } catch {
       /* ignore */
     }

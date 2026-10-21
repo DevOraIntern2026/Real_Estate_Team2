@@ -163,7 +163,7 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
                   <button type="button" onClick={() => setIsEditProfileOpen(true)} className="text-label-14 text-text-grey-dark mt-2 flex items-center gap-2">
                     <Pencil className="text-main-primary h-4 w-4" /> Edit Profile
                   </button>
-                  <h2 className="mt-4 text-[18px] font-medium text-[#0a2540]">
+                  <h2 className="mt-4 text-search-filter-heading font-medium text-[#0a2540]">
                     {user.firstName} {user.lastName}
                   </h2>
                   <p className="text-label-14 text-[#43474d]">
@@ -214,7 +214,7 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
           <main className="flex flex-col gap-6">
             <div className="rounded-outer bg-main-white flex items-start justify-between p-6 shadow-1">
               <div>
-                <h1 className="text-[42px] leading-[1.2] font-bold text-[#100e2c]">{header.title}</h1>
+                <h1 className="text-[42px] leading-customer-agent-intro font-bold text-landing-text-heading">{header.title}</h1>
                 <p className="text-label-14 text-text-grey-shade">
                   {header.subtitle}
                 </p>
@@ -233,7 +233,7 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
       {isEditProfileOpen && <ProfileSettingPage isModal onClose={() => setIsEditProfileOpen(false)} />}
       {isDeleteConfirmOpen && (
         <div
-          className="fixed inset-0 z-[110] flex items-center justify-center bg-[#252c32]/50 p-4 backdrop-blur-[2px]"
+          className="fixed inset-0 z-110 flex items-center justify-center bg-[#252c32]/50 p-4 backdrop-blur-[2px]"
           role="presentation"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget && !avatarBusy) setIsDeleteConfirmOpen(false)
@@ -243,7 +243,7 @@ export function ProfileLayout({ children }: ProfileLayoutProps) {
             aria-labelledby="delete-photo-title"
             aria-describedby="delete-photo-description"
             aria-modal="true"
-            className="relative w-full max-w-[440px] rounded-[24px] bg-white p-7 shadow-2"
+            className="relative w-full max-w-110 rounded-[24px] bg-white p-7 shadow-2"
             role="alertdialog"
           >
             <button
