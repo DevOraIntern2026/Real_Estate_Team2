@@ -116,6 +116,7 @@ export const saveBufferLocally = ({
     public_id: `local:${relativeId}`,
     secure_url: fullUrl,
     url: fullUrl,
+  } as unknown as UploadApiResponse;
 };
 
 // Streams a buffer straight to Cloudinary, with optional fallback only if ALLOW_LOCAL_UPLOADS=true
