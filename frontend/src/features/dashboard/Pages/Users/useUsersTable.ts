@@ -1,57 +1,50 @@
 import { useMemo, useState } from "react";
-import { usePagination } from "../../../../hooks/usePagination";
-import { PAGE_SIZE } from "./constants";
-import type { RoleFilter, StatusFilter, User } from "./types";
+import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import { USERS_PAGE_SIZE } from "./constants";
+import { useAdminUsers } from "./queries";
+import type { RoleFilter, StatusFilter, UsersParams } from "./types";
 
-/** All the filtering + pagination logic for the users table. */
-export function useUsersTable(users: User[]) {
+/** UI state (search, role, status, page) -> query params -> server data. */
+export function useUsersTable() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<RoleFilter>("all");
   const [status, setStatus] = useState<StatusFilter>("all");
+  const [page, setPage] = useState(1);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return users.filter((u) => {
-      if (role !== "all" && u.role !== role) return false;
-      if (status !== "all" && u.status !== status) return false;
-      if (!q) return true;
-      return [u.name, u.email, u.phone].some((f) => f.toLowerCase().includes(q));
-    });
-  }, [users, search, role, status]);
+  const debouncedSearch = useDebouncedValue(search.trim(), 400);
 
-  const { page, totalPages, pageItems, setPage, reset } = usePagination(
-    filtered,
-    PAGE_SIZE
+  const params: UsersParams = useMemo(
+    () => ({
+      role: role === "all" ? undefined : role.toLowerCase(), // the API wants "owner", not "Owner"
+      status: status === "all" ? undefined : status.toLowerCase(),
+      q: debouncedSearch || undefined,
+      page,
+      limit: USERS_PAGE_SIZE,
+    }),
+    [role, status, debouncedSearch, page]
   );
 
-  // any filter change sends the user back to page 1
-  const changeSearch = (v: string) => {
-    setSearch(v);
-    reset();
-  };
-  const changeRole = (v: RoleFilter) => {
-    setRole(v);
-    reset();
-  };
-  const changeStatus = (v: StatusFilter) => {
-    setStatus(v);
-    reset();
-  };
+  const query = useAdminUsers(params);
 
-  const isFiltering = search.trim() !== "" || role !== "all" || status !== "all";
+  // any filter change sends the user back to page 1
+  const changeSearch = (v: string) => { setSearch(v); setPage(1); };
+  const changeRole = (v: RoleFilter) => { setRole(v); setPage(1); };
+  const changeStatus = (v: StatusFilter) => { setStatus(v); setPage(1); };
 
   return {
-    search,
-    role,
-    status,
-    changeSearch,
-    changeRole,
-    changeStatus,
-    rows: pageItems,
-    total: filtered.length,
-    isFiltering,
+    search, role, status,
+    changeSearch, changeRole, changeStatus,
+    rows: query.data?.items ?? [],
+    total: query.data?.total ?? 0,
+    isFiltering: search.trim() !== "" || role !== "all" || status !== "all",
     page,
-    totalPages,
+    totalPages: query.data?.totalPages ?? 1,
     setPage,
+    isLoading: query.isPending,
+    isRefreshing: query.isPlaceholderData,
+    isError: query.isError,
+    error: query.error,
+    refetch: query.refetch,
+    isRetrying: query.isRefetching,
   };
 }

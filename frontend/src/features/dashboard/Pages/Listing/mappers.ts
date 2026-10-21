@@ -1,4 +1,4 @@
-import type { Option } from "../../components/shared/FilterDropdown";
+import type { Option } from "../../components/common/FilterDropdown";
 import { formatPriceLabel, prettify, toPropertyStatus } from "../../utils/labels";
 import type { ListingCounts, ListingRowVm, ListingStatusFilter, ListingSummaryDto } from "./types";
 
@@ -6,12 +6,13 @@ type Rec = Record<string, unknown>;
 const isRecord = (v: unknown): v is Rec => typeof v === "object" && v !== null && !Array.isArray(v);
 
 // ---------- list rows ----------
-export function toListingRowVm(dto: ListingSummaryDto): ListingRowVm {
+/** `fallbackOwnerName` is used when the API doesn't send an owner (e.g. inside a user's own listings). */
+export function toListingRowVm(dto: ListingSummaryDto, fallbackOwnerName = ""): ListingRowVm {
   return {
     id: dto.id,
     code: dto.code,
     title: dto.title,
-    ownerName: dto.owner?.name ?? "",
+    ownerName: dto.owner?.name ?? fallbackOwnerName,
     type: prettify(dto.propertyType),
     purpose: prettify(dto.transaction),
     location: [dto.area, dto.city].filter(Boolean).join(", "),

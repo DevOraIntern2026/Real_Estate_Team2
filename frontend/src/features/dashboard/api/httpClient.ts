@@ -13,6 +13,11 @@ export type RequestOptions = {
   signal?: AbortSignal;
   /** false for login/register: no token is sent, and a 401 is NOT "session expired" */
   auth?: boolean;
+  /**
+   * false = a 401 from this request is shown to the user as a normal error instead of logging
+   * them out. Use it where the server may answer 401 for a WRONG PASSWORD (change password).
+   */
+  handleUnauthorized?: boolean;
 };
 
 let onUnauthorized: (() => void) | null = null;
@@ -66,7 +71,7 @@ function messageFrom(body: unknown, fallback: string): string {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { method = "GET", query, body, signal, auth = true } = options;
+  const { method = "GET", query, body, signal, auth = true, handleUnauthorized = true } = options;
 
   const headers: Record<string, string> = { Accept: "application/json" };
   let payload: BodyInit | undefined;
@@ -94,7 +99,7 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const data = await readBody(res);
 
   if (!res.ok) {
-    if (res.status === 401 && auth) onUnauthorized?.();
+    if (res.status === 401 && auth && handleUnauthorized) onUnauthorized?.();
     throw new ApiError(res.status, messageFrom(data, res.statusText || "Request failed"), data);
   }
 

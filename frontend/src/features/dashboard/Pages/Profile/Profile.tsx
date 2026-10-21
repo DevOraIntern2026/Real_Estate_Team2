@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../../components/shared/Button";
+import { getErrorMessage } from "../../api";
 import ConfirmDialog from "../../components/shared/ConfirmDialog";
 import PageHeader from "../../components/shared/PageHeader";
 import SuccessDialog from "../../components/shared/SuccessDialog";
 import { LOGIN_PATH } from "../../constants/paths";
 import { useAdmin } from "../../context/AdminContext";
+import type { EditableAdminFields } from "../../../../types/admin";
 import ChangePasswordDialog from "./components/dialogs/ChangePasswordDialog";
 import ChangePhotoDialog from "./components/dialogs/ChangePhotoDialog";
 import EditProfileDialog from "./components/dialogs/EditProfileDialog";
 import ProfileDetails from "./components/ProfileDetails";
 import SecuritySection from "./components/SecuritySection";
 import { TEXT, type ProfileDialog } from "./constants";
+import Button from "../../components/shared/Button";
 
 type ProfileProps = {
   /** show the read-only Role field (owner) */
@@ -23,8 +25,8 @@ type ProfileProps = {
 /** One page for both dashboards. Admin: <Profile />   Owner: <Profile showRole allowDelete /> */
 export default function Profile({ showRole = false, allowDelete = false }: ProfileProps) {
   const navigate = useNavigate();
-  const { admin, updateAdmin, setAvatarFile, changePassword, deleteAccount, logout } =
-    useAdmin();
+  const { admin, updateProfile, uploadAvatar, changePassword, deleteAccount, logout } = useAdmin();
+  const canDelete = allowDelete && Boolean(deleteAccount);
 
   // only one dialog is open at a time
   const [dialog, setDialog] = useState<ProfileDialog | null>(null);
@@ -35,23 +37,29 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
     setDialog(null);
     setDeleteError(null);
   };
-  // don't let the user dismiss the delete dialog while the request is running
   const closeDelete = () => {
     if (!deleting) close();
   };
 
-  const handleSave = (values: Parameters<typeof updateAdmin>[0]) => {
-    updateAdmin(values);
+  // each handler awaits the server: a rejection stays inside the dialog (it shows the message)
+  const handleSave = async (values: EditableAdminFields) => {
+    // PATCH: send only what really changed
+    const changes = Object.fromEntries(
+      (Object.keys(values) as (keyof EditableAdminFields)[])
+        .filter((key) => values[key] !== admin[key])
+        .map((key) => [key, values[key]])
+    ) as Partial<EditableAdminFields>;
+    if (Object.keys(changes).length > 0) await updateProfile(changes);
     close();
   };
 
-  const handlePhoto = (file: File) => {
-    setAvatarFile(file);
+  const handlePhoto = async (file: File) => {
+    await uploadAvatar(file);
     close();
   };
 
-  const handlePassword = async (current: string, next: string) => {
-    await changePassword(current, next); // throws -> message shows inside the dialog
+  const handlePassword = async (current: string, next: string, confirm: string) => {
+    await changePassword(current, next, confirm);
     setDialog("success");
   };
 
@@ -62,6 +70,7 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
   };
 
   const handleDelete = async () => {
+    if (!deleteAccount) return;
     setDeleting(true);
     setDeleteError(null);
     try {
@@ -70,7 +79,7 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
       setDialog(null);
       navigate(LOGIN_PATH, { replace: true });
     } catch (err) {
-      setDeleteError(err instanceof Error ? err.message : "Something went wrong.");
+      setDeleteError(getErrorMessage(err));
     } finally {
       setDeleting(false);
     }
@@ -82,41 +91,24 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
 
       <div className="my-6 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-sm font-medium">{TEXT.settings}</h2>
-        <Button onClick={() => setDialog("edit")} className="w-full sm:w-64">
+        <Button
+         onClick={() => setDialog("edit")} className="w-full sm:w-64">
           {TEXT.editProfile}
         </Button>
       </div>
 
       <div className="grid gap-10 md:grid-cols-2">
-        <ProfileDetails
-          admin={admin}
-          showRole={showRole}
-          onChangePhoto={() => setDialog("photo")}
-        />
+        <ProfileDetails admin={admin} showRole={showRole} onChangePhoto={() => setDialog("photo")} />
         <SecuritySection
           onChangePassword={() => setDialog("password")}
           onLogout={() => setDialog("logout")}
-          onDeleteAccount={allowDelete ? () => setDialog("delete") : undefined}
+          onDeleteAccount={canDelete ? () => setDialog("delete") : undefined}
         />
       </div>
 
-      <EditProfileDialog
-        open={dialog === "edit"}
-        admin={admin}
-        onCancel={close}
-        onSave={handleSave}
-      />
-      <ChangePhotoDialog
-        open={dialog === "photo"}
-        admin={admin}
-        onCancel={close}
-        onPick={handlePhoto}
-      />
-      <ChangePasswordDialog
-        open={dialog === "password"}
-        onCancel={close}
-        onSubmit={handlePassword}
-      />
+      <EditProfileDialog open={dialog === "edit"} admin={admin} onCancel={close} onSave={handleSave} />
+      <ChangePhotoDialog open={dialog === "photo"} admin={admin} onCancel={close} onPick={handlePhoto} />
+      <ChangePasswordDialog open={dialog === "password"} onCancel={close} onSubmit={handlePassword} />
       <ConfirmDialog
         open={dialog === "logout"}
         title={TEXT.logoutTitle}
@@ -125,7 +117,7 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
         onConfirm={handleLogout}
         onCancel={close}
       />
-      {allowDelete && (
+      {canDelete && (
         <ConfirmDialog
           open={dialog === "delete"}
           title={TEXT.deleteTitle}
@@ -145,11 +137,7 @@ export default function Profile({ showRole = false, allowDelete = false }: Profi
           onCancel={closeDelete}
         />
       )}
-      <SuccessDialog
-        open={dialog === "success"}
-        message={TEXT.passwordSuccess}
-        onClose={close}
-      />
+      <SuccessDialog open={dialog === "success"} message={TEXT.passwordSuccess} onClose={close} />
     </section>
   );
 }

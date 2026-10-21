@@ -29,7 +29,7 @@ export interface ListingSummaryDto {
   code: string;
   title: string;
   thumbnail?: string | null;
-  owner: { id: string; name: string; role?: string };
+  owner?: { id: string; name: string; role?: string }; // missing inside a user's own listings
   propertyType: string;
   transaction: string;
   area: string;

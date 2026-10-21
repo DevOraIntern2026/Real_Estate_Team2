@@ -1,8 +1,8 @@
-import type { Option } from "../../components/shared/FilterDropdown";
-import type { BadgeTone } from "../../components/shared/StatusBadge";
+import type { Option } from "../../components/common/FilterDropdown";
+import type { BadgeTone } from "../../components/common/StatusBadge";
 import type { RoleFilter, StatusFilter, UserStatus } from "./types";
 
-export const PAGE_SIZE = 4;
+export const USERS_PAGE_SIZE = 10;
 
 export const ROLE_OPTIONS: Option<RoleFilter>[] = [
   { label: "All Roles", value: "all" },
@@ -55,12 +55,10 @@ export const STATUS_ACTIONS: Record<UserStatus, StatusAction> = {
 export const TEXT = {
   title: "Users",
   subtitle: "Search and manage DevOra platform users.",
-  searchPlaceholder: "Search By Name, E-mail, Or Phone",
-  listingSearchPlaceholder: "Search By Property, Owner, Location, Or ID",
+  searchPlaceholder: "Search By Name Or Email",
   emptyList: "The users list is empty, there are no users to show yet.",
   noMatch: "No Things Matched To Your Search",
   noMatchHint: "Try A New Keyword",
   noUserListings: "This user has no listings yet.",
-  noListingMatch: "No listings match your search.",
   notFound: "User not found.",
 };
