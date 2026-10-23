@@ -35,8 +35,8 @@ let cachedAuthSession: AuthSession | null = null
 function getActiveStorage(): Storage | null {
   if (typeof window === 'undefined') return null
 
-  return localStorage.getItem(ACCESS_TOKEN_KEY)
-    ? localStorage
+  return sessionStorage.getItem(ACCESS_TOKEN_KEY)
+    ? sessionStorage
     : sessionStorage.getItem(ACCESS_TOKEN_KEY)
       ? sessionStorage
       : null
@@ -111,14 +111,14 @@ export function decodeAccessToken(token: string, allowExpired = false): AuthSess
 
 export function getAccessToken() {
   return (
-    localStorage.getItem(ACCESS_TOKEN_KEY) ??
+    sessionStorage.getItem(ACCESS_TOKEN_KEY) ??
     sessionStorage.getItem(ACCESS_TOKEN_KEY)
   )
 }
 
 export function getRefreshToken() {
   return (
-    localStorage.getItem(REFRESH_TOKEN_KEY) ??
+    sessionStorage.getItem(REFRESH_TOKEN_KEY) ??
     sessionStorage.getItem(REFRESH_TOKEN_KEY)
   )
 }
@@ -137,8 +137,8 @@ export function updateAuthTokens(tokens: AuthTokens) {
 
 export function saveAuthTokens(tokens: AuthTokens, rememberMe: boolean) {
   const authSession = decodeAccessToken(tokens.accessToken)
-  const storage = rememberMe ? localStorage : sessionStorage
-  const otherStorage = rememberMe ? sessionStorage : localStorage
+  const storage = rememberMe ? sessionStorage : sessionStorage
+  const otherStorage = rememberMe ? sessionStorage : sessionStorage
 
   otherStorage.removeItem(ACCESS_TOKEN_KEY)
   otherStorage.removeItem(REFRESH_TOKEN_KEY)
@@ -183,9 +183,9 @@ export function getAuthSession(): AuthSession | null {
 }
 
 export function clearAuthTokens() {
-  localStorage.removeItem(ACCESS_TOKEN_KEY)
-  localStorage.removeItem(REFRESH_TOKEN_KEY)
-  localStorage.removeItem(AUTH_SESSION_KEY)
+  sessionStorage.removeItem(ACCESS_TOKEN_KEY)
+  sessionStorage.removeItem(REFRESH_TOKEN_KEY)
+  sessionStorage.removeItem(AUTH_SESSION_KEY)
   sessionStorage.removeItem(ACCESS_TOKEN_KEY)
   sessionStorage.removeItem(REFRESH_TOKEN_KEY)
   sessionStorage.removeItem(AUTH_SESSION_KEY)

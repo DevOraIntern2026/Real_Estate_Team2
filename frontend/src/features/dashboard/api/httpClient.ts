@@ -1,7 +1,10 @@
 import { ApiError } from "./ApiError";
+import { describeToken } from "./tokenDebug";
 import { tokenStorage } from "./tokenStorage";
 
+
 const BASE_URL = (import.meta.env.VITE_API_BASE_URL ?? "").replace(/\/$/, "");
+
 
 export type QueryParams = Record<string, string | number | boolean | null | undefined>;
 
@@ -99,6 +102,14 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const data = await readBody(res);
 
   if (!res.ok) {
+    if (res.status === 401 && import.meta.env?.DEV) {
+      // development help: tells you if the header was sent and what is wrong with the token
+      console.warn(`[api] 401 from ${method} ${path}`, {
+        serverMessage: messageFrom(data, "(no message)"),
+        authorizationHeaderSent: Boolean(headers.Authorization),
+        token: describeToken(auth ? tokenStorage.get() : null),
+      });
+    }
     if (res.status === 401 && auth && handleUnauthorized) onUnauthorized?.();
     throw new ApiError(res.status, messageFrom(data, res.statusText || "Request failed"), data);
   }

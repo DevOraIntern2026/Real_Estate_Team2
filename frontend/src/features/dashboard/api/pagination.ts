@@ -30,6 +30,7 @@ function firstNumber(sources: Rec[], keys: string[]): number | undefined {
  * numbers either on the object itself or inside { meta | pagination }.
  * ONE place to change once you see the real response.
  */
+
 export function normalizePaginated<T>(
   raw: unknown,
   requested: { page: number; limit: number }
@@ -40,29 +41,79 @@ export function normalizePaginated<T>(
   if (Array.isArray(raw)) {
     items = raw as T[];
   } else if (isRecord(raw)) {
-    for (const key of ITEM_KEYS) {
-      if (Array.isArray(raw[key])) {
-        items = raw[key] as T[];
-        break;
+    // Support API responses wrapped in { message, data: {...} }
+    const nested = isRecord(raw.data) ? raw.data : undefined;
+
+    // Prefer the nested paginated response, then fall back to the root.
+    const candidates = nested ? [nested, raw] : [raw];
+
+    for (const candidate of candidates) {
+      for (const key of ITEM_KEYS) {
+        if (Array.isArray(candidate[key])) {
+          items = candidate[key] as T[];
+          break;
+        }
       }
+
+      if (items !== undefined) break;
     }
-    for (const key of META_KEYS) if (isRecord(raw[key])) metaSources.push(raw[key] as Rec);
-    metaSources.push(raw);
+
+    // Read pagination metadata from the nested response first.
+    for (const candidate of candidates) {
+      for (const key of META_KEYS) {
+        if (isRecord(candidate[key])) {
+          metaSources.push(candidate[key] as Rec);
+        }
+      }
+
+      metaSources.push(candidate);
+    }
   }
 
-  if (!items) {
-    if (import.meta.env?.DEV) console.warn("[api] Unrecognized list response:", raw);
-    throw new ApiError(500, "Unexpected response from the server.", raw);
+  if (items === undefined) {
+    if (import.meta.env?.DEV) {
+      console.warn("[api] Unrecognized list response:", raw);
+    }
+
+    throw new ApiError(
+      500,
+      "Unexpected response from the server.",
+      raw
+    );
   }
 
-  const limit = firstNumber(metaSources, ["limit", "pageSize", "perPage", "per_page"]) ?? requested.limit;
-  const page = firstNumber(metaSources, ["page", "currentPage", "current_page"]) ?? requested.page;
+  const limit =
+    firstNumber(metaSources, [
+      "limit",
+      "pageSize",
+      "perPage",
+      "per_page",
+    ]) ?? requested.limit;
+
+  const page =
+    firstNumber(metaSources, [
+      "page",
+      "currentPage",
+      "current_page",
+    ]) ?? requested.page;
+
   const total =
-    firstNumber(metaSources, ["total", "totalItems", "totalCount", "count", "total_count"]) ??
-    (page - 1) * limit + items.length;
+    firstNumber(metaSources, [
+      "total",
+      "totalItems",
+      "totalCount",
+      "count",
+      "total_count",
+    ]) ?? (page - 1) * limit + items.length;
+
   const totalPages =
-    firstNumber(metaSources, ["totalPages", "pages", "lastPage", "total_pages", "last_page"]) ??
-    Math.max(1, Math.ceil(total / limit));
+    firstNumber(metaSources, [
+      "totalPages",
+      "pages",
+      "lastPage",
+      "total_pages",
+      "last_page",
+    ]) ?? Math.max(1, Math.ceil(total / limit));
 
   return { items, total, page, limit, totalPages };
 }
