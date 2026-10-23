@@ -1,0 +1,199 @@
+import { useEffect, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { AuthBrand } from '@/features/auth/components/shared/AuthBrand'
+import { useLogout } from '@/features/auth/hooks/useLogout'
+import { HeartIcon } from '@/features/landing/components/LandingIcons'
+import { getAuthSession } from '@/services/api/tokenStorage'
+import { useProfileStore } from '@/features/customer/hooks/useprofile'
+import { customerNotificationsService, CUSTOMER_NOTIFICATIONS_UPDATED } from '@/features/customer/notifications/notifications.service'
+import {
+  ChevronDownIcon,
+  MenuIcon,
+  NotificationIcon,
+} from '@/features/customer/components/CustomerIcons'
+
+const navigation = [
+  { label: 'Home', href: '/customer-home' },
+  { label: 'Search', href: '/customer-search' },
+  { label: 'Sell', href: '/customer-home#sell' },
+  { label: 'About', href: '/customer-home#about' },
+]
+
+export function CustomerHeader({ activePage = 'Home' }: { activePage?: string }) {
+  const navigate = useNavigate()
+  const { pathname } = useLocation()
+  const authSession = getAuthSession()
+  const { user, profileLoading, fetchUser } = useProfileStore()
+  const displayName = user?.name || authSession?.name || 'Customer'
+  const initials = displayName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join('')
+  const logoutMutation = useLogout()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!user && !profileLoading) void fetchUser().catch(() => undefined)
+  }, [user, profileLoading, fetchUser])
+
+  useEffect(() => {
+    let active = true
+    const refreshUnreadCount = () => {
+      void customerNotificationsService.getUnreadCount()
+        .then((count) => { if (active) setUnreadCount(count) })
+        .catch(() => { if (active) setUnreadCount(0) })
+    }
+    refreshUnreadCount()
+    window.addEventListener(CUSTOMER_NOTIFICATIONS_UPDATED, refreshUnreadCount)
+    return () => {
+      active = false
+      window.removeEventListener(CUSTOMER_NOTIFICATIONS_UPDATED, refreshUnreadCount)
+    }
+  }, [])
+
+  const closeMenus = () => {
+    setIsMenuOpen(false)
+    setIsProfileOpen(false)
+  }
+
+  const handleLogout = () => {
+    closeMenus()
+    logoutMutation.mutate({ flag: 1 }, {
+      onSettled: () => navigate('/login', { replace: true }),
+    })
+  }
+
+  const handleNavigationClick = (event: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    closeMenus()
+    const [targetPath, targetHash] = href.split('#')
+    if (!targetHash) return
+
+    event.preventDefault()
+    const scrollToTarget = (attempt = 0) => {
+      const target = document.getElementById(targetHash)
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      } else if (attempt < 20) {
+        window.setTimeout(() => scrollToTarget(attempt + 1), 50)
+      }
+    }
+
+    if (pathname !== targetPath) navigate(href)
+    else navigate(href, { replace: true })
+    window.setTimeout(() => scrollToTarget(), 0)
+  }
+
+  const navigationLinks = navigation.map((item) => item.href.startsWith('/') ? (
+    <Link
+      className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`}
+      key={item.label}
+      onClick={(event) => handleNavigationClick(event, item.href)}
+      to={item.href}
+    >{item.label}</Link>
+  ) : (
+    <a
+      className={`whitespace-nowrap text-landing-nav font-medium transition-colors hover:text-brand-700 ${item.label === activePage ? 'text-brand-700' : 'text-text-grey-dark'}`}
+      href={item.href}
+      key={item.label}
+      onClick={closeMenus}
+    >
+      {item.label}
+    </a>
+  ))
+
+  return (
+    <header className="relative z-20 mx-auto flex min-h-landing-customer-header w-full max-w-landing items-center justify-between gap-6 rounded-b-landing-header bg-bg-white px-landing-header-x shadow-1 max-landing-tablet:gap-4 max-landing-tablet:px-6 max-landing-mobile:gap-2 max-landing-mobile:px-4">
+      <AuthBrand href="/customer-home" variant="landing" />
+
+      <nav aria-label="Main navigation" className="hidden items-center gap-landing-nav lg:flex">
+        {navigationLinks}
+      </nav>
+
+      <div className="flex shrink-0 items-center gap-8 text-brand-700 max-landing-tablet:gap-3 max-landing-mobile:gap-2">
+        <Link aria-label="View favorites" className="flex size-landing-action-icon items-center justify-center" onClick={closeMenus} to="/favorites">
+          <HeartIcon className="size-landing-action-icon" />
+        </Link>
+
+        <Link
+          aria-label={unreadCount ? `Notifications, ${unreadCount} unread` : 'Notifications'}
+          aria-current={pathname === '/notifications' ? 'page' : undefined}
+          className="relative flex size-landing-action-icon items-center justify-center"
+          onClick={closeMenus}
+          to="/notifications"
+        >
+            <NotificationIcon className="size-landing-action-icon" />
+            {unreadCount > 0 && <span aria-hidden="true" className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand-yellow px-1 text-caption-10 font-bold text-brand-900">{unreadCount > 99 ? '99+' : unreadCount}</span>}
+        </Link>
+
+        <div className="relative">
+          <button
+            aria-expanded={isProfileOpen}
+            aria-label={`Account menu for ${displayName}`}
+            className="flex h-landing-customer-profile items-center gap-2 rounded-button bg-brand-900 py-2 pl-2 pr-4 text-white max-landing-mobile:h-landing-avatar-icon max-landing-mobile:pr-2"
+            onClick={() => {
+              setIsProfileOpen((open) => !open)
+            }}
+            type="button"
+          >
+            {user?.avatar ? (
+              <img aria-hidden="true" alt="" className="size-landing-customer-avatar shrink-0 rounded-full object-cover" src={user.avatar} />
+            ) : (
+              <span aria-hidden="true" className="flex size-landing-customer-avatar shrink-0 items-center justify-center rounded-full bg-brand-50 text-caption-12 font-bold text-brand-700">
+                {initials}
+              </span>
+            )}
+            <span className="max-w-landing-profile-name truncate text-landing-profile-name font-medium text-white max-landing-mobile:hidden">
+              {displayName}
+            </span>
+            <ChevronDownIcon className="size-landing-small-icon text-brand-200 max-landing-mobile:hidden" />
+          </button>
+          {isProfileOpen && (
+            <div className="absolute right-0 top-full z-30 mt-3 w-landing-header-menu rounded-inner border border-border-grey-shade bg-white p-3 shadow-2">
+              <div className="border-b border-border-grey-light px-2 pb-3">
+                <p className="text-body-sm font-medium text-text-grey-dark">
+                  {displayName}
+                </p>
+                <p className="mt-1 text-caption-12 text-text-grey-shade">Your Homli account</p>
+              </div>
+              <Link className="mt-2 block w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50" onClick={closeMenus} to="/profile/settings">
+                Profile settings
+              </Link>
+              <button className="mt-2 w-full rounded-button px-2 py-2 text-left text-label-14 text-brand-700 hover:bg-brand-50 disabled:opacity-50" disabled={logoutMutation.isPending} onClick={handleLogout} type="button">
+                {logoutMutation.isPending ? 'Logging out…' : 'Log out'}
+              </button>
+            </div>
+          )}
+        </div>
+
+        <button
+          aria-expanded={isMenuOpen}
+          aria-label="Open navigation menu"
+          className="flex size-landing-action-icon items-center justify-center lg:hidden"
+          onClick={() => setIsMenuOpen((open) => !open)}
+          type="button"
+        >
+          <MenuIcon className="size-landing-action-icon" />
+        </button>
+      </div>
+
+      {isMenuOpen && (
+        <div className="fixed inset-0 z-50 bg-overlay/40 lg:hidden" onClick={closeMenus}>
+          <nav aria-label="Mobile navigation" aria-modal="true" className="absolute inset-y-0 left-0 flex w-[min(20rem,85vw)] flex-col gap-6 rounded-r-2xl bg-white p-6 shadow-2" onClick={(event) => event.stopPropagation()} role="dialog">
+            <div className="flex items-center justify-between">
+              <AuthBrand href="/customer-home" variant="landing" />
+              <button aria-label="Close navigation menu" className="flex size-10 items-center justify-center rounded-full text-xl text-text-grey-dark hover:bg-brand-50" onClick={closeMenus} type="button">×</button>
+            </div>
+            <div className="flex flex-col gap-5 border-t border-border-grey-light pt-6">
+              {navigationLinks}
+              <Link className="text-landing-nav font-medium text-brand-700" onClick={closeMenus} to="/customer-home">My home</Link>
+            </div>
+          </nav>
+        </div>
+      )}
+    </header>
+  )
+}

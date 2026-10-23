@@ -1,10 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@900&family=Roboto:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Poppins:wght@500;600;900&family=Roboto:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @theme {
   /* TYPOGRAPHY */
   --font-sans: 'Roboto', ui-sans-serif, system-ui, sans-serif;
   --font-poppins: 'Poppins', sans-serif;
+  --font-inter: 'Inter', sans-serif;
+  --spacing-chatbot-panel-width: 28rem;
+  --spacing-chatbot-panel-height: 42rem;
+  --spacing-chatbot-intro: 20rem;
+
+  --text-auth-heading: 40px;
+  --text-auth-heading--line-height: 48px;
+  --text-auth-brand: 48px;
+  --text-auth-brand--line-height: 54px;
+  --text-auth-brand-caption: 12px;
+  --text-auth-brand-caption--line-height: 16px;
+  --text-auth-input: 14px;
+  --text-auth-input--line-height: 18px;
+
+  /* Customer notifications */
+  --color-notification-border: #d8d8d8;
+  --spacing-notification-card: 92px;
+  --spacing-notifications-top: 24px;
+  --spacing-notifications-state: 420px;
+  --radius-notification-card: 16px;
+  --container-notifications: 1440px;
+
+  /* Customer messages page */
+  --spacing-message-avatar: 24px;
+  --spacing-message-property-image: 48px;
+  --spacing-message-composer: 48px;
+  --spacing-message-panel: 458px;
+  --spacing-message-page-top: 24px;
+  --spacing-message-page-bottom: 64px;
+  --container-message-bubble: 42rem;
+  --container-message-file: 13rem;
+
+  /* Auth screen layout values from the Homli Figma frame */
+  --container-auth-layout: 1232px;
+  --spacing-auth-brand: 240px;
+  --spacing-auth-brand-height: 97px;
+  --spacing-auth-brand-mark-width: 67px;
+  --spacing-auth-brand-mark-height: 55px;
+  --spacing-auth-brand-padding-x: 9px;
+  --spacing-auth-brand-padding-y: 7px;
+  --spacing-auth-panel: 640px;
+  --spacing-auth-layout-gap: 26px;
+  --spacing-auth-hero-width: 566px;
+  --spacing-auth-hero-height: 443px;
+  --spacing-auth-login-top: 103px;
+  --spacing-auth-login-brand-gap: 56px;
+  --spacing-auth-login-panel: 512px;
+  --spacing-auth-login-columns: 15px;
+  --spacing-auth-login-hero-width: 704px;
+  --spacing-auth-login-hero-height: 551px;
+  --spacing-auth-login-form-offset: 53px;
+  --spacing-auth-login-form: 40px;
+  --spacing-auth-login-field: 16px;
+  --spacing-auth-forgot-layout: 1182px;
+  --spacing-auth-forgot-brand-gap: 61px;
+  --spacing-auth-forgot-columns: 104px;
+  --spacing-auth-forgot-section: 48px;
+  --spacing-auth-forgot-submit: 32px;
+  --spacing-auth-verify-panel-offset: 100px;
+  --spacing-auth-verify-submit: 32px;
+  --spacing-auth-reset-top: 116px;
+  --spacing-auth-reset-columns: 108px;
+  --spacing-auth-reset-hero-width: 590px;
+  --spacing-auth-social-height: 55px;
+  --scale-auth-brand: 0.82;
+
+  --breakpoint-auth-tablet: 56.25rem;
+  --breakpoint-auth-mobile: 32.5rem;
 
   /* Large titles — Bold only */
   --text-display-64: 64px; /* 64px */
@@ -67,6 +135,18 @@
   --color-brand-800: #4d2709;
   --color-brand-900: #2c0d00;
   --color-brand-950: #0f0000;
+
+  /* Signup screen values from the Homli Figma frame */
+  --color-text-heading: #313131;
+  --color-text-input: #1f2a37;
+  --color-text-google: #151a2d;
+  --color-brand-yellow: #ffce21;
+  --color-text-brand-muted: #8b92a0;
+  --color-border-google: #a4a4a4;
+  --color-landing-contact-bg: #d8edf2;
+  --color-landing-contact-copy: #585981;
+  --color-landing-text-heading: #100e2c;
+  --color-customer-agent-bg: #e6e8eb;
 
   /* Main colors — interactive elements (buttons, tags, tooltips) */
   --color-main-shade-01: var(--color-brand-50);
@@ -166,6 +246,223 @@
   --spacing-grid-gutter-side: 24px; /* 24px — gutter, sidebar layouts */
   --spacing-sidebar: 264px; /* 264px — full sidebar width */
   --spacing-sidebar-mini: 72px; /* 72px  — collapsed sidebar width */
+
+  /* Landing page layout values from the Homli Figma frame */
+  --container-landing: 1280px;
+  --spacing-landing-hero-height: 699px;
+  --spacing-landing-hero: 699px;
+  --spacing-landing-hero-top: 16px;
+  --spacing-landing-content-width: 1205px;
+  --spacing-landing-search-panel: 1205px;
+  --spacing-landing-category-card: 280px;
+  --spacing-landing-city-card-width: 350px;
+  --spacing-landing-city-card-height: 280px;
+  --spacing-landing-property-card-width: 416px;
+  --spacing-landing-property-image-height: 280px;
+  --spacing-landing-contact-height: 482px;
+  --spacing-landing-contact: 482px;
+  --spacing-landing-home-art-width: 785px;
+  --spacing-landing-home-art-height: 667px;
+  --spacing-landing-home-art-offset: 0px;
+  --spacing-landing-home-art-mobile: 520px;
+  --spacing-landing-tablet-art-offset: -15%;
+  --spacing-landing-mobile-art-offset: -45%;
+  --spacing-landing-header-x: 40px;
+  --spacing-landing-header-y: 20px;
+  --spacing-landing-nav-logo-width: 159px;
+  --spacing-landing-nav-logo-height: 64px;
+  --spacing-landing-nav-logo: 159px;
+  --spacing-landing-nav-logo-mobile: 146px;
+  --spacing-landing-logo-mark-width: 44px;
+  --spacing-landing-logo-mark-height: 36px;
+  --spacing-landing-logo-mark-width-mobile: 40px;
+  --spacing-landing-logo-mark-height-mobile: 33px;
+  --spacing-landing-logo-gap: 8px;
+  --spacing-landing-mobile-nav-button: 72px;
+  --spacing-landing-nav: 48px;
+  --spacing-landing-nav-button: 120px;
+  --spacing-landing-render-width: 107.15%;
+  --spacing-landing-render-height: 141.43%;
+  --spacing-landing-render-left: -3.74%;
+  --spacing-landing-render-top: -23.06%;
+  --spacing-landing-hero-art-right: -18px;
+  --spacing-landing-hero-art-top: -11px;
+  --spacing-landing-search-dropdown: 327px;
+  --spacing-landing-search-button: 159px;
+  --spacing-landing-search-gap: 5.66px;
+  --spacing-landing-hero-x: 88px;
+  --spacing-landing-hero-height-tablet: 580px;
+  --spacing-landing-hero-height-mobile: 560px;
+  --spacing-landing-hero-copy: 479px;
+  --spacing-landing-search-overlap: 35px;
+  --spacing-landing-search-field: 80px;
+  --spacing-landing-banner: 211px;
+  --spacing-landing-banner-copy: 438px;
+  --spacing-landing-category-gap: 48px;
+  --spacing-landing-section-gap: 48px;
+  --spacing-landing-section-x: 80px;
+  --spacing-landing-city-card: 280px;
+  --spacing-landing-property-image: 280px;
+  --spacing-landing-section-bottom: 60px;
+  --spacing-landing-recommended-x: 72px;
+  --spacing-landing-chatbot-overlap: 104px;
+  --spacing-landing-chatbot-row: 112px;
+  --spacing-landing-chatbot-right: 80px;
+  --spacing-landing-footer-gap: 40px;
+  --spacing-landing-contact-x: 112px;
+  --spacing-landing-contact-height-mobile: 420px;
+  --spacing-landing-contact-copy: 539px;
+  --spacing-landing-contact-art: 549px;
+  --spacing-landing-contact-art-height: 504px;
+  --spacing-landing-contact-art-right: 80px;
+  --spacing-landing-contact-art-bottom: -16px;
+  --spacing-landing-contact-art-mobile: 380px;
+  --spacing-landing-contact-art-mobile-height: 349px;
+  --spacing-landing-contact-art-mobile-right: -38%;
+  --spacing-landing-contact-art-mobile-bottom: -48px;
+  --spacing-landing-contact-mobile: 420px;
+  --spacing-landing-customer-header: 88px;
+  --spacing-landing-action-icon: 24px;
+  --spacing-landing-avatar-icon: 36px;
+  --spacing-landing-customer-profile: 48px;
+  --spacing-landing-customer-avatar: 32px;
+  --spacing-landing-header-menu: 240px;
+  --spacing-landing-detail-button: 48px;
+  --spacing-landing-store-badge: 52px;
+  --spacing-landing-store-badge-min: 180px;
+  --spacing-customer-agent-art-width: 600px;
+  --spacing-customer-agent-art-height: 900px;
+  --spacing-customer-agent-art-top: -19px;
+  --spacing-customer-agent-art-right: 39px;
+  --spacing-customer-agent-art-tablet: -100px;
+  --spacing-customer-agent-art-mobile: -195px;
+  --spacing-customer-agent-art-mobile-width: 380px;
+  --spacing-customer-agent-art-mobile-height: 570px;
+  --spacing-landing-customer-cta-height: 48px;
+  --spacing-landing-customer-cta-width: 159px;
+  --spacing-landing-footer-y: 64px;
+  --spacing-landing-footer-copy: 360px;
+  --spacing-landing-search-icon: 24px;
+  --spacing-landing-icon: 20px;
+  --spacing-landing-small-icon: 18px;
+  --spacing-landing-heart-icon: 22px;
+  --spacing-landing-offer-icon: 206px;
+  --spacing-landing-offer-icon-mobile: 120px;
+  --container-landing-search-panel: calc(100% - 2rem);
+  --container-landing-hero-copy: 479px;
+  --container-landing-banner-copy: 438px;
+  --container-landing-contact-copy: 539px;
+  --container-landing-contact-art: 549px;
+  --container-landing-footer-brand: 400px;
+  --container-landing-footer-copy: 360px;
+  --container-customer-agent-copy: 590px;
+  --container-customer-agent-title: 519px;
+  --container-customer-agent-description: 570px;
+  --container-landing-profile-name: 140px;
+  --radius-contact: 50px;
+  --radius-landing-header: 40px;
+  --text-body-20: 20px;
+  --text-body-20--line-height: 1.4;
+  --text-landing-banner-title: 36px;
+  --text-landing-banner-title--line-height: 1.2;
+  --text-landing-banner-title-mobile: 24px;
+  --text-landing-banner-title-mobile--line-height: 1.2;
+  --text-landing-offer-title: 48px;
+  --text-landing-offer-title--line-height: 1;
+  --text-landing-nav: 18px;
+  --text-landing-nav--line-height: 1;
+  --text-landing-brand: 32px;
+  --text-landing-brand--line-height: 36px;
+  --text-landing-brand-caption: 8px;
+  --text-landing-brand-caption--line-height: 10px;
+  --text-landing-brand-mobile: 28px;
+  --text-landing-brand-mobile--line-height: 32px;
+  --text-landing-brand-caption-mobile: 7px;
+  --text-landing-brand-caption-mobile--line-height: 9px;
+  --text-landing-profile-name: 18px;
+  --text-landing-profile-name--line-height: 1;
+  --grid-template-columns-landing-search: repeat(3, minmax(0, 327px)) 159px;
+  --text-landing-hero: 72px;
+  --text-landing-hero--line-height: 1.2;
+  --text-landing-welcome: 32px;
+  --text-landing-welcome--line-height: 1.2;
+  --text-landing-section: 42px;
+  --text-landing-section--line-height: 48px;
+  --text-landing-card-title: 20px;
+  --text-landing-card-title--line-height: 1.3;
+  --text-customer-agent-intro: 72px;
+  --text-customer-agent-title: 54px;
+  --text-customer-agent-title-mobile: 32px;
+  --leading-customer-agent-intro: 1.2;
+  --leading-customer-agent-title: 1.1;
+  --breakpoint-landing-tablet: 64rem;
+  --breakpoint-landing-mobile: 40rem;
+
+  /* Property search listing tokens */
+  --container-search-page: 1440px;
+  --spacing-search-page-x: 80px;
+  --spacing-search-page-mobile-x: 16px;
+  --spacing-search-page-top: 28px;
+  --spacing-search-page-bottom: 80px;
+  --spacing-search-mobile-drawer: 90vh;
+  --spacing-search-breadcrumb: 20px;
+  --spacing-search-content: 20px;
+  --spacing-search-control: 80px;
+  --spacing-search-sort: 168px;
+  --spacing-search-sort-menu: 300px;
+  --spacing-search-sort-icon: 20px;
+  --spacing-search-input-icon: 24px;
+  --spacing-search-layout: 32px;
+  --spacing-search-filter-panel: 24px;
+  --spacing-search-filter-group: 22px;
+  --spacing-search-filter-reset: 12px;
+  --spacing-search-checkbox: 16px;
+  --spacing-search-choice: 50px;
+  --spacing-search-apply: 44px;
+  --spacing-search-card: 24px;
+  --spacing-search-card-image: 280px;
+  --spacing-search-card-image-mobile: 230px;
+  --spacing-search-card-inset: 24px;
+  --spacing-search-card-heart: 44px;
+  --spacing-search-card-content: 24px;
+  --spacing-search-card-price: 16px;
+  --spacing-search-card-button: 48px;
+  --spacing-search-meta-icon: 16px;
+  --spacing-search-rating: 20px;
+  --spacing-search-radio: 18px;
+  --radius-search-panel: 16px;
+  --radius-search-input: 16px;
+  --radius-search-card: 30px;
+  --grid-template-columns-search-layout: 376px minmax(0, 1fr);
+  --text-search-breadcrumb: 14px;
+  --text-search-input: 14px;
+  --text-search-filter-title: 36px;
+  --text-search-filter-heading: 18px;
+  --text-search-filter-option: 14px;
+  --text-search-filter-reset: 12px;
+  --text-search-choice: 16px;
+  --text-search-range: 12px;
+  --text-search-card-title: 20px;
+  --text-search-card-price: 24px;
+  --text-search-feature: 12px;
+  --text-search-sort-option: 14px;
+  --breakpoint-search-tablet: 64rem;
+  --breakpoint-search-mobile: 40rem;
+}
+
+@keyframes chatbot-panel-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.chatbot-panel-enter {
+  animation: chatbot-panel-enter 220ms ease-out both;
 }
 
 /* BASE LAYER */
@@ -178,6 +475,14 @@
   body {
     background-color: var(--color-bg-light);
     color: var(--color-text-grey-dark);
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px var(--color-bg-white) inset;
+    -webkit-text-fill-color: var(--color-text-input);
+    transition: background-color 9999s ease-out 0s;
   }
 }
 
@@ -251,4 +556,115 @@
     background-color: var(--color-bg-input-disabled);
     @apply border-border-grey-disable pointer-events-none;
   }
+}
+
+@layer components {
+  .search-range { height: 14px; appearance: none; background: transparent; }
+  .search-range::-webkit-slider-runnable-track { height: 2px; background: var(--color-brand-700); }
+  .search-range::-moz-range-track { height: 2px; background: var(--color-brand-700); }
+  .search-range::-webkit-slider-thumb { width: 12px; height: 12px; margin-top: -5px; appearance: none; border-radius: 50%; background: var(--color-brand-700); }
+  .search-range::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--color-brand-700); }
+  .search-options-expanded label { display: flex; }
+}
+
+
+
+/* =====================================================================
+   DevOra admin: global design tokens (Tailwind CSS v4)
+   Import once in main.tsx:  import "./styles/global.css";
+   ===================================================================== */
+
+
+@theme {
+
+  /* ---------- Colors: brand ---------- */
+  --color-primary: #87400e;          /* buttons, links, active states   */
+  --color-primary-hover: #6f3309;    /* hover / pressed                 */
+  --color-primary-soft: #f3e9e0;     /* badges, avatars, chips          */
+  --color-on-primary: #fafafa;       /* text on top of primary          */
+
+  /* ---------- Colors: text ---------- */
+  --color-ink: #241a12;              /* main text                       */
+  --color-muted: #5a4f49;            /* secondary text, placeholders    */
+  --color-on-dark: #f7f7f6;          /* text on the brown sidebar       */
+
+  /* ---------- Colors: surfaces ---------- */
+  --color-surface: #fffaf5;          /* page background (cream)         */
+  --color-surface-alt: #ede6e1;      /* unread rows, subtle blocks      */
+  --color-overlay: rgb(0 0 0 / 0.4); /* dialog backdrop                 */
+
+  /* ---------- Colors: status (strong = dot, soft = background, ink = text) ---------- */
+  --color-success: #22c55e;
+  --color-success-soft: #f0fdf4;
+  --color-success-ink: #16a34a;
+
+  --color-danger: #ef4444;
+  --color-danger-soft: #fef2f2;
+  --color-danger-ink: #dc2626;
+
+  --color-warning: #f59e0b;
+  --color-warning-soft: #fffbeb;
+  --color-warning-ink: #b45309;
+
+  --color-info: #3b82f6;
+  --color-info-soft: #eff6ff;
+  --color-info-ink: #1d4ed8;
+
+  --color-neutral: #9ca3af;
+  --color-neutral-soft: #f3f4f6;
+  --color-neutral-ink: #4b5563;
+
+  /* ---------- Radius ---------- */
+  --radius-sm: 0.25rem;   /* inputs, buttons, cards (rounded-sm)  */
+  --radius-base: 0.25rem; /* same, for Flowbite-style rounded-base */
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;      /* rounded-full stays built in (avatars, pills) */
+
+  /* ---------- Shadows ---------- */
+  --shadow-card: 0 1px 3px rgb(36 26 18 / 0.08), 0 1px 2px rgb(36 26 18 / 0.06);
+  --shadow-popover: 0 8px 24px rgb(36 26 18 / 0.12);  /* dropdowns */
+  --shadow-modal: 0 16px 48px rgb(36 26 18 / 0.2);    /* dialogs   */
+
+  /* ---------- Spacing (p-page, mt-section, ms-sidebar ...) ---------- */
+  --spacing-page: 2rem;     /* page padding        (was p-8)  */
+  --spacing-section: 2rem;  /* gap between sections (was mt-8) */
+  --spacing-card: 1rem;     /* inside cards        (was p-4)  */
+  --spacing-sidebar: 20rem; /* sidebar width       (was w-80 / md:ms-80) */
+}
+
+/* border-hairline = the thin 0.8px border used across the design */
+@utility border-hairline {
+  border-width: 0.8px;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* keyboard focus is visible everywhere (accessibility) */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+}
+.landing-carousel-track::-webkit-scrollbar {
+  display: none;
+}
+
+.landing-carousel-track {
+  scrollbar-width: none;
 }
