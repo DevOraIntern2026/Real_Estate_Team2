@@ -1,20 +1,17 @@
-import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DataTable from "../../../components/shared/DataTable";
 import LinkButton from "../../../components/shared/LinkButton";
+import LoadingState from "../../../components/shared/LoadingState";
+import QueryErrorState from "../../../components/shared/QueryErrorState";
 import SectionHeader from "../../../components/shared/SectionHeader";
 import StatCard from "../../../components/shared/StatCard";
+import NotificationPreviewList from "../../../components/notifications/NotificationPreviewList";
 import { OWNER_PATHS, ownerInquiryPath } from "../../../constants/paths";
-import { useNotifications } from "../../../context/NotificationsContext";
+import { useAdmin } from "../../../context/AdminContext";
 import { getGreeting } from "../../../utils/greeting";
-import { inquiryColumns, ownerPropertyColumns } from "../columns";
 import { NEW_INQUIRY_DAYS, TEXT } from "../constants";
-import { useOwnerData } from "../useOwnerData";
-import RecentNotifications from "./RecentNotifications";
-
-const DAY_MS = 24 * 60 * 60 * 1000;
-const byNewest = <T,>(date: (item: T) => string) => (a: T, b: T) =>
-  new Date(date(b)).getTime() - new Date(date(a)).getTime();
+import { recentInquiryColumns, recentPropertyColumns } from "./recentColumns";
+import { useOwnerDashboard } from "./useOwnerDashboard";
 
 const emptyText = (message: string) => (
   <p className="py-6 text-center text-sm text-[#5A4F49]">{message}</p>
@@ -22,37 +19,10 @@ const emptyText = (message: string) => (
 
 export default function OwnerOverview() {
   const navigate = useNavigate();
-  const { owner, properties, inquiries } = useOwnerData();
-  const { notifications } = useNotifications();
-  const [now] = useState(() => Date.now());
+  const { admin: owner } = useAdmin(); // the owner session is still the mock one (name only)
+  const { data, isPending, isError, error, refetch, isRefetching } = useOwnerDashboard();
 
   const firstName = owner.name.split(" ")[0];
-
-  const stats = useMemo(() => {
-    return [
-      { label: "Total Property", value: properties.length },
-      { label: "Published", value: properties.filter((p) => p.status === "Published").length },
-      { label: "Under Review", value: properties.filter((p) => p.status === "Under Review").length },
-      {
-        label: `New Inquiries (${NEW_INQUIRY_DAYS}d)`,
-        value: inquiries.filter(
-          (i) =>
-            i.status === "New" &&
-            now - new Date(i.createdAt).getTime() <= NEW_INQUIRY_DAYS * DAY_MS
-        ).length,
-      },
-    ];
-  }, [properties, inquiries, now]);
-
-  const recentProperties = useMemo(
-    () => [...properties].sort(byNewest((p) => p.updatedAt)).slice(0, 3),
-    [properties]
-  );
-  const recentInquiries = inquiries.slice(0, 3); // already newest first
-  const recentNotifications = useMemo(
-    () => [...notifications].sort(byNewest((n) => n.createdAt)).slice(0, 3),
-    [notifications]
-  );
 
   return (
     <section className="p-8 text-[#241A12]">
@@ -71,41 +41,50 @@ export default function OwnerOverview() {
         </div>
       </div>
 
-      <div className="my-8 grid grid-cols-2 gap-6 md:grid-cols-4">
-        {stats.map((s) => (
-          <StatCard key={s.label} label={s.label} value={s.value} />
-        ))}
-      </div>
+      {isPending ? (
+        <LoadingState rows={4} />
+      ) : isError ? (
+        <QueryErrorState error={error} onRetry={() => void refetch()} isRetrying={isRefetching} />
+      ) : (
+        <>
+          <div className="my-8 grid grid-cols-2 gap-6 md:grid-cols-4">
+            <StatCard label="Total Property" value={data.stats.totalProperties} />
+            <StatCard label="Published" value={data.stats.published} />
+            <StatCard label="Under Review" value={data.stats.underReview} />
+            <StatCard label={`New Inquiries (${NEW_INQUIRY_DAYS}d)`} value={data.stats.newInquiries30d} />
+          </div>
 
-      <section>
-        <SectionHeader title="Recent Properties" to={OWNER_PATHS.properties} />
-        <DataTable
-          columns={ownerPropertyColumns}
-          rows={recentProperties}
-          getRowKey={(p) => p.id}
-          empty={emptyText(TEXT.noProperties)}
-        />
-      </section>
+          <section>
+            <SectionHeader title="Recent Properties" to={OWNER_PATHS.properties} />
+            <DataTable
+              columns={recentPropertyColumns}
+              rows={data.properties}
+              getRowKey={(p) => p.id}
+              empty={emptyText(TEXT.noProperties)}
+            />
+          </section>
 
-      <section className="mt-8">
-        <SectionHeader title="Recent Inquiries" to={OWNER_PATHS.inquiries} />
-        <DataTable
-          columns={inquiryColumns}
-          rows={recentInquiries}
-          getRowKey={(i) => i.id}
-          onRowClick={(i) => navigate(ownerInquiryPath(i.id))}
-          empty={emptyText(TEXT.noInquiries)}
-        />
-      </section>
+          <section className="mt-8">
+            <SectionHeader title="Recent Inquiries" to={OWNER_PATHS.inquiries} />
+            <DataTable
+              columns={recentInquiryColumns}
+              rows={data.inquiries}
+              getRowKey={(i) => i.id}
+              onRowClick={(i) => navigate(ownerInquiryPath(i.id))}
+              empty={emptyText(TEXT.noInquiries)}
+            />
+          </section>
 
-      <section className="mt-8">
-        <SectionHeader title="Recent Notifications" to={OWNER_PATHS.notifications} />
-        {recentNotifications.length === 0 ? (
-          emptyText(TEXT.noNotifications)
-        ) : (
-          <RecentNotifications items={recentNotifications} />
-        )}
-      </section>
+          <section className="mt-8">
+            <SectionHeader title="Recent Notifications" to={OWNER_PATHS.notifications} />
+            {data.notifications.length === 0 ? (
+              emptyText(TEXT.noNotifications)
+            ) : (
+              <NotificationPreviewList items={data.notifications} />
+            )}
+          </section>
+        </>
+      )}
     </section>
   );
 }

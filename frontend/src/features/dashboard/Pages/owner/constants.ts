@@ -1,14 +1,15 @@
 import type { BadgeTone } from "../../components/shared/StatusBadge";
 import type { TabItem } from "../../components/shared/Tabs";
-import type { InquiryStatus } from "@/types/inquiry";
-import type { NotificationKind } from "@/types/notification";
+import type { InquiryStatus } from "../../../../types/inquiry";
+import type { NotificationKind } from "../../../../types/notification";
 
 export const NEW_INQUIRY_DAYS = 30;
-export const INQUIRIES_PAGE_SIZE = 4;
+export const INQUIRIES_PAGE_SIZE = 10;
 
 export const INQUIRY_STATUS_TONE: Record<InquiryStatus, BadgeTone> = {
   New: "brand",
   Responded: "success",
+  Closed: "neutral",
 };
 
 export const NOTIFICATION_ICONS: Record<NotificationKind, string> = {

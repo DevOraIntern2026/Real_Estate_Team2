@@ -12,7 +12,7 @@ export const adminLinks: SidebarLink[] = [
 export const ownerLinks: SidebarLink[] = [
   { label: "Home", to: OWNER_PATHS.home, icon: "fa-solid fa-house", end: true },
   { label: "Add Property", to: OWNER_PATHS.addProperty, icon: "fa-regular fa-square-plus", disabled: true },
-  { label: "My Properties", to: OWNER_PATHS.properties, icon: "fa-regular fa-building", disabled: true },
+  { label: "My Properties", to: OWNER_PATHS.properties, icon: "fa-regular fa-building" },
   { label: "Inquiries", to: OWNER_PATHS.inquiries, icon: "fa-regular fa-comments" },
   { label: "Notifications", to: OWNER_PATHS.notifications, icon: "fa-regular fa-bell" },
   { label: "Reports", to: OWNER_PATHS.reports, icon: "fa-regular fa-newspaper" },

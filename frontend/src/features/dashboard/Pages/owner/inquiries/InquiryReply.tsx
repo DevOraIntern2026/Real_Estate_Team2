@@ -1,56 +1,96 @@
+import { useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
+import { isApiError } from "../../../api";
 import ChatComposer from "../../../components/chat/ChatComposer";
 import ChatThread from "../../../components/chat/ChatThread";
+import LoadingState from "../../../components/shared/LoadingState";
 import PageHeader from "../../../components/shared/PageHeader";
+import QueryErrorState from "../../../components/shared/QueryErrorState";
 import { OWNER_PATHS } from "../../../constants/paths";
-import { useInquiries } from "../../../context/InquiriesContext";
 import { TEXT } from "../constants";
-import { useOwnerData } from "../useOwnerData";
 import CustomerCard from "./components/CustomerCard";
 import InquiryInfoCard from "./components/InquiryInfoCard";
-import { useInquiryThread } from "./useInquiryThread";
+import { buildThread } from "./mappers";
+import { useInquiry, useInquiryMessages, useSendReply } from "./queries";
 
 export default function InquiryReply() {
   const { inquiryId = "" } = useParams<{ inquiryId: string }>();
-  const { inquiries } = useOwnerData(); // only MY inquiries, so I can't open someone else's
-  const { sendReply } = useInquiries();
+  const inquiry = useInquiry(inquiryId);
+  const messages = useInquiryMessages(inquiryId);
+  const send = useSendReply(inquiryId);
 
-  const inquiry = inquiries.find((i) => i.id === inquiryId);
-  const messages = useInquiryThread(inquiry); // hooks first, early return after
+  const thread = useMemo(
+    () => buildThread(inquiry.data, messages.data ?? []),
+    [inquiry.data, messages.data]
+  );
 
-  if (!inquiry) {
+  const header = <PageHeader title={TEXT.replyTitle} subtitle={TEXT.inquiriesSubtitle} />;
+
+  if (inquiry.isPending) {
     return (
       <section className="p-8">
-        <PageHeader title={TEXT.replyTitle} subtitle={TEXT.inquiriesSubtitle} />
-        <p className="py-10 text-center text-sm text-muted">
-          {TEXT.inquiryNotFound}{" "}
-          <Link to={OWNER_PATHS.inquiries} className="text-primary underline">
-            {TEXT.backToInquiries}
-          </Link>
-        </p>
+        {header}
+        <LoadingState rows={4} />
       </section>
     );
   }
 
+  if (inquiry.isError) {
+    const notFound = isApiError(inquiry.error) && inquiry.error.status === 404;
+    return (
+      <section className="p-8">
+        {header}
+        {notFound ? (
+          <p className="py-10 text-center text-sm text-[#5A4F49]">
+            {TEXT.inquiryNotFound}{" "}
+            <Link to={OWNER_PATHS.inquiries} className="text-[#87400E] underline">
+              {TEXT.backToInquiries}
+            </Link>
+          </p>
+        ) : (
+          <QueryErrorState
+            error={inquiry.error}
+            onRetry={() => void inquiry.refetch()}
+            isRetrying={inquiry.isRefetching}
+          />
+        )}
+      </section>
+    );
+  }
+
+  const detail = inquiry.data;
+
   return (
-    <section className="p-8 text-ink">
-      <PageHeader title={TEXT.replyTitle} subtitle={TEXT.inquiriesSubtitle} />
+    <section className="p-8 text-[#241A12]">
+      {header}
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[2fr_3fr]">
         <div className="flex flex-col gap-6">
-          <CustomerCard inquiry={inquiry} />
-          <InquiryInfoCard inquiry={inquiry} />
+          <CustomerCard inquiry={detail} />
+          <InquiryInfoCard inquiry={detail} />
         </div>
 
         <section
           aria-label="Reply"
-          className="flex min-h-chatbot-panel-width flex-col rounded-sm border-[0.8px] border-primary p-4"
+          className="flex min-h-[28rem] flex-col rounded-sm border-[0.8px] border-[#87400E] p-4"
         >
-          <ChatThread messages={messages} />
+          {messages.isPending ? (
+            <LoadingState rows={2} />
+          ) : messages.isError ? (
+            // the page keeps working even if the conversation fails to load
+            <QueryErrorState
+              error={messages.error}
+              onRetry={() => void messages.refetch()}
+              isRetrying={messages.isRefetching}
+            />
+          ) : (
+            <ChatThread messages={thread} />
+          )}
+
           <ChatComposer
             label={TEXT.replyLabel}
             placeholder={TEXT.replyPlaceholder}
-            onSend={(text) => sendReply(inquiry.id, text)}
+            onSend={(text) => send.mutateAsync(text).then(() => undefined)}
           />
         </section>
       </div>

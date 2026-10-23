@@ -1,5 +1,5 @@
-import type { Option } from "../../components/common/FilterDropdown";
-import type { BadgeTone } from "../../components/common/StatusBadge";
+import type { Option } from "../../components/shared/FilterDropdown";
+import type { BadgeTone } from "../../components/shared/StatusBadge";
 import type { RoleFilter, StatusFilter, UserStatus } from "./types";
 
 export const USERS_PAGE_SIZE = 10;

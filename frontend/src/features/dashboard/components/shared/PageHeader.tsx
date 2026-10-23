@@ -6,11 +6,13 @@ type PageHeaderProps = {
   title: string;
   subtitle?: string;
   onMenuClick?: () => void;
-  /** override the logged-in admin's photo/name if you need to */
+  /** override the logged-in user's photo/name if you need to */
   avatarSrc?: string;
   avatarName?: string;
   /** extra content next to the title (e.g. a search input) */
   children?: ReactNode;
+  /** buttons on the right, before the avatar (e.g. "Add Property") */
+  actions?: ReactNode;
 };
 
 export default function PageHeader({
@@ -20,8 +22,9 @@ export default function PageHeader({
   avatarSrc,
   avatarName,
   children,
+  actions,
 }: PageHeaderProps) {
-  const { admin } = useAdmin(); // photo + name now follow the profile page
+  const { admin } = useAdmin(); // photo + name follow the profile page
 
   return (
     <header className="flex flex-wrap items-center justify-between gap-4 border-b-[0.8px] border-[#87400E] pb-4">
@@ -41,13 +44,10 @@ export default function PageHeader({
         {children}
       </div>
 
-      <Avatar
-        name={avatarName ?? admin.name}
-        src={avatarSrc ?? admin.avatar}
-      />
+      <div className="flex items-center gap-4">
+        {actions}
+        <Avatar name={avatarName ?? admin.name} src={avatarSrc ?? admin.avatar} />
+      </div>
     </header>
   );
 }
-
-
-

@@ -1,4 +1,3 @@
-import comingSoon from '@/assets/images/property-coming-soon.png'
 import sold from '@/assets/images/property-sold.png'
 import available from '@/assets/images/property-available.png'
 import arrowForward from '@/assets/images/arrow-forward-light.svg'
@@ -18,7 +17,6 @@ const properties = [
     kind: 'Apartment',
     location: 'New Cairo, Egypt',
     price: 'EGP 500,000',
-    image: comingSoon,
     rating: '4.8',
     beds: '2',
     baths: '2',

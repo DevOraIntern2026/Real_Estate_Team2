@@ -42,6 +42,7 @@ import MyInquiriesPage from '@/features/customer/pages/MyInquiriesPage'
 import CustomerNotificationsPage from '@/features/customer/pages/CustomerNotificationsPage'
 import CustomerMessagesPage from '@/features/customer/pages/CustomerMessagesPage'
 import { ProfileLayout } from '@/features/customer/components/ProfileLayout'
+import MyProperties from '@/features/dashboard/Pages/owner/properties/MyProperties'
 
 function CustomerHomeRoute() {
   const session = getAuthSession()
@@ -149,10 +150,22 @@ function App() {
         <Route path={OWNER_PATH} element={<OwnerProviders />}>
           <Route element={<OwnerLayout />}>
             <Route index element={<OwnerOverview />} />
+            <Route path="properties">
+      <Route index element={<MyProperties />} />
+      <Route
+        path=":propertyId"
+        element={<PropertyDetails />}
+      />
+      {/* <Route
+        path=":propertyId/edit"
+        element={<ComingSoon title="Edit Property" />}
+      /> */}
+    </Route>
             <Route path="inquiries">
               <Route index element={<OwnerInquiries />} />
               <Route path=":inquiryId" element={<InquiryReply />} />
             </Route>
+            
             <Route path="notifications" element={<OwnerNotifications canClear={false} />} />
             <Route path="reports" element={<OwnerReports />} />
           </Route>
